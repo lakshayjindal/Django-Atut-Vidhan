@@ -1,0 +1,229 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block title %}Chats{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'chat/chat.css' %}">
+<style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 80vh;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: #f2f2f2;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #ccc;
+        }
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .chat-user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-section {
+            flex: 1;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 2px solid #F4C95D;
+            background-image: url('{% static "user/img/mandala.png" %}');
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 60%;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: #fbb1bd;
+            color: black;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #f7c948;
+            color: black;
+        }
+
+        .chat-input {
+            padding: 10px;
+            background: #fff;
+            display: flex;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+            background: #f2f2f2;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #ef476f;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .no-chat-selected {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sidebar: User List -->
+    <div class="sidebar">
+        <h2>Chats</h2>
+        {% for chat_user in chat_users %}
+            <a href="{% url 'chat' chat_with=chat_user.id %}" class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}">
+                {% if chat_user.profile.image %}
+    <img src="{{ chat_user.profile.image.url }}" alt="Profile picture">
+{% else %}
+    <img src="{% static 'user/images/default.png' %}" alt="Default profile picture">
+{% endif %}
+                <span>{{ chat_user.get_full_name }}  {{chat_user.id}}</span>
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-section" style="" id="chatContainer">
+        {% if selected_user %}
+            <div class="chat-header">
+                {% if  selected_user.image.url%}
+                <img src="{{ selected_user.image.url }}" alt="User Picture">
+                {% else %}
+                <img src=""
+                {% endif %}
+                <h3>{{ selected_user.get_full_name }}</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                {% for msg in messages %}
+                    <div class="message {% if msg.sender.id == request.user.id %}sent{% else %}received{% endif %}">
+                        {{ msg.message|linebreaksbr }}
+                    </div>
+                {% endfor %}
+            </div>
+            <form class="chat-input" method="POST" id="chatInputArea">
+                {% csrf_token %}
+                <input type="hidden" name="receiver_id" value="{{ selected_user.id }}" id="toUserId">
+                <input type="text" name="message" placeholder="Write something..." id="messageInput" required>
+                <button type="submit" id="sendButton">Send</button>
+            </form>
+        {% else %}
+            <p class="no-chat-selected">Select a chat to start messaging!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    function loadMessages() {
+        var receiver_id = $('#toUserId').val();
+        if (receiver_id) {
+            $.ajax({
+                url: "{% url 'fetch_messages' %}",
+                type: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {
+                    receiver_id: receiver_id
+                },
+                success: function (response) {
+                    $('#chatMessages').html(response);
+                    $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching messages:", error);
+                }
+            });
+        }
+    }
+
+    $('#chatInputArea').submit(function (e) {
+        e.preventDefault();
+        var message = $('#messageInput').val();
+        var receiver_id = $('#toUserId').val();
+
+        if (message.trim() !== '') {
+            $.ajax({
+                url: "{% url 'send_message' %}",
+                type: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {
+                    message: message,
+                    receiver_id: receiver_id
+                },
+                success: function (response) {
+                    $('#messageInput').val('');
+                    setTimeout(loadMessages, 300);
+                }
+            });
+        }
+    });
+
+    setInterval(loadMessages, 2000);
+    loadMessages();
+});
+</script>
+{% endblock %}

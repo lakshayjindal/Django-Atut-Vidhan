@@ -1,0 +1,229 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block title %}Sign Up | Atut Vidhan{% endblock title %}
+
+{% block extra_head %}
+   <style>
+        body{
+          overflow: hidden;
+        }
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        .left-section {
+            flex: 1;
+            background-color: #fff8f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30vw;
+        }
+
+        .signup-box {
+            background: #FFF6E9;
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            text-align: center;
+            border: 1px solid #f3e0c8;
+        }
+
+        .border-box {
+            outline: 1px solid #F4CDC3;
+            padding: 30px;
+
+        }
+
+        .signup-heading {
+            font-family: 'Great Vibes', cursive;
+            font-size: 50px;
+            font-weight: 100;
+            color: #b93131;
+            margin-bottom: 10px;
+        }
+
+        .heart-icon {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field,
+        .input-half {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            background: #fffaf0;
+            font-size: 16px;
+        }
+
+        .input-half {
+            flex: 1;
+        }
+
+        .signup-btn {
+            background-color: #d73030;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .already-have {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .signin-here {
+            color: #d73030;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .right-section {
+            flex: 1;
+        }
+
+        .bride-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .error-message {
+            background: #ffe0e0;
+            color: #d73030;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .form-container {
+            width: 300px;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            border: 1px solid #f3cfc2;
+            border-radius: 12px;
+            background-color: #fffaf5;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .half-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-half {
+            flex: 1;
+        }
+
+        @media screen and (max-width: 768px) {
+            .right-section {
+                display: none;
+            }
+
+            .left-section {
+                background-image: url("{% static "user/img/bride.png" %}");
+                background-size: cover;
+            }
+        }
+    </style>
+{% endblock extra_head %}
+
+
+{% block content %}
+
+ <div class="main-container">
+    <div class="left-section">
+      <div class="signup-box">
+        <div class="border-box">
+          <h2 class="signup-heading">Sign Up</h2>
+          <div class="heart-icon">
+            <img src="{% static 'user/img/heart 1.png' %}" style="height: 30px" />
+          </div>
+
+          {% if error_message %}
+            <div class="error-message">{{ error_message }}</div>
+          {% endif %}
+
+          <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="form-container">
+              <div class="form-group">
+                <div class="input-row">
+                  <div class="half-input">
+                    <label for="first_name">First Name</label>
+                    <input type="text" class="input-half" placeholder="First Name" name="first_name" id="first_name" required />
+                  </div>
+
+                  <div class="half-input">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" class="input-half" placeholder="Last Name" name="last_name" id="last_name" required />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" placeholder="E-mail" name="email" id="email" required />
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" placeholder="Password" name="password" id="password" required />
+              </div>
+            </div>
+
+            <button type="submit" class="signup-btn">Create Account</button>
+          </form>
+
+          <p class="already-have">
+            Already have an account? <a href="{% url 'login' %}" class="signin-here">Sign In</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <img src="{% static 'user/img/bride.png' %}" alt="Beautiful Bride" class="bride-img" />
+    </div>
+  </div>
+{% endblock content %}

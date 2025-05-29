@@ -1,0 +1,8 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h2>Upload CSV to Create Users</h2>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Upload</button>
+  </form>
+{% endblock %}

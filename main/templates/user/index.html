@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atut Vidhan | Where Eternal Bonds Begin</title>
+  <link rel="stylesheet" href="{% static 'user/css/style.css' %}" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    html{
+      font-size: 3vmin;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url("{% static 'user/img/background.png' %}") no-repeat center center/cover;
+      height: 100vh;
+      position: relative;
+      color: var(--color-text-primary);
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="landing-container">
+    <div class="logo-top-left">
+      <img src="{% static "user/img/logo.jfif" %}" alt="Atut Vidhan Logo" style="border-radius: 50%; border: 1px solid #D72638; width: 150px;"/>
+    </div>
+
+    <div class="landing-buttons">
+      <a href="auth/" class="landing-btn">Log In</a>
+      <a href="auth/signup" class="landing-btn">Sign Up</a>
+    </div>
+
+    <div class="landing-content">
+      <h1 class="landing-title">Atut Vidhan<sup>®</sup></h1>
+      <p class="landing-subtitle">Where Eternal Bonds Begin</p>
+    </div>
+  </div>
+</body>
+
+</html>

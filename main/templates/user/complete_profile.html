@@ -1,0 +1,303 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block title %}Complete Your Profile{% endblock title %}
+
+{% block extra_head %}
+
+<style>
+    .complete-profile-container {
+        max-width: 600px;
+        margin: 2rem auto 5rem;
+        padding: 2rem;
+        background-color: #fffdf9;
+        border-left: 4px solid #d42f2f;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .complete-profile-container h2 {
+        color: #d42f2f;
+        font-size: 24px;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    select,
+    input[type="text"],
+    input[type="date"],
+    input[type="file"],
+    input[type="number"] {
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #e0a100;
+        border-radius: 5px;
+        background-color: #fffefa;
+        color: #333;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    select:focus,
+    input:focus {
+        border-color: #d42f2f;
+        box-shadow: 0 0 5px rgba(212, 47, 47, 0.3);
+    }
+
+    #image-upload-container {
+        border: 2px dashed #d42f2f;
+        background-color: #fff0eb;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    #image-upload-container:hover {
+        background-color: #ffe7e0;
+    }
+
+    #upload-text {
+        color: #555;
+        font-style: italic;
+    }
+
+    #preview {
+        max-width: 100%;
+        margin-top: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    #remove-btn {
+        background-color: #e02b2b;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    #remove-btn:hover {
+        background-color: #bb1f1f;
+    }
+
+    button[type="submit"] {
+        background-color: #d42f2f;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #b53030;
+    }
+
+    .error-message {
+        background-color: #ffdada;
+        border: 1px solid #d42f2f;
+        color: #b30000;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+</style>
+
+</style>
+
+
+{% endblock extra_head %}
+{% block content %}
+    <div class="complete-profile-container">
+    <h2>Complete Your Profile</h2>
+
+    {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+    {% endif %}
+
+    <form action="{% url 'complete_profile' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Image Upload -->
+         <div id="image-upload-container" 
+     ondragover="event.preventDefault()" 
+     ondrop="handleDrop(event)"
+     onclick="triggerFileInput()"
+     style="border: 2px dashed #ccc; padding: 20px; text-align: center; cursor: pointer;">
+  <p id="upload-text">Drag & drop or click to upload an image</p>
+  <img id="preview" src="" alt="Preview" style="display: none; max-width: 100%; height: auto; margin-top: 10px;" />
+  <button type="button" onclick="removeImage()" style="display: none; margin-top: 10px;" id="remove-btn">Remove</button>
+</div>
+<input type="file" id="image-input" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)" />
+
+        <!-- Basic Info -->
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select name="gender" id="gender" required onchange="toggleOtherInput('gender')">
+                <option value="">-- Select --</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" name="gender_other" id="gender-other" placeholder="Please specify" style="display:none; margin-top: 10px;">
+        </div>
+
+        <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <input type="date" name="dob" id="dob" required>
+        </div>
+
+        <!-- Religion -->
+        <div class="form-group">
+            <label for="religion">Religion</label>
+            <select name="religion" id="religion" required onchange="toggleOtherInput('religion')">
+                <option value="">-- Select --</option>
+                <option value="hindu">Hindu</option>
+                <option value="muslim">Muslim</option>
+                <option value="christian">Christian</option>
+                <option value="sikh">Sikh</option>
+                <option value="buddhist">Buddhist</option>
+                <option value="jain">Jain</option>
+                <option value="atheist">Atheist</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" name="religion_other" id="religion-other" placeholder="Please specify" style="display:none; margin-top: 10px;">
+        </div>
+
+        <!-- Education -->
+        <div class="form-group">
+            <label for="education">Education</label>
+            <select name="education" id="education" required onchange="toggleOtherInput('education')">
+                <option value="">-- Select --</option>
+                <option value="high_school">High School</option>
+                <option value="bachelors">Bachelor’s Degree</option>
+                <option value="masters">Master’s Degree</option>
+                <option value="phd">Ph.D.</option>
+                <option value="diploma">Diploma</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" name="education_other" id="education-other" placeholder="Please specify" style="display:none; margin-top: 10px;">
+        </div>
+
+        <!-- Occupation -->
+        <div class="form-group">
+            <label for="occupation">Occupation</label>
+            <input type="text" name="occupation" id="occupation" required>
+        </div>
+
+        <!-- Income -->
+        <div class="form-group">
+            <label for="income">Annual Income</label>
+            <select name="income" id="income" required onchange="toggleOtherInput('income')">
+                <option value="">-- Select --</option>
+                <option value="below_2_lakh">Below ₹2 Lakh</option>
+                <option value="2_5_lakh">₹2 - ₹5 Lakh</option>
+                <option value="5_10_lakh">₹5 - ₹10 Lakh</option>
+                <option value="10_20_lakh">₹10 - ₹20 Lakh</option>
+                <option value="above_20_lakh">Above ₹20 Lakh</option>
+            </select>
+            <input type="text" name="income_other" id="income-other" placeholder="Please specify" style="display:none; margin-top: 10px;">
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" name="city" id="city" required>
+        </div>
+
+        <div class="form-group">
+            <label for="state">State</label>
+            <select name="state" id="state" required onchange="toggleOtherInput('state')">
+                <option value="">-- Select --</option>
+                <option value="delhi">Delhi</option>
+                <option value="maharashtra">Maharashtra</option>
+                <option value="uttar_pradesh">Uttar Pradesh</option>
+                <option value="karnataka">Karnataka</option>
+                <option value="tamil_nadu">Tamil Nadu</option>
+                <option value="west_bengal">West Bengal</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" name="state_other" id="state-other" placeholder="Please specify" style="display:none; margin-top: 10px;">
+        </div>
+
+        <button type="submit">Save Profile</button>
+    </form>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+
+<script>
+  function toggleOtherInput(fieldId) {
+    const select = document.getElementById(fieldId);
+    const otherInput = document.getElementById(`${fieldId}-other`);
+    
+    if (select.value === 'other') {
+      otherInput.style.display = 'block';
+      otherInput.required = true;
+    } else {
+      otherInput.style.display = 'none';
+      otherInput.required = false;
+    }
+  }
+</script>
+
+<script>
+  const fileInput = document.getElementById('image-input');
+  const preview = document.getElementById('preview');
+  const uploadText = document.getElementById('upload-text');
+  const removeBtn = document.getElementById('remove-btn');
+
+  function triggerFileInput() {
+    fileInput.click();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    fileInput.files = e.dataTransfer.files;
+    previewImage({ target: fileInput });
+  }
+
+  function previewImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+      preview.src = evt.target.result;
+      preview.style.display = 'block';
+      uploadText.style.display = 'none';
+      removeBtn.style.display = 'inline-block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    fileInput.value = '';
+    preview.src = '';
+    preview.style.display = 'none';
+    uploadText.style.display = 'block';
+    removeBtn.style.display = 'none';
+  }
+</script>
+
+{% endblock extra_scripts %}

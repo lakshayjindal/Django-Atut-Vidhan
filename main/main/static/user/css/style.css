@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    /* Color Palette */
+    --color-primary-bg: #FFF8F2;
+    /* Ivory Blush */
+    --color-accent-1: #D72638;
+    /* Royal Rose */
+    --color-accent-2: #F4C95D;
+    /* Golden Sand */
+    --color-secondary-bg: #F9EFE3;
+    /* Champagne Mist */
+    --color-text-primary: #2F2F2F;
+    /* Charcoal Silk */
+    --color-text-secondary: #7D6E63;
+    /* Dusty Taupe */
+    --color-highlight: #FFB7A1;
+    /* Peach Bloom */
+    --color-success: #5BA67A;
+    /* Eucalyptus */
+    /*  Typography */
+    --font-display: 'Playfair Display', serif;
+    --font-script: 'Great Vibes', cursive;
+    --font-sans: 'Poppins', sans-serif;
+
+    /* Font Sizes */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.5rem;
+    --text-2xl: 2rem;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Borders & Radius */
+    --border-radius: 12px;
+    --border-thin: 1px solid var(--accent);
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    /* ⏱ Transition */
+    --transition: all 0.3s ease;
+}
+
+
+
+.landing-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: url('../img/bg.png') no-repeat center center/cover;
+    height: 100vh;
+    position: relative;
+    color: var(--color-text-primary);
+    overflow: hidden;
+}
+
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: relative;
+    text-align: center;
+}
+
+.logo-top-left {
+    border-radius: 50%;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.logo-top-left img {
+    width: 60px;
+}
+
+.landing-buttons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.landing-btn {
+    background-color: var(--color-accent-2);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.landing-btn:hover {
+    background-color: var(--color-accent-1);
+}
+
+.landing-content{
+    position: absolute;
+    top: 40%;
+    left: 0;
+}
+
+.landing-content h1.landing-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin: 0;
+}
+
+.landing-content p.landing-subtitle {
+    font-family: 'Great Vibes', cursive;
+    font-size: 2rem;
+    margin-top: 10px;
+    color: var(--color-text-primary);
+}
+
+p.landing-subtitle{
+    background-color: #fff8f263;
+    padding: 20px 20px;
+    border-bottom: 2px solid #f4c95d6d
+
+}
+
+/* Login Form Styles */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: var(--color-primary-bg);
+    padding: 20px;
+}
+
+.login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--color-text-primary);
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+form input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 5px;
+    width: 100%;
+}
+
+form input:focus {
+    border-color: var(--color-accent-1);
+}
+
+.btn-submit {
+    background-color: var(--color-accent-1);
+    color: white;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: var(--color-accent-2);
+}
+
+.error-message {
+    color: red;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.signup-prompt {
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.signup-prompt a {
+    color: var(--color-accent-1);
+    text-decoration: none;
+}
+
+.signup-prompt a:hover {
+    color: var(--color-accent-2);
+}
