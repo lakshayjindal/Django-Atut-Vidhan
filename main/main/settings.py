@@ -78,11 +78,11 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASE_CONNECTION_URL ="postgresql://admin:cUjS090JjaXHlxPHb9RIrKW9RPvinQdo@dpg-d1j767umcj7s73aahn30-a.singapore-postgres.render.com/atut_vidhan"
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.config(default=DATABASE_CONNECTION_URL)
 }
 
-DATABASE_CONNECTION_URL ="postgresql://admin:cUjS090JjaXHlxPHb9RIrKW9RPvinQdo@dpg-d1j767umcj7s73aahn30-a.singapore-postgres.render.com/atut_vidhan"
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
