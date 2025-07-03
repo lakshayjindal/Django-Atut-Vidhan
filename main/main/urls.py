@@ -22,7 +22,8 @@ from django.conf import settings
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('siteadmin/', admin.site.urls),
+    path('admin/', include('siteadmin.urls')),
     path('', views.entry_user, name='homepage'),
     path('auth/', include('user.urls')),
     path('user_dashboard', views.redirect_user_dashboard, name="user_dashboard"),

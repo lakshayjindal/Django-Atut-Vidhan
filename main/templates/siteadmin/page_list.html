@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pages • Admin</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .page-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .page-table th, .page-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .page-table th {
+      background: #eee;
+      text-align: left;
+    }
+    .actions a {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #0077cc;
+    }
+    .actions a:hover {
+      text-decoration: underline;
+    }
+    .new-page {
+      display: inline-block;
+      margin-bottom: 1rem;
+      padding: 10px 15px;
+      background: #0077cc;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Manage Pages</h1>
+
+  <a href="{% url 'custom_page_create' %}" class="new-page">+ Create New Page</a>
+
+
+  <table class="page-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Slug</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for page in pages %}
+        <tr>
+          <td>{{ page.title }}</td>
+          <td>{{ page.slug }}</td>
+          <td class="actions">
+            <a href="{% url 'custom_page_edit' pk=page.pk %}">✏️ Edit</a>
+            <a href="/{{ page.slug }}/" target="_blank">👁️ View</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3">No pages found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

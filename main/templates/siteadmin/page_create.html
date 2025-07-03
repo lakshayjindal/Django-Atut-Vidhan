@@ -1,0 +1,7 @@
+<form method="post">
+  {% csrf_token %}
+  <label>Title: <input type="text" name="title"></label><br>
+  <label>Slug: <input type="text" name="slug"></label><br>
+  <input type="hidden" name="layout_json" value="[]">
+  <button type="submit">Create Page</button>
+</form>

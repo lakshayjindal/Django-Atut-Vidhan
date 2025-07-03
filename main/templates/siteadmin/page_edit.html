@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visual Editor — {{ page.title }}</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #ffffff;
+      border-right: 1px solid #e1e1e1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .component {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      cursor: grab;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .component:hover {
+      background: #e6e6e6;
+    }
+
+    .canvas {
+      flex: 1;
+      position: relative;
+      background: #fff;
+      margin: 20px;
+      border-radius: 8px;
+      border: 2px dashed #d4d4d8;
+      overflow: hidden;
+    }
+
+    .block {
+      position: absolute;
+      min-width: 80px;
+      min-height: 40px;
+      cursor: move;
+      border-radius: 4px;
+      padding: 8px;
+      background: white;
+      border: 1px solid transparent;
+      transition: border 0.2s;
+    }
+
+    .block.selected {
+      border: 2px solid #3b82f6;
+    }
+
+    .block[contenteditable] {
+      outline: none;
+    }
+
+    .actions {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 6px;
+      background: #2563eb;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e3a8a;
+    }
+
+    .inspector {
+      width: 250px;
+      background: #ffffff;
+      border-left: 1px solid #e1e1e1;
+      padding: 20px;
+    }
+
+    .inspector h4 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .inspector label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .inspector input[type="text"],
+    .inspector input[type="file"] {
+      width: 100%;
+      padding: 5px;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    img {
+      max-width: 100px;
+    }
+
+    .shape {
+      width: 80px;
+      height: 80px;
+    }
+
+    .circle {
+      border-radius: 50%;
+      background: #f87171;
+    }
+
+    .rectangle {
+      background: #60a5fa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="component" draggable="true" data-type="text">📝 Text</div>
+    <div class="component" draggable="true" data-type="image">🖼️ Image</div>
+    <div class="component" draggable="true" data-type="rectangle">🟦 Rectangle</div>
+    <div class="component" draggable="true" data-type="circle">⚪ Circle</div>
+  </div>
+
+  <div class="canvas" id="canvas" ondrop="onDrop(event)" ondragover="event.preventDefault()"></div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="layout_json" id="layout_json">
+    <div class="actions">
+      <button type="submit">💾 Save</button>
+    </div>
+  </form>
+
+  <div class="inspector" id="inspector" style="display: none;">
+    <h4>Inspector</h4>
+    <div id="inspector-content"></div>
+  </div>
+
+<script>
+  let layout = {{ page.layout|safe }} || [];
+  const canvas = document.getElementById('canvas');
+  const layoutInput = document.getElementById('layout_json');
+  const inspector = document.getElementById('inspector');
+  const inspectorContent = document.getElementById('inspector-content');
+
+  let selectedBlockIndex = null;
+  let isDragging = false;
+  let dragOffset = { x: 0, y: 0 };
+
+  function renderCanvas() {
+    canvas.innerHTML = '';
+    layout.forEach((block, index) => {
+      const el = document.createElement('div');
+      el.className = 'block';
+      el.style.left = block.props.x + 'px';
+      el.style.top = block.props.y + 'px';
+
+      if (index === selectedBlockIndex) {
+        el.classList.add('selected');
+      }
+
+      el.addEventListener('mousedown', (e) => {
+        selectedBlockIndex = index;
+        dragOffset = {
+          x: e.offsetX,
+          y: e.offsetY
+        };
+        isDragging = true;
+        // Add resize handle
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'resize-handle';
+        el.appendChild(resizeHandle);
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        isResizing = true;
+        selectedBlockIndex = index;
+        dragOffset = {
+            x: e.clientX,
+            y: e.clientY
+        };
+        });
+
+        showInspector(index);
+        renderCanvas();
+      });
+
+      if (block.type === 'text') {
+        el.contentEditable = true;
+        el.innerText = block.props.text || 'Edit me';
+        el.addEventListener('input', () => {
+          block.props.text = el.innerText;
+          updateLayout();
+        });
+      }
+
+      if (block.type === 'image') {
+        const img = document.createElement('img');
+        img.src = block.props.src || 'https://via.placeholder.com/100';
+        el.appendChild(img);
+      }
+
+      if (block.type === 'rectangle') {
+        el.classList.add('shape', 'rectangle');
+      }
+
+      if (block.type === 'circle') {
+        el.classList.add('shape', 'circle');
+      }
+
+      canvas.appendChild(el);
+    });
+
+    updateLayout();
+  }
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging || selectedBlockIndex === null) return;
+
+    const block = layout[selectedBlockIndex];
+    const canvasRect = canvas.getBoundingClientRect();
+
+    block.props.x = e.clientX - canvasRect.left - dragOffset.x;
+    block.props.y = e.clientY - canvasRect.top - dragOffset.y;
+
+    renderCanvas();
+    showInspector(selectedBlockIndex);
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  function updateLayout() {
+    layoutInput.value = JSON.stringify(layout, null, 2);
+  }
+
+  // Handle component drop from sidebar
+  canvas.addEventListener('dragover', (e) => e.preventDefault());
+  canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData("type");
+    if (!type) return;
+
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = e.clientX - canvasRect.left;
+    const y = e.clientY - canvasRect.top;
+
+    const newBlock = {
+      type,
+      props: {
+        x,
+        y,
+        text: type === 'text' ? 'Edit me' : '',
+        src: ''
+      }
+    };
+
+    layout.push(newBlock);
+    selectedBlockIndex = layout.length - 1;
+    renderCanvas();
+    showInspector(selectedBlockIndex);
+  });
+
+  // Set drag data from sidebar components
+  document.querySelectorAll('.component').forEach(c => {
+    c.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('type', c.dataset.type);
+    });
+  });
+
+  function showInspector(index) {
+    if (index === null || layout.length === 0) {
+      inspector.style.display = "none";
+      return;
+    }
+
+    const block = layout[index];
+    inspector.style.display = "block";
+
+    let html = '';
+
+    if (block.type === 'text') {
+      html += `<label>Text:
+        <input type="text" value="${block.props.text}" 
+        onchange="updateProp(${index}, 'text', this.value)">
+      </label>`;
+    }
+
+    if (block.type === 'image') {
+      html += `<label>Upload Image:
+        <input type="file" accept="image/*" onchange="uploadImage(event, ${index})">
+      </label>`;
+    }
+
+    html += `<label>X:
+      <input type="number" value="${block.props.x}" onchange="updateProp(${index}, 'x', parseInt(this.value))">
+    </label>
+    <label>Y:
+      <input type="number" value="${block.props.y}" onchange="updateProp(${index}, 'y', parseInt(this.value))">
+    </label>`;
+
+    inspectorContent.innerHTML = html;
+  }
+
+  function updateProp(index, prop, value) {
+    layout[index].props[prop] = value;
+    renderCanvas();
+    showInspector(index);
+  }
+
+  function uploadImage(e, index) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      layout[index].props.src = reader.result;
+      renderCanvas();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  renderCanvas();
+</script>
+
+</body>
+</html>
