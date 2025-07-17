@@ -1,0 +1,42 @@
+<!-- search_page.html -->
+<input type="text" id="search-input" placeholder="Search..." />
+<select id="gender-filter">
+    <option value="">All Genders</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+</select>
+<input type="text" id="city-filter" placeholder="City" />
+<input type="text" id="profession-filter" placeholder="Profession" />
+
+<div id="search-results"></div>
+
+<script>
+    const searchInput = document.getElementById('search-input');
+    const genderFilter = document.getElementById('gender-filter');
+    const cityFilter = document.getElementById('city-filter');
+    const professionFilter = document.getElementById('profession-filter');
+    const resultsDiv = document.getElementById('search-results');
+
+    const fetchResults = () => {
+        const q = searchInput.value.trim();
+        const gender = genderFilter.value;
+        const city = cityFilter.value.trim();
+        const profession = professionFilter.value.trim();
+
+        const params = new URLSearchParams({ q, gender, city, profession });
+
+        fetch(`/search/?${params.toString()}`)
+            .then(res => res.text())
+            .then(html => {
+                resultsDiv.innerHTML = html;
+            });
+    };
+
+    [searchInput, genderFilter, cityFilter, professionFilter].forEach(input => {
+        input.addEventListener('input', fetchResults);
+    });
+
+    // Initial load
+    fetchResults();
+</script>

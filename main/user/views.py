@@ -7,6 +7,7 @@ from .models import Profile
 from django.core.files.storage import default_storage
 from .models import Profile
 from .forms import ProfileForm
+from django.db.models import Q
 
 # Create your views here.
 
@@ -156,3 +157,35 @@ def edit_profile(request):
     else:
         form = ProfileForm(instance=profile)
     return render(request, 'user/profile/edit.html', {'form': form})
+@login_required
+def search_view(request):
+    query = request.GET.get('q', '').strip()
+    gender = request.GET.get('gender')
+    city = request.GET.get('city')
+    profession = request.GET.get('profession')
+
+    profile_filters = Q()
+    if query:
+        profile_filters &= (
+            Q(full_name__icontains=query) |
+            Q(city__icontains=query) |
+            Q(state__icontains=query) |
+            Q(religion__icontains=query) |
+            Q(profession__icontains=query) |
+            Q(bio__icontains=query)
+        )
+
+    if gender:
+        profile_filters &= Q(gender=gender)
+
+    if city:
+        profile_filters &= Q(city__icontains=city)
+
+    if profession:
+        profile_filters &= Q(profession__icontains=profession)
+
+    profiles = Profile.objects.filter(profile_filters).select_related('user')
+
+    return render(request, 'user/partials/search_results.html', {
+        'profiles': profiles,
+    })

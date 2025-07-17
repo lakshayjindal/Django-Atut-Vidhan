@@ -1,0 +1,12 @@
+{% if profiles %}
+    <ul>
+        {% for profile in profiles %}
+            <li>
+                <strong>{{ profile.full_name }}</strong> - 
+                {{ profile.city }} | {{ profile.profession }} | {{ profile.gender }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No profiles match your criteria.</p>
+{% endif %}
