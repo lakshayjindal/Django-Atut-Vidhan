@@ -106,7 +106,11 @@ body {
 <div class="container">
     <div class="profile-card">
         <div class="header">
+            {% if profile.image %}
             <img src="{{ profile.image.url }}" alt="Profile Image" class="profile-image">
+            {% else %}
+            <img src="{% static 'user/img/default.webp' %}" alt="Default Profile">
+            {% endif %}
             <div class="info">
                 <h2 class="name">{{ profile.full_name }}</h2>
                 <p class="profession">{{ profile.profession }}</p>

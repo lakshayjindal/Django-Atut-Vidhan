@@ -132,7 +132,7 @@
 
       <form method="POST" action="{% url 'login' %}">
         {% csrf_token %}
-        <input type="text" name="email" placeholder="Email" required class="input-field">
+        <input type="text" name="email" placeholder="Email or Username" required class="input-field">
         <input type="password" name="password" placeholder="Password" required class="input-field">
         <button type="submit" class="login-btn">Let's Go</button>
       </form>

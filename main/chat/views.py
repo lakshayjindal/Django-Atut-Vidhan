@@ -6,13 +6,29 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .models import ChatMessage
 from user.models import Profile
+from django.db.models import Q
 
 # Custom User model
 User = get_user_model()
 
+
 @login_required
 def chat_view(request, chat_with=None):
-    chat_users = User.objects.exclude(id=request.user.id)
+    # Get all users who have either sent to or received messages from the current user
+    chat_users_ids = ChatMessage.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).values_list('sender', 'receiver')
+
+    # Flatten the list and remove duplicates, also exclude current user
+    user_ids = set()
+    for sender_id, receiver_id in chat_users_ids:
+        if sender_id != request.user.id:
+            user_ids.add(sender_id)
+        if receiver_id != request.user.id:
+            user_ids.add(receiver_id)
+
+    chat_users = User.objects.filter(id__in=user_ids)
+
     selected_user = None
     selected_user_profile = None
     messages = []
@@ -24,12 +40,11 @@ def chat_view(request, chat_with=None):
             sender__in=[request.user, selected_user],
             receiver__in=[request.user, selected_user]
         ).order_by('timestamp')
-        print(selected_user_profile)
 
     # Fetch latest profile for each user in the chat list
     user_profiles = {
-    user.id: Profile.objects.get_or_create(user=user)[0]
-    for user in chat_users
+        user.id: Profile.objects.get_or_create(user=user)[0]
+        for user in chat_users
     }
 
     context = {
@@ -40,8 +55,9 @@ def chat_view(request, chat_with=None):
         'messages': messages,
         'selected_user_id': int(chat_with) if chat_with else None
     }
-    
+
     return render(request, 'user/chat/maininterface.html', context)
+
 
 @login_required
 def send_message(request):

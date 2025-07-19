@@ -71,7 +71,7 @@
                 {% if profile.image %}
                     <img src="{{ profile.image.url }}" alt="{{ profile.full_name }}">
                 {% else %}
-                    <img src="{% static 'assets/img/default_profile.png' %}" alt="Default Profile">
+                    <img src="{% static 'user/img/default.webp' %}" alt="Default Profile">
                 {% endif %}
                 <h3>{{ profile.full_name }}</h3>
                 <p><strong>{{ profile.profession }}</strong></p>

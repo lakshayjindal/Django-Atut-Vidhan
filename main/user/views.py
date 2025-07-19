@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -8,7 +8,6 @@ from django.core.files.storage import default_storage
 from .models import Profile
 from .forms import ProfileForm
 from django.db.models import Q
-
 # Create your views here.
 
 User = get_user_model()
@@ -189,3 +188,18 @@ def search_view(request):
     return render(request, 'user/partials/search_results.html', {
         'profiles': profiles,
     })
+
+@login_required
+def profile_detail(request, profile_id):
+    # Fetch the Profile by ID or return 404 if not found
+    profile = get_object_or_404(Profile, id=profile_id)
+    
+    # The related User object (via ForeignKey)
+    user = profile.user
+
+    context = {
+        'profile': profile,
+        'user': user,
+    }
+
+    return render(request, 'user/profile_detail.html', context)
