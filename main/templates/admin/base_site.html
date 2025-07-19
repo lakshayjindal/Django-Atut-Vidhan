@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Atut Vidhan Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="/admin">Atut Vidhan® Admin</a></h1>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        /* Django admin CSS variable overrides using your color scheme */
+
+        --secondary: #D72638; /* Matches your Royal Rose */
+        --primary: #F4C95D; /* Golden Sand */
+        --accent: #FFB7A1; /* Peach Bloom */
+        --body-bg: #FFF8F2; /* Ivory Blush */
+        --darkened-bg: #F9EFE3; /* Champagne Mist */
+
+        --header-color: #FFF;
+        --body-fg: #2F2F2F; /* Charcoal Silk */
+        --body-quiet-color: #7D6E63; /* Dusty Taupe */
+        --link-fg: #D72638;
+        --link-hover-color: #B91C28;
+
+        --selected-bg: #FFB7A1; /* Highlighted rows */
+        --selected-fg: #2F2F2F;
+
+        --success: #5BA67A;
+        --warning: #F4C95D;
+        --error: #D72638;
+
+        /* Fonts */
+        --font-family-primary: 'Poppins', sans-serif;
+        --font-family-secondary: 'Playfair Display', serif;
+        --font-family-monospace: monospace;
+
+        --font-size: 14px;
+        --font-size-sm: 13px;
+        --font-size-lg: 16px;
+
+        /* Border radius and shadow */
+        --border-radius: 12px;
+        --border-color: #e6cfc4;
+
+        /* Spacing (optional override) */
+        --spacing: 16px;
+
+        /* Shadows */
+        --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+</style>
+{% endblock %}

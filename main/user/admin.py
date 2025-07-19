@@ -8,6 +8,11 @@ from django.utils.text import slugify
 from .utils import process_csv_row
 from datetime import datetime
 
+
+admin.site.site_header = "Atut Vidhan Admin"
+admin.site.site_title = "Atut Vidhan"
+admin.site.index_title = "Welcome to Website Management"
+
 class CsvImportForm(forms.Form):
     csv_file = forms.FileField()
 
