@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from .models import User, Profile
 from django import forms
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
 import csv
 from django.utils.text import slugify
@@ -11,8 +11,46 @@ from datetime import datetime
 class CsvImportForm(forms.Form):
     csv_file = forms.FileField()
 
+
+@admin.action(description="Export selected users and profiles as CSV")
+def export_csv(self, request, queryset):
+    # Get field names from User and Profile
+    user_fields = [field.name for field in User._meta.get_fields() if field.concrete and not field.many_to_many and not field.one_to_many]
+    profile_fields = [field.name for field in Profile._meta.get_fields() if field.concrete and field.name != "user"]
+
+    # Prepare CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users_export.csv"'
+
+    writer = csv.writer(response)
+    header = user_fields + profile_fields
+    writer.writerow(header)
+
+    for user in queryset:
+        row = []
+
+        # Get user field values
+        for field in user_fields:
+            value = getattr(user, field, "")
+            row.append(value)
+
+        # Get profile field values
+        try:
+            profile = user.profile
+            for field in profile_fields:
+                value = getattr(profile, field, "")
+                row.append(value)
+        except Profile.DoesNotExist:
+            row.extend([""] * len(profile_fields))  # fill blanks if profile doesn't exist
+
+        writer.writerow(row)
+
+    return response
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    actions = ['export_csv']
+    export_csv = export_csv
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -78,5 +116,7 @@ class UserAdmin(admin.ModelAdmin):
 
         form = CsvImportForm()
         return render(request, "admin/user/csv_form.html", {"form": form})
+
+
 
 admin.site.register(Profile)
