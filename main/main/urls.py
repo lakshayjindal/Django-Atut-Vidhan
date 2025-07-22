@@ -27,5 +27,5 @@ urlpatterns = [
     path('', views.entry_user, name='homepage'),
     path('auth/', include('user.urls')),
     path('user_dashboard', views.redirect_user_dashboard, name="user_dashboard"),
-    path('chat', include("chat.urls")),
+    path('chat/', include("connect.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

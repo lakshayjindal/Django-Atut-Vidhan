@@ -109,7 +109,7 @@
         {% if received_requests %}
             {% for req in received_requests %}
                 <div class="request-card" id="received-request-{{ req.id }}">
-                    <p><strong>{{ req.from_user.username }}</strong> wants to connect with you.</p>
+                    <p><strong>{{ req.sender.username }}</strong> wants to connect with you.</p>
                     <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
                 </div>
             {% endfor %}
@@ -127,11 +127,11 @@
         {% if sent_requests %}
             {% for req in sent_requests %}
                 <div class="request-card" id="sent-request-{{ req.id }}">
-                    <p><a href="{% url 'profile_detail' req.to_user.id %}">
-                        <strong>{{ req.to_user.first_name }} {{ req.to_user.last_name }}</strong></a></p>
+                    <p><a href="{% url 'profile_detail' req.receiver.id %}">
+                        <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong></a></p>
                     <p>
                         {% if req.is_accepted %}
-                            <a href="{% url 'chat' req.to_user.id %}" class="chat-btn">Chat</a>
+                            <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
                         {% else %}
                             <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
                         {% endif %}
