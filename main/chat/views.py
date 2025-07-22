@@ -4,9 +4,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from .models import ChatMessage
+from .models import ChatMessage, ConnectionRequest
 from user.models import Profile
 from django.db.models import Q
+from django.views.decorators.http import require_POST
 
 # Custom User model
 User = get_user_model()
@@ -14,12 +15,10 @@ User = get_user_model()
 
 @login_required
 def chat_view(request, chat_with=None):
-    # Get all users who have either sent to or received messages from the current user
     chat_users_ids = ChatMessage.objects.filter(
         Q(sender=request.user) | Q(receiver=request.user)
     ).values_list('sender', 'receiver')
 
-    # Flatten the list and remove duplicates, also exclude current user
     user_ids = set()
     for sender_id, receiver_id in chat_users_ids:
         if sender_id != request.user.id:
@@ -35,13 +34,20 @@ def chat_view(request, chat_with=None):
 
     if chat_with:
         selected_user = get_object_or_404(User, id=chat_with)
+
+        # 🔒 Block chat unless connected
+        if not are_connected(request.user, selected_user):
+            return render(request, 'user/chat/not_connected.html', {
+                'selected_user': selected_user,
+                'reason': "You must be connected to this user before chatting."
+            })
+
         selected_user_profile = selected_user.profile
         messages = ChatMessage.objects.filter(
             sender__in=[request.user, selected_user],
             receiver__in=[request.user, selected_user]
         ).order_by('timestamp')
 
-    # Fetch latest profile for each user in the chat list
     user_profiles = {
         user.id: Profile.objects.get_or_create(user=user)[0]
         for user in chat_users
@@ -96,3 +102,44 @@ def fetch_messages(request):
         return JsonResponse(html, safe=False)
 
     return JsonResponse({'status': 'error'}, status=400)
+
+def are_connected(user1, user2):
+    return ConnectionRequest.objects.filter(
+        ((models.Q(from_user=user1) & models.Q(to_user=user2)) |
+         (models.Q(from_user=user2) & models.Q(to_user=user1))),
+        is_accepted=True
+    ).exists()
+
+
+@login_required
+def connections_page(request):
+    received_requests = ConnectionRequest.objects.filter(to_user=request.user, is_accepted=False)
+    sent_requests = ConnectionRequest.objects.filter(from_user=request.user)
+    return render(request, 'user/connections.html', {'received_requests': received_requests, 'sent_requests': sent_requests})
+
+@require_POST
+@login_required
+def accept_request(request, request_id):
+    conn_request = get_object_or_404(ConnectionRequest, id=request_id, to_user=request.user)
+
+    if conn_request.is_accepted:
+        return JsonResponse({'error': 'This request has already been accepted.'}, status=400)
+
+    conn_request.is_accepted = True
+    conn_request.save()
+
+    return JsonResponse({'success': True, 'message': 'Request accepted.'})
+
+@require_POST
+@login_required
+def cancel_request(request, request_id):
+    connection_request = get_object_or_404(ConnectionRequest, id=request_id)
+
+    if connection_request.from_user != request.user:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    if connection_request.is_accepted:
+        return JsonResponse({'error': 'Request already accepted'}, status=400)
+
+    connection_request.delete()
+    return JsonResponse({'success': True, 'message': 'Request canceled'})

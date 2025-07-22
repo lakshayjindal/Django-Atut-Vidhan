@@ -4,23 +4,27 @@
 {% block title %}User Dashboard | Atut Vidhan{% endblock title %}
 
 {% block extra_head %}
-<style>
-    .welcome {
+    <style>
+        .welcome {
             margin: 40px 60px 20px;
         }
+
         .welcome h2 {
             font-weight: 500;
         }
+
         .welcome span {
             font-family: 'Great Vibes', cursive;
             font-size: 42px;
             color: #f5af19;
         }
+
         .subtitle {
             font-family: 'Playfair Display', serif;
             font-size: 24px;
             margin: 0 60px 30px;
         }
+
         .profiles {
             display: flex;
             flex-wrap: wrap;
@@ -29,60 +33,113 @@
             margin: 20px;
             height: calc(100vh - 100px);
         }
+
         .profile-card {
             background: white;
             border-radius: 20px;
             padding: 20px;
             width: 220px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
             height: fit-content;
         }
+
         .profile-card img {
             width: 100%;
             height: 250px;
             object-fit: cover;
             border-radius: 15px;
         }
+
         .profile-card h3 {
             margin: 10px 0 5px;
             font-size: 20px;
         }
+
         .profile-card p {
             margin: 4px 0;
             font-size: 14px;
             color: #555;
         }
-</style>
+
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            background-color: #888;
+            border-radius: 5px;
+        }
+
+        .btn.primary {
+            background-color: #e60000;
+        }
+
+        .btn.primary:hover{
+            box-shadow: 0px 0px 6px 2px #e60000;
+            color: #e60000;
+            background-color: #f5af19;
+        }
+    </style>
 {% endblock extra_head %}
 {% block content %}
-<div class="welcome">
-    <h2>Namaskar, <span>{{ user_name }}</span></h2>
-</div>
+    <div class="welcome">
+        <h2>Namaskar, <span>{{ user_name }}</span></h2>
+    </div>
 
-<div class="subtitle">
-    We have some profiles for you
-</div>
+    <div class="subtitle">
+        We have some profiles for you
+    </div>
 
-<div class="profiles">
-    {% for profile in matched_profiles %}
-        <a href="{% url 'profile_detail' profile.id %}" style="text-decoration: none; color: inherit;">
+    <div class="profiles">
+        {% for profile in matched_profiles %}
             <div class="profile-card">
-                {% if profile.image %}
-                    <img src="{{ profile.image.url }}" alt="{{ profile.full_name }}">
-                {% else %}
-                    <img src="{% static 'user/img/default.webp' %}" alt="Default Profile">
-                {% endif %}
-                <h3>{{ profile.full_name }}</h3>
-                <p><strong>{{ profile.profession }}</strong></p>
-                <p>📍 {{ profile.city }}</p>
-                <p>👤 {{ profile.user.age }}</p>
-                <p>{{ profile.education }}</p>
-                <p><em>{{ profile.bio|truncatewords:10 }}</em></p>
+                <a href="{% url 'profile_detail' profile.id %}" style="text-decoration: none; color: inherit;">
+                    {% if profile.image %}
+                        <img src="{{ profile.image.url }}" alt="{{ profile.full_name }}">
+                    {% else %}
+                        <img src="{% static 'user/img/default.webp' %}" alt="Default Profile">
+                    {% endif %}
+                    <h3>{{ profile.full_name }}</h3>
+                    <p><strong>{{ profile.profession }}</strong></p>
+                    <p>📍 {{ profile.city }}</p>
+                    <p>👤 {{ profile.age }}</p>
+                    <p>{{ profile.education }}</p>
+                    <p><em>{{ profile.bio|truncatewords:10 }}</em></p>
+                </a>
+                <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
             </div>
-        </a>
-    {% empty %}
-        <p>No matching profiles found.</p>
-    {% endfor %}
-</div>
+            {% empty %}
+            <p>No matching profiles found.</p>
+        {% endfor %}
+    </div>
 {% endblock content %}
+
+{% block extra_scripts %}
+	<script>
+    function sendRequest(toUserId) {
+  fetch(`/api/send-request/${toUserId}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),  // We'll define this below
+    },
+    body: JSON.stringify({})  // If your endpoint expects a body
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();  // or response.text()
+    }
+    throw new Error('Request failed');
+  })
+  .then(data => {
+    console.log('Success:', data);
+    // Show a success message or update UI
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Show an error message to the user
+  });
+}
+
+    </script>
+{% endblock %}
