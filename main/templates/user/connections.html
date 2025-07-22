@@ -98,121 +98,153 @@
             transform: translateY(-1px);
         }
 
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0; /* soft light border */
+            transition: transform 0.3s ease;
+            vertical-align: middle;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05);
+            border-color: #4f46e5; /* subtle highlight on hover */
+        }
+
+
+
     </style>
 {% endblock extra_head %}
 
 {% block content %}
-<div class="connections-container">
-    <h2>Pending Connection Requests</h2>
+    <div class="connections-container">
+        <h2>Pending Connection Requests</h2>
 
-    <div id="received-requests">
-        {% if received_requests %}
-            {% for req in received_requests %}
-                <div class="request-card" id="received-request-{{ req.id }}">
-                    <p><strong>{{ req.sender.username }}</strong> wants to connect with you.</p>
-                    <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
+        <div id="received-requests">
+            {% if received_requests %}
+                {% for req in received_requests %}
+                    <div class="request-card" id="received-request-{{ req.id }}">
+                        <p><strong>{% if profile.image %}
+                                <img src="{{ req.receiver.image }}" alt="{{ req.receiver.first_name }}"
+                                     class="profile-img">
+                            {% else %}
+                                <img src="{% static 'user/img/default.webp' %}" alt="Default Profile"
+                                     class="profile-img">
+                            {% endif %}{{ req.sender.first_name }} {{ req.sender.last_name }}</strong> wants to connect with you.</p>
+                        <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-requests" id="no-received-msg">
+                    No new connection requests at the moment.
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-requests" id="no-received-msg">
-                No new connection requests at the moment.
-            </div>
-        {% endif %}
-    </div>
+            {% endif %}
+        </div>
 
-    <hr>
-    <h2>Sent Connection Requests</h2>
+        <hr>
+        <h2>Sent Connection Requests</h2>
 
-    <div id="sent-requests">
-        {% if sent_requests %}
-            {% for req in sent_requests %}
-                <div class="request-card" id="sent-request-{{ req.id }}">
-                    <p><a href="{% url 'profile_detail' req.receiver.id %}">
-                        <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong></a></p>
-                    <p>
-                        {% if req.is_accepted %}
-                            <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
-                        {% else %}
-                            <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
-                        {% endif %}
-                    </p>
+        <div id="sent-requests">
+            {% if sent_requests %}
+                {% for req in sent_requests %}
+                    <div class="request-card" id="sent-request-{{ req.id }}">
+                        <p><a href="{% url 'profile_detail' req.receiver.id %}">
+                            {% if profile.image %}
+                                <img src="{{ req.receiver.image }}" alt="{{ req.receiver.first_name }}"
+                                     class="profile-img">
+                            {% else %}
+                                <img src="{% static 'user/img/default.webp' %}" alt="Default Profile"
+                                     class="profile-img">
+                            {% endif %}
+                            <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong></a></p>
+                        <p>
+                            {% if req.is_accepted %}
+                                <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
+                            {% else %}
+                                <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-requests" id="no-sent-msg">
+                    You haven't sent any connection requests yet.
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-requests" id="no-sent-msg">
-                You haven't sent any connection requests yet.
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
 
 {% endblock content %}
 
 {% block extra_scripts %}
-	<script>
-function getCSRFToken() {
-    const cookie = document.cookie.match(/csrftoken=([^;]+)/);
-    return cookie ? cookie[1] : '';
-}
-
-// Cancel a sent request
-function cancelRequest(requestId) {
-    if (!confirm("Are you sure you want to cancel this request?")) return;
-
-    fetch(`/cancel-request/${requestId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCSRFToken(),
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            const card = document.getElementById(`sent-request-${requestId}`);
-            if (card) card.remove();
-
-            // Check if sent-requests is empty
-            if (!document.querySelector('#sent-requests .request-card')) {
-                document.getElementById('no-sent-msg').style.display = 'block';
-            }
-        } else {
-            alert(data.error || 'Failed to cancel the request.');
+    <script>
+        function getCSRFToken() {
+            const cookie = document.cookie.match(/csrftoken=([^;]+)/);
+            return cookie ? cookie[1] : '';
         }
-    })
-    .catch(err => console.error('Cancel request error:', err));
-}
 
-// Accept a received request
-function acceptRequest(requestId) {
-    fetch(`/accept-request/${requestId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCSRFToken(),
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            const card = document.getElementById(`received-request-${requestId}`);
-            if (card) card.remove();
+        // Cancel a sent request
+        function cancelRequest(requestId) {
+            if (!confirm("Are you sure you want to cancel this request?")) return;
 
-            // Check if received-requests is empty
-            if (!document.querySelector('#received-requests .request-card')) {
-                document.getElementById('no-received-msg').style.display = 'block';
-            }
+            fetch(`/cancel-request/${requestId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const card = document.getElementById(`sent-request-${requestId}`);
+                        if (card) card.remove();
 
-            // Optionally add a "Chat" card or success message
-            alert("Connection accepted! You can now chat.");
-        } else {
-            alert(data.error || 'Failed to accept the request.');
+                        // Check if sent-requests is empty
+                        if (!document.querySelector('#sent-requests .request-card')) {
+                            document.getElementById('no-sent-msg').style.display = 'block';
+                        }
+                    } else {
+                        alert(data.error || 'Failed to cancel the request.');
+                    }
+                })
+                .catch(err => console.error('Cancel request error:', err));
         }
-    })
-    .catch(err => console.error('Accept request error:', err));
-}
-</script>
+
+        // Accept a received request
+        function acceptRequest(requestId) {
+            fetch(`/chat/connect/accept/${requestId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const card = document.getElementById(`received-request-${requestId}`);
+                        if (card) card.remove();
+
+                        // Check if received-requests is empty
+                        if (!document.querySelector('#received-requests .request-card')) {
+                            document.getElementById('no-received-msg').style.display = 'block';
+                        }
+
+                        // Optionally add a "Chat" card or success message
+                        alert("Connection accepted! You can now chat.");
+                    } else {
+                        alert(data.error || 'Failed to accept the request.');
+                    }
+                })
+                .catch(err => console.error('Accept request error:', err));
+        }
+    </script>
 
 {% endblock %}

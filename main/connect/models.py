@@ -20,5 +20,3 @@ class ConnectionRequest(models.Model):
     class Meta:
         ordering = ['-timestamp']
         unique_together = ('sender', 'receiver')
-    def __str__(self):
-        return f"{self.receiver} to {self.sender}: {self.timestamp[:20]}..."
