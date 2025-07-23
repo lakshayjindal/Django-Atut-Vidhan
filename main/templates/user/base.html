@@ -62,7 +62,11 @@
             margin-left: 20px;
             font-weight: 500;
         }
-
+        #logout{
+            background-color: white;
+            color: #CC3434;
+            padding: 5px;
+        }
         .footer {
             margin-top: 40px;
             position: fixed;
@@ -102,7 +106,7 @@
             <a href="{% url 'view_profile' %}">View Profile</a>
             <a href="{% url 'complete_profile' %}">Edit Profile</a>
             <a href="{% url 'connection' %}">Connections</a>
-            <a href="{% url 'logout' %}">logout</a>
+            <a href="{% url 'logout' %}" id="logout">Logout</a>
         {% endif %}
     </div>
 </div>

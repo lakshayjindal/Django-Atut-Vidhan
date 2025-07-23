@@ -7,10 +7,17 @@ from .models import Profile
 from django.core.files.storage import default_storage
 from .models import Profile
 from .forms import ProfileForm
+import uuid
+from supabase import Client, create_client
 from django.db.models import Q
 # Create your views here.
 
 User = get_user_model()
+SUPABASE_URL = "https://krtiayhjqgtsruzboour.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtydGlheWhqcWd0c3J1emJvb3VyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA0NjQ0NywiZXhwIjoyMDY4NjIyNDQ3fQ.W-d9QUi65k6C3MCyn97qhTJInkikVKLU1_NAJgODds0"
+SUPABASE_BUCKET = "media"
+
+supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -91,8 +98,12 @@ def complete_user(request):
         occupation = request.POST.get("occupation")
         city = request.POST.get("city")
         profile_image = request.FILES.get("profile_image")
+        profile_image_url = None
+
         if profile_image:
-            user.image = profile_image
+            unique_filename = f"{uuid.uuid4().hex}_{profile_image.name}"
+            profile_image_url = upload_to_supabase(profile_image, unique_filename)
+            user.image = profile_image_url
         if gender:
             user.user_gender = gender
         user.save()
@@ -111,8 +122,8 @@ def complete_user(request):
                 city=city,
                 state=state
             )
-            if profile_image:
-                profile.image = profile_image
+            if profile_image_url:
+                profile.image = profile_image_url
             profile.save()
             return redirect("user_dashboard")
 
@@ -203,3 +214,26 @@ def profile_detail(request, profile_id):
     }
 
     return render(request, 'user/profile_detail.html', context)
+
+
+def upload_to_supabase(file):
+    bucket_name = SUPABASE_BUCKET
+
+    # Generate a unique filename
+    file_ext = file.name.split('.')[-1]
+    unique_filename = f"profile_images/{uuid.uuid4()}.{file_ext}"
+
+    # Save temporarily to disk (required for reading binary content)
+    temp_path = default_storage.save(unique_filename, file)
+    with default_storage.open(temp_path, 'rb') as f:
+        file_bytes = f.read()
+
+    # Upload to Supabase
+    response = supabase.storage.from_(bucket_name).upload(unique_filename, file_bytes, {
+        "content-type": file.content_type,
+        "upsert": True,
+    })
+
+    # Make public (optional)
+    public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
+    return public_url

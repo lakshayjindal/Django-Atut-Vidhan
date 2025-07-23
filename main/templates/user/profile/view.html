@@ -107,9 +107,9 @@ body {
     <div class="profile-card">
         <div class="header">
             {% if profile.image %}
-            <img src="{{ profile.image.url }}" alt="Profile Image" class="profile-image">
+            <img src="{{ profile.image }}" alt="Profile Image" class="profile-image">
             {% else %}
-            <img src="{% static 'user/img/default.webp' %}" alt="Default Profile">
+            <img src="{% static 'user/img/default.webp' %}" alt="Default Profile" class="profile-image">
             {% endif %}
             <div class="info">
                 <h2 class="name">{{ profile.full_name }}</h2>

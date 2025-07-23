@@ -15,7 +15,7 @@ class User(AbstractUser):
         choices=GENDER_CHOICES,
         null=True, blank=True
     )
-    image = models.ImageField(upload_to="profile_images/", blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
 
 
 class Profile(models.Model):
@@ -69,11 +69,12 @@ class Profile(models.Model):
     bio = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     # Profile Media
-    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
 
     # Timestamp
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.full_name or self.user.username} ({self.user.username})"
+
 
