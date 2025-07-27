@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
 import csv
 from django.utils.text import slugify
-from .utils import process_csv_row
+from datetime import date
 from datetime import datetime
 
 
@@ -96,16 +96,36 @@ class UserAdmin(admin.ModelAdmin):
                         user.save()
 
                     # Prepare profile data
+                    dob = None  # track DOB separately to calculate age
+
                     for field in profile_fields:
                         if field in row and row[field]:
                             value = row[field]
-                            # Convert date fields
-                            if field in ["date_of_birth", "created_at"]:
+
+                            if field == "date_of_birth":
+                                try:
+                                    dob = datetime.strptime(value, "%Y-%m-%d").date()
+                                    value = dob
+                                except:
+                                    dob = None
+                                    value = None
+
+                            elif field == "created_at":
                                 try:
                                     value = datetime.strptime(value, "%Y-%m-%d").date()
                                 except:
                                     value = None
+
                             profile_data[field] = value
+
+                    # Calculate age from DOB, or fallback to 20
+                    if "age" in profile_fields:
+                        if dob:
+                            today = date.today()
+                            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                            profile_data["age"] = age
+                        elif "age" not in profile_data:
+                            profile_data["age"] = 20
 
                     # Create profile if doesn't exist
                     if created or not hasattr(user, 'profile'):
