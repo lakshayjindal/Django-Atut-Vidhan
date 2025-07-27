@@ -77,47 +77,22 @@
   }
 </style>
 
+
 <div class="search-results">
   {% for profile in profiles %}
-    <div class="profile-card">
-      <a href="/user/profile/{{ profile.id }}/" style="text-decoration: none; color: inherit;">
-        <img src="{{ profile.image|default:'/static/user/img/default.webp' }}" alt="{{ profile.full_name }}">
-        <h3>{{ profile.full_name }}</h3>
-        <p><strong>{{ profile.profession }}</strong></p>
-        <p>📍 {{ profile.city }}</p>
-        <p>👤 {{ profile.age }}</p>
-        <p>{{ profile.education }}</p>
-        <p><em>{{ profile.bio|truncatechars:100 }}</em></p>
-      </a>
-      <a href="/connect/send/{{ profile.id }}/" class="btn primary">Connect</a>
-    </div>
+  <div class="profile-card">
+    <a href="/user/profile/{{ profile.id }}/" style="text-decoration: none; color: inherit;">
+      <img src="{{ profile.image|default:'/static/user/img/default.webp' }}" alt="{{ profile.full_name }}">
+      <h3>{{ profile.full_name }}</h3>
+      <p><strong>{{ profile.profession }}</strong></p>
+      <p>📍 {{ profile.city }}</p>
+      <p>👤 {{ profile.age }}</p>
+      <p>{{ profile.education }}</p>
+      <p><em>{{ profile.bio|truncatechars:100 }}</em></p>
+    </a>
+    <a href="/connect/send/{{ profile.id }}/" class="btn primary">Connect</a>
+  </div>
   {% empty %}
-    <p style="text-align: center; color: #999;">No matching profiles found.</p>
+  <p style="text-align: center; color: #999;">No matching profiles found.</p>
   {% endfor %}
 </div>
-
-{% if page_obj.has_other_pages %}
-<div class="pagination" style="margin-top: 2rem; text-align: center;">
-  {% if page_obj.has_previous %}
-    <button
-      hx-get="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}"
-      hx-target="#results-area"
-      hx-swap="innerHTML"
-      class="btn primary">
-      « Prev
-    </button>
-  {% endif %}
-
-  <span style="margin: 0 10px;">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
-
-  {% if page_obj.has_next %}
-    <button
-      hx-get="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
-      hx-target="#results-area"
-      hx-swap="innerHTML"
-      class="btn primary">
-      Next »
-    </button>
-  {% endif %}
-</div>
-{% endif %}
