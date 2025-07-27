@@ -55,6 +55,7 @@ def export_csv(self, request, queryset):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     actions = ['export_csv']
+    list_display = ('id', 'first_name', 'last_name')
     export_csv = export_csv
     def get_urls(self):
         urls = super().get_urls()

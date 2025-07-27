@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'connect.apps.ConnectConfig',
     'user.apps.UserConfig',
     'siteadmin.apps.SiteadminConfig',
+    'search.apps.SearchConfig',
     'channels',
 
 ]

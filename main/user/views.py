@@ -196,7 +196,7 @@ def search_view(request):
 
     profiles = Profile.objects.filter(profile_filters).select_related('user')
 
-    return render(request, 'user/partials/search_results.html', {
+    return render(request, 'user/partials/_search_results.html', {
         'profiles': profiles,
     })
 

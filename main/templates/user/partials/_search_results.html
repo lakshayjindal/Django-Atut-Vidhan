@@ -1,0 +1,16 @@
+
+	<div class="profiles">
+  {% for profile in profiles %}
+    <div class="profile-card">
+      <a href="{% url 'profile_detail' profile.id %}">
+        <img src="{{ profile.image.url | default_if_none: static('user/img/default.webp') }}">
+        <h3>{{ profile.full_name }}</h3>
+        <p>{{ profile.profession }}</p>
+        <p>{{ profile.city }}</p>
+        <p>👤 {{ profile.age }}</p>
+      </a>
+    </div>
+  {% empty %}
+    <p>No matching profiles found.</p>
+  {% endfor %}
+</div>

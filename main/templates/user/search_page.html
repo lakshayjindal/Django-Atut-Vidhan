@@ -1,42 +1,46 @@
-<!-- search_page.html -->
-<input type="text" id="search-input" placeholder="Search..." />
-<select id="gender-filter">
-    <option value="">All Genders</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
-    <option value="Other">Other</option>
-</select>
-<input type="text" id="city-filter" placeholder="City" />
-<input type="text" id="profession-filter" placeholder="Profession" />
+{% extends "base.html" %}
+{% block content %}
+<form id="search-form" class="search-form">
+  <input type="text" name="q" placeholder="Name">
+  <input type="text" name="city" placeholder="City">
+  <input type="text" name="profession" placeholder="Profession">
+  <select name="gender">
+    <option value="">Gender</option>
+    <option value="M">Male</option>
+    <option value="F">Female</option>
+    <option value="O">Other</option>
+  </select>
+  <select name="marital_status">
+    <option value="">Marital Status</option>
+    <option value="single">Single</option>
+    <option value="divorced">Divorced</option>
+  </select>
+  <input type="number" name="age_min" placeholder="Min Age">
+  <input type="number" name="age_max" placeholder="Max Age">
+</form>
 
-<div id="search-results"></div>
+<div id="results-area">
+  {% include "user/partials/_search_results.html" with profiles=profiles %}
+</div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    const searchInput = document.getElementById('search-input');
-    const genderFilter = document.getElementById('gender-filter');
-    const cityFilter = document.getElementById('city-filter');
-    const professionFilter = document.getElementById('profession-filter');
-    const resultsDiv = document.getElementById('search-results');
+  const form = document.getElementById('search-form');
+  const resultsArea = document.getElementById('results-area');
 
-    const fetchResults = () => {
-        const q = searchInput.value.trim();
-        const gender = genderFilter.value;
-        const city = cityFilter.value.trim();
-        const profession = professionFilter.value.trim();
+  const fetchResults = () => {
+    const params = new URLSearchParams(new FormData(form)).toString();
+    fetch(`/ajax/search/?${params}`)
+      .then(response => response.json())
+      .then(data => {
+        resultsArea.innerHTML = data.html;
+      });
+  }
 
-        const params = new URLSearchParams({ q, gender, city, profession });
-
-        fetch(`/search/?${params.toString()}`)
-            .then(res => res.text())
-            .then(html => {
-                resultsDiv.innerHTML = html;
-            });
-    };
-
-    [searchInput, genderFilter, cityFilter, professionFilter].forEach(input => {
-        input.addEventListener('input', fetchResults);
-    });
-
-    // Initial load
-    fetchResults();
+  form.addEventListener('input', () => {
+    clearTimeout(window._delay);
+    window._delay = setTimeout(fetchResults, 300);  // debounce to avoid hammering server
+  });
 </script>
+{% endblock %}
