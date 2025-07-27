@@ -1,32 +1,55 @@
-from django.http import JsonResponse
-from django.template.loader import render_to_string
+# search/views.py
+from django.shortcuts import render
+from django.db.models import Q
 from user.models import Profile
-def ajax_search_profiles(request):
-    qs = Profile.objects.select_related("user").all()
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
-    # Filters (same as before)
-    q = request.GET.get('q')
-    city = request.GET.get('city')
-    profession = request.GET.get('profession')
-    gender = request.GET.get('gender')
-    marital_status = request.GET.get('marital_status')
+def search_page(request):
+    return render(request, 'user/search_page.html')
+
+
+
+@login_required
+def search_results(request):
+    query = request.GET.get('q', '').strip()
+    city = request.GET.get('city', '').strip()
+    profession = request.GET.get('profession', '').strip()
+    gender = request.GET.get('gender', '')
+    marital_status = request.GET.get('marital_status', '')
     age_min = request.GET.get('age_min')
     age_max = request.GET.get('age_max')
+    page_number = request.GET.get('page', 1)
 
-    if q:
-        qs = qs.filter(full_name__icontains=q)
+    filters = Q()
+    filters &= ~Q(user=request.user)
+    filters &= ~Q(user__is_superuser=True)
+
+    if query:
+        filters &= (
+            Q(full_name__icontains=query) |
+            Q(bio__icontains=query)
+        )
     if city:
-        qs = qs.filter(city__icontains=city)
+        filters &= Q(city__icontains=city)
     if profession:
-        qs = qs.filter(profession__icontains=profession)
+        filters &= Q(profession__icontains=profession)
     if gender:
-        qs = qs.filter(gender=gender)
+        filters &= Q(gender=gender)
     if marital_status:
-        qs = qs.filter(marital_status=marital_status)
+        filters &= Q(user__marital_status=marital_status)
     if age_min:
-        qs = qs.filter(age__gte=int(age_min))
+        filters &= Q(age__gte=age_min)
     if age_max:
-        qs = qs.filter(age__lte=int(age_max))
+        filters &= Q(age__lte=age_max)
 
-    html = render_to_string("user/partials/_search_results.html", {'profiles': qs})
-    return JsonResponse({'html': html})
+    queryset = Profile.objects.filter(filters).select_related('user')
+    paginator = Paginator(queryset, 12)  # 12 profiles per page
+
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'user/partials/_search_results.html', {
+        'profiles': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+    })

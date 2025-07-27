@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+
+from connect.models import ConnectionRequest
 from .models import Profile
 from django.core.files.storage import default_storage
 from .models import Profile
@@ -202,15 +204,24 @@ def search_view(request):
 
 @login_required
 def profile_detail(request, profile_id):
-    # Fetch the Profile by ID or return 404 if not found
     profile = get_object_or_404(Profile, id=profile_id)
-    
-    # The related User object (via ForeignKey)
-    user = profile.user
+    target_user = profile.user
+
+    # Determine if the logged-in user is connected with this profile
+    connected = False
+    if request.user != target_user:
+        connected = ConnectionRequest.objects.filter(
+            (
+                Q(sender=request.user, receiver=target_user) |
+                Q(sender=target_user, receiver=request.user)
+            ),
+            is_accepted=True,
+            connection_active=True
+        ).exists()
 
     context = {
         'profile': profile,
-        'user': user,
+        'connected': connected,
     }
 
     return render(request, 'user/profile_detail.html', context)
@@ -237,3 +248,4 @@ def upload_to_supabase(file):
     # Make public (optional)
     public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
     return public_url
+

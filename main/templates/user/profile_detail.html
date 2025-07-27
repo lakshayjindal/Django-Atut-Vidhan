@@ -1,0 +1,176 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block extra_head %}
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f3cc54;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #fff;
+        }
+
+        .info {
+            flex-grow: 1;
+        }
+
+        .name {
+            font-size: 24px;
+            margin: 0;
+            color: #333;
+        }
+
+        .profession, .age {
+            margin: 5px 0;
+            color: #444;
+        }
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .section h3 {
+            color: #a00;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .section ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        .section ul li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .quote {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffe5e5;
+            color: #b00;
+            border-left: 5px solid #e60000;
+            font-style: italic;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            background-color: #888;
+            border-radius: 5px;
+        }
+
+        .btn.primary {
+            background-color: #e60000;
+        }
+    </style>
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="container">
+        <div class="profile-card">
+            <div class="header">
+                {% if profile.image %}
+                    <img src="{{ profile.image }}" alt="Profile Image" class="profile-image">
+                {% else %}
+                    <img src="{% static 'user/img/default.webp' %}" alt="Default Profile" class="profile-image">
+                {% endif %}
+                <div class="info">
+                    <h2 class="name">{{ profile.full_name }}</h2>
+                    <p class="profession">{{ profile.profession }}</p>
+                    <p class="age">Age: {{ profile.age }} | Qualification: {{ profile.education }}</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Basic Details</h3>
+                <ul>
+                    <li>Height: {{ profile.height }}</li>
+                    <li>Hometown: {{ profile.city }}</li>
+                    <li>Current Place: {{ profile.state }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Education Details</h3>
+                <ul>
+                    <li>Qualification: {{ profile.education }}</li>
+                    <li>Profession: {{ profile.profession }}</li>
+                    <li>Workplace: {{ profile.occupation }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Family Background</h3>
+                <ul>
+                    <li>Caste: {{ profile.caste }}</li>
+                    <li>Gotra: {{ profile.gotra }}</li>
+                    <li>Religion: {{ profile.religion }}</li>
+                    <li>Notes: {{ profile.notes }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Lifestyle Preferences</h3>
+                <ul>
+                    <li>Looking For: {{ profile.looking_for }}</li>
+                    <li>Phone 1: {{ profile.phone1 }}</li>
+                    <li>Phone 2: {{ profile.phone2 }}</li>
+                </ul>
+            </div>
+
+            {% if profile.bio %}
+                <div class="quote">
+                    "{{ profile.bio }}"
+                </div>
+            {% endif %}
+
+            <div class="buttons">
+                {% if connected %}
+                    <a href="{% url 'chat' profile.user.id %}" class="btn primary">Chat</a>
+                {% else %}
+                    <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    </body>
+    </html>
+{% endblock content %}

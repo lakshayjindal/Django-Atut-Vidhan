@@ -1,46 +1,142 @@
-{% extends "base.html" %}
+{% extends "./base.html" %}
+
 {% block content %}
-<form id="search-form" class="search-form">
-  <input type="text" name="q" placeholder="Name">
-  <input type="text" name="city" placeholder="City">
-  <input type="text" name="profession" placeholder="Profession">
-  <select name="gender">
-    <option value="">Gender</option>
-    <option value="M">Male</option>
-    <option value="F">Female</option>
-    <option value="O">Other</option>
-  </select>
-  <select name="marital_status">
-    <option value="">Marital Status</option>
-    <option value="single">Single</option>
-    <option value="divorced">Divorced</option>
-  </select>
-  <input type="number" name="age_min" placeholder="Min Age">
-  <input type="number" name="age_max" placeholder="Max Age">
-</form>
-
-<div id="results-area">
-  {% include "user/partials/_search_results.html" with profiles=profiles %}
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  const form = document.getElementById('search-form');
-  const resultsArea = document.getElementById('results-area');
-
-  const fetchResults = () => {
-    const params = new URLSearchParams(new FormData(form)).toString();
-    fetch(`/ajax/search/?${params}`)
-      .then(response => response.json())
-      .then(data => {
-        resultsArea.innerHTML = data.html;
-      });
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 10px auto;
+    padding: 0 1rem;
   }
 
-  form.addEventListener('input', () => {
-    clearTimeout(window._delay);
-    window._delay = setTimeout(fetchResults, 300);  // debounce to avoid hammering server
-  });
-</script>
+  /* Search form layout */
+  #search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  #search-form input,
+  #search-form select {
+    flex: 1 1 200px;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+
+  /* Grid for profile cards */
+  #results-area {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  .profile-card {
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .profile-card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  }
+
+  .profile-card img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    margin-bottom: 15px;
+  }
+
+  .profile-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1a202c;
+  }
+
+  .profile-card p {
+    margin: 4px 0;
+    color: #4a5568;
+    font-size: 0.95rem;
+  }
+
+  .profile-card em {
+    color: #718096;
+    font-style: italic;
+  }
+
+  .btn.primary {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: #3182ce;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .btn.primary:hover {
+    background-color: #2b6cb0;
+  }
+  .space{
+      height: 10vh
+  }
+
+  @media (max-width: 480px) {
+    #search-form {
+      flex-direction: column;
+    }
+
+    #search-form input,
+    #search-form select {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="container">
+  <form id="search-form"
+        hx-get="{% url 'search_results' %}"
+        hx-target="#results-area"
+        hx-trigger="change delay:300ms, keyup delay:300ms from:input">
+    <input type="text" name="q" placeholder="Name">
+    <input type="text" name="city" placeholder="City">
+    <input type="text" name="profession" placeholder="Profession">
+
+    <select name="gender">
+      <option value="">Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <select name="marital_status">
+      <option value="">Marital Status</option>
+      <option value="single">Single</option>
+      <option value="divorced">Divorced</option>
+    </select>
+
+    <input type="number" name="age_min" placeholder="Min Age">
+    <input type="number" name="age_max" placeholder="Max Age">
+  </form>
+
+  <hr>
+
+  <div id="results-area">
+    <p class="text-muted">Start typing to see search results...</p>
+  </div>
+<div class="space"></div>
+</div>
 {% endblock %}

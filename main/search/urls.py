@@ -1,5 +1,8 @@
-from django.urls import path, include
+# search/urls.py
+from django.urls import path
+from . import views
 
-URL_PATTERNS = [
-    path('search/', views.search, name='search'),
+urlpatterns = [
+    path('', views.search_page, name='search_page'),
+    path('results/', views.search_results, name='search_results'),
 ]
