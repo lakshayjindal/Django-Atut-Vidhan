@@ -157,3 +157,11 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+USE_L10N = False  # This disables locale-based formats so we can enforce our own
+
+# Input: what users type in forms
+DATE_INPUT_FORMATS = ['%d-%m-%Y']
+
+# Output: how dates are displayed in forms or rendered
+DATE_FORMAT = 'd-m-Y'

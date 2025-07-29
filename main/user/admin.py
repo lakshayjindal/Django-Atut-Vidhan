@@ -104,7 +104,7 @@ class UserAdmin(admin.ModelAdmin):
 
                             if field == "date_of_birth":
                                 try:
-                                    dob = datetime.strptime(value, "%Y-%m-%d").date()
+                                    dob = datetime.strptime(value, "%d-%m-%Y").date()
                                     value = dob
                                 except:
                                     dob = None
@@ -112,7 +112,7 @@ class UserAdmin(admin.ModelAdmin):
 
                             elif field == "created_at":
                                 try:
-                                    value = datetime.strptime(value, "%Y-%m-%d").date()
+                                    value = datetime.strptime(value, "%d-%m-%Y").date()
                                 except:
                                     value = None
 
