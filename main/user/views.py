@@ -3,15 +3,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-
+from django.db import IntegrityError
 from connect.models import ConnectionRequest
-from .models import Profile
+import random
+import string
 from django.core.files.storage import default_storage
 from .models import Profile
 from .forms import ProfileForm
 import uuid
 from supabase import Client, create_client
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 # Create your views here.
 
 User = get_user_model()
@@ -39,35 +46,68 @@ def login_user(request):
             return render(request, 'user/auth/login.html', {'error_message': error_message})
 
     return render(request, "user/auth/login.html")
+
+
+def generate_username(first_name, last_name):
+    first_part = first_name[:2].lower() if first_name else ""
+    last_part = last_name[-2:].lower() if last_name else ""
+    random_digits = ''.join(random.choices(string.digits, k=8))
+    return f"user{first_part}{last_part}{random_digits}"
+
+def generate_unique_username(first_name, last_name):
+    for _ in range(5):
+        username = generate_username(first_name, last_name)
+        if not User.objects.filter(username=username).exists():
+            return username
+    # Fallback if collisions continue
+    return f"user{uuid.uuid4().hex[:10]}"
+
 def signup_user(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        first_name = request.POST.get("first_name", "")
+        last_name = request.POST.get("last_name", "")
 
-    if request.user.is_authenticated:
-        return redirect('user_dashboard')  # Replace with actual dashboard view name
-
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password')
-
+        username = generate_unique_username(first_name, last_name)
         if User.objects.filter(email=email).exists():
-            error_message = 'Email already registered. Try logging in instead.'
-            return render(request, 'user/auth/signup.html', {'error_message': error_message})
+            messages.error(request, "A user with that email already exists.")
+            return redirect("signup")
 
-        user = User.objects.create_user(
-            username=email,  # Important: if username field is email
-            email=email,
-            password=password
-        )
-        user.first_name = first_name  
-        user.last_name = last_name
-        user.save()
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=False,
+            )
+            user.generate_otp()  # generate and store OTP
+            send_otp_email(user)
+            request.session["pending_user_id"] = user.id
+            return redirect("verify_otp")
 
-        login(request, user)  # Log in after successful signup
-        return redirect('complete_profile')
-    return render(request, 'user/auth/signup.html')
-# def entry_user(request):
-#     pass
+        except IntegrityError:
+            messages.error(request, "A user with this email or username already exists.")
+            return redirect("signup")
+
+    return render(request, "user/auth/signup.html")
+
+def send_otp_email(user):
+    subject = "✨ Welcome to Atut Vidhan – Your OTP to Begin Your Journey"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [user.email]
+
+    html_content = render_to_string("emails/otp_email.html", {
+        "user": user,
+        "otp": user.email_otp,
+    })
+    text_content = strip_tags(html_content)  # fallback for plain-text email clients
+
+    email = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+    email.attach_alternative(html_content, "text/html")
+    email.send()
 
 
 @login_required
@@ -248,4 +288,37 @@ def upload_to_supabase(file):
     # Make public (optional)
     public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
     return public_url
+
+def verify_otp_view(request):
+    user_id = request.session.get("pending_user_id")
+    if not user_id:
+        return redirect("signup")
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        if "resend" in request.POST:
+            if user.otp_sent_at and timezone.now() - user.otp_sent_at < timedelta(minutes=1):
+                messages.warning(request, "Please wait before resending OTP.")
+            else:
+                user.generate_otp()
+                send_otp_email(user)
+                messages.success(request, "✅ OTP resent to your email.")
+            return redirect("verify_otp")
+
+        entered_otp = request.POST.get("otp")
+        if user.email_otp == entered_otp:
+            user.is_active = True
+            user.is_verified = True
+            user.email_otp = None
+            user.save()
+            login(request, user)
+            if "pending_user_id" in request.session:
+                del request.session["pending_user_id"]
+            return redirect("complete_profile")  # 🚀 Go to complete profile
+
+        else:
+            messages.error(request, "Incorrect OTP. Please try again.")
+
+    return render(request, "user/auth/verify_otp.html", {"email": user.email})
 

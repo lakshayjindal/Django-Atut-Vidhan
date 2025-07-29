@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+import random
+from django.utils import timezone
 # Create your models here.
 
 class User(AbstractUser):
@@ -15,7 +16,14 @@ class User(AbstractUser):
         choices=GENDER_CHOICES,
         null=True, blank=True
     )
+    email_otp = models.CharField(max_length=6, blank=True, null=True)
+    otp_sent_at = models.DateTimeField(null=True, blank=True)
     image = models.URLField(blank=True, null=True)
+    def generate_otp(self):
+        self.email_otp = f"{random.randint(100000, 999999)}"
+        self.otp_sent_at = timezone.now()
+        self.save()
+
 
 
 class Profile(models.Model):

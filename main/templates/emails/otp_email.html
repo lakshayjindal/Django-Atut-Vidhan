@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Your OTP</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 40px 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+
+    <h2 style="color: #2d3748;">🌸 Welcome to Atut Vidhan, {{ user.first_name|default:"Dear User" }}!</h2>
+    <p style="font-size: 16px; color: #4a5568;">
+      We're delighted to have you join our growing family of individuals looking for meaningful, lifelong connections.
+    </p>
+
+    <p style="font-size: 16px; color: #4a5568;">
+      To continue, please enter the One-Time Password (OTP) below to verify your email address.
+    </p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <div style="display: inline-block; padding: 20px 40px; background-color: #edf2f7; border-radius: 10px; font-size: 32px; font-weight: bold; color: #2c5282; letter-spacing: 6px;">
+        {{ otp }}
+      </div>
+    </div>
+
+    <p style="font-size: 15px; color: #718096;">
+      This OTP is valid for 10 minutes. If you didn’t request this, please ignore this email.
+    </p>
+
+    <p style="font-size: 16px; color: #2d3748; margin-top: 40px;">
+      With warm regards,<br>
+      💌 The Atut Vidhan Team
+    </p>
+  </div>
+</body>
+</html>
