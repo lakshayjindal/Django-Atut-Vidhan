@@ -143,8 +143,7 @@ def complete_user(request):
         profile_image_url = None
 
         if profile_image:
-            unique_filename = f"{uuid.uuid4().hex}_{profile_image.name}"
-            profile_image_url = upload_to_supabase(profile_image, unique_filename)
+            profile_image_url = upload_to_supabase(profile_image)
             user.image = profile_image_url
         if gender:
             user.user_gender = gender
