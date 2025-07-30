@@ -13,4 +13,6 @@ urlpatterns = [
     path('search/', views.search_view, name="search"),
     path('profile/<int:profile_id>/', views.profile_detail, name='profile_detail'),
     path("verify-otp/", views.verify_otp_view, name="verify_otp"),
+    path("forgot-password/", views.forgot_password_view, name="forgot_password"),
+    path("reset/<uidb64>/<token>/", views.reset_password_view, name="reset_password"),
 ]

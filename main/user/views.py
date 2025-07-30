@@ -6,7 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from connect.models import ConnectionRequest
 import random
+from django.urls import reverse
 import string
+import re
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 from django.core.files.storage import default_storage
 from .models import Profile
 from .forms import ProfileForm
@@ -29,24 +35,63 @@ SUPABASE_BUCKET = "media"
 supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
 
 
+def normalize_phone(phone):
+    """Strip spaces, dashes, and country codes from phone input."""
+    phone = re.sub(r'\D', '', phone)  # Remove non-digit characters
+    if phone.startswith('91') and len(phone) > 10:
+        phone = phone[-10:]  # Keep only the last 10 digits
+    return phone
+
+
 def login_user(request):
     if request.user.is_authenticated:
-        return redirect('user_dashboard') 
+        return redirect('user_dashboard')
 
     if request.method == 'POST':
-        email = request.POST.get('email')
+        identifier = request.POST.get('email')
         password = request.POST.get('password')
+        user = None
 
-        user = authenticate(request, username=email, password=password)
+        # 1. Email login
+        if re.match(r"[^@]+@[^@]+\.[^@]+", identifier):
+            try:
+                user_obj = User.objects.get(email=identifier)
+                user = authenticate(request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                pass
+
+        # 2. Phone login (match against phone1 or phone2)
+        elif re.match(r"\d{7,}", identifier):  # crude check that it's digits
+            normalized = normalize_phone(identifier)
+            try:
+                user_obj = User.objects.get(
+                    profile__phone1__endswith=normalized
+                )
+            except User.DoesNotExist:
+                try:
+                    user_obj = User.objects.get(
+                        profile__phone2__endswith=normalized
+                    )
+                except User.DoesNotExist:
+                    user_obj = None
+
+            if user_obj:
+                user = authenticate(request, username=user_obj.username, password=password)
+
+        # 3. Username login
+        else:
+            user = authenticate(request, username=identifier, password=password)
 
         if user is not None:
-            login(request, user)
-            return redirect('user_dashboard')
+            if user.is_active:
+                login(request, user)
+                return redirect('user_dashboard')
+            else:
+                messages.error(request, 'Account inactive. Please verify your email.')
         else:
-            error_message = 'Invalid email or password.'
-            return render(request, 'user/auth/login.html', {'error_message': error_message})
+            messages.error(request, 'Invalid credentials.')
 
-    return render(request, "user/auth/login.html")
+    return render(request, 'user/auth/login.html')
 
 
 def generate_username(first_name, last_name):
@@ -64,6 +109,9 @@ def generate_unique_username(first_name, last_name):
     return f"user{uuid.uuid4().hex[:10]}"
 
 def signup_user(request):
+    if request.user.is_authenticated:
+        return redirect('user_dashboard')
+
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -329,3 +377,120 @@ def get_opposite_gender(gender):
     elif gender == "Male":
         return "Female"
     return "Other"
+
+
+def forgot_password_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_url = request.build_absolute_uri(
+                reverse('reset_password', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            subject = "Reset Your Atut Vidhan Password"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to = [user.email]
+
+            text_content = f"""
+            Hi {user.first_name or user.username},
+
+            You requested to reset your password. Click the link below:
+
+            {reset_url}
+
+            If you didn't make this request, you can safely ignore this email.
+            """
+
+            html_content = f"""
+            <div style="font-family: Arial, sans-serif; color: #333;">
+              <h2 style="color: #2c5282;">🔐 Reset Your Password</h2>
+              <p>Hi {user.first_name or user.username},</p>
+              <p>We received a request to reset your password for your <strong>Atut Vidhan</strong> account.</p>
+              <p>Click the button below to reset it:</p>
+
+              <div style="margin: 20px 0; text-align: center;">
+                <a href="{reset_url}" style="
+                  background-color: #3182ce;
+                  color: white;
+                  padding: 12px 24px;
+                  border-radius: 6px;
+                  text-decoration: none;
+                  font-weight: bold;
+                  display: inline-block;
+                ">Reset Password</a>
+              </div>
+
+              <p style="font-size: 0.9rem; color: #555;">
+                If you didn’t request this, just ignore this email. Your password will remain unchanged.
+              </p>
+              <p style="margin-top: 32px;">With ❤️,<br><strong>Atut Vidhan Team</strong></p>
+            </div>
+            """
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+        messages.success(request, "If that email exists, a reset link has been sent.")
+        return redirect('login')
+
+    return render(request, "user/auth/forgot_password.html")
+
+
+def reset_password_view(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        user = None
+
+    if user and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            new_password = request.POST.get("password")
+            confirm_password = request.POST.get("confirm_password")
+
+            if new_password and new_password == confirm_password:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, "Password reset successful. You can now log in.")
+                # Send confirmation email
+                subject = "Your Atut Vidhan Password Was Changed ✅"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                to_email = [user.email]
+
+                text_content = f"""
+                Hi {user.first_name or user.username},
+
+                Your Atut Vidhan password was changed successfully.
+
+                If you did not make this change, contact our support immediately.
+                """
+
+                html_content = f"""
+                <div style="font-family: Arial, sans-serif; color: #333;">
+                  <h2 style="color: #2f855a;">✅ Password Changed Successfully</h2>
+                  <p>Hi {user.first_name or user.username},</p>
+                  <p>This is to confirm that your <strong>Atut Vidhan</strong> password was changed.</p>
+
+                  <p style="font-size: 0.9rem; color: #555;">
+                    If you didn't change your password, please <a href="mailto:support@atutvidhan.in">contact support</a> immediately.
+                  </p>
+
+                  <p style="margin-top: 32px;">Regards,<br><strong>Atut Vidhan Team</strong></p>
+                </div>
+                """
+
+                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+                return redirect("login")
+            else:
+                messages.error(request, "Passwords do not match.")
+        return render(request, "user/auth/reset_password.html", {"valid": True})
+    else:
+        return render(request, "user/auth/reset_password.html", {"valid": False})

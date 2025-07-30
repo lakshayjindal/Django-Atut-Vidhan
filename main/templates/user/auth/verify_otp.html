@@ -1,92 +1,30 @@
-<style>
-  .otp-container {
-    max-width: 400px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-  }
+{% extends '../base.html' %}
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+  <div style="background: white; padding: 2rem 3rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
+    <h2 style="text-align: center; color: #b30000;">Email Verification</h2>
+    <div style="font-size: 1.2rem; text-align: center; margin: 1rem 0;">❤️</div>
+    <p style="text-align: center;">An OTP has been sent to <strong>{{ email }}</strong>.</p>
+    <p style="text-align: center;">Please enter it below to continue.</p>
 
-  .otp-container h2 {
-    color: #2d3748;
-    margin-bottom: 0.5rem;
-    font-size: 1.8rem;
-  }
+    <form method="post" style="margin-top: 1.5rem;">
+      {% csrf_token %}
+      <input type="text" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" required
+        style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 1rem; text-align: center; font-size: 1.2rem; letter-spacing: 3px;">
+      <button type="submit"
+        style="width: 100%; background-color: #c62828; color: white; font-weight: bold; border: none; padding: 0.75rem; border-radius: 12px; font-size: 1rem;">
+        Verify
+      </button>
+    </form>
 
-  .otp-container p {
-    color: #4a5568;
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .otp-container input[type="text"] {
-    padding: 10px 14px;
-    width: 100%;
-    font-size: 1.1rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    transition: 0.3s;
-  }
-
-  .otp-container input[type="text"]:focus {
-    border-color: #3182ce;
-    outline: none;
-  }
-
-  .otp-container button {
-    width: 100%;
-    background-color: #3182ce;
-    color: white;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-
-  .otp-container button:hover {
-    background-color: #2b6cb0;
-  }
-
-  .resend-btn {
-    background: none;
-    border: none;
-    color: #3182ce;
-    font-size: 0.95rem;
-    margin-top: 1rem;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  .resend-btn:hover {
-    color: #2b6cb0;
-  }
-
-  .highlight-email {
-    font-weight: bold;
-    color: #2c5282;
-  }
-</style>
-
-<div class="otp-container">
-  <h2>Verify Your Email</h2>
-  <p>We've sent a 6-digit OTP to <span class="highlight-email">{{ email }}</span>.</p>
-
-  <form method="post">
-    {% csrf_token %}
-    <input type="text" name="otp" placeholder="Enter OTP here" maxlength="6" required>
-    <button type="submit">Verify OTP</button>
-  </form>
-
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="resend" value="1">
-    <button class="resend-btn" type="submit">Resend OTP</button>
-  </form>
+    <form method="post" style="margin-top: 1rem; text-align: center;">
+      {% csrf_token %}
+      <input type="hidden" name="resend" value="1">
+      <button type="submit"
+        style="background: none; border: none; color: #c62828; text-decoration: underline; font-size: 0.9rem; cursor: pointer;">
+        Resend OTP
+      </button>
+    </form>
+  </div>
 </div>
+{% endblock %}
