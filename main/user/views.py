@@ -28,6 +28,7 @@ SUPABASE_BUCKET = "media"
 
 supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
 
+
 def login_user(request):
     if request.user.is_authenticated:
         return redirect('user_dashboard') 
@@ -161,7 +162,8 @@ def complete_user(request):
                 occupation=occupation,
                 income=income,
                 city=city,
-                state=state
+                state=state,
+                looking_for=get_opposite_gender(gender),
             )
             if profile_image_url:
                 profile.image = profile_image_url
@@ -281,7 +283,6 @@ def upload_to_supabase(file):
     # Upload to Supabase
     response = supabase.storage.from_(bucket_name).upload(unique_filename, file_bytes, {
         "content-type": file.content_type,
-        "upsert": True,
     })
 
     # Make public (optional)
@@ -321,3 +322,10 @@ def verify_otp_view(request):
 
     return render(request, "user/auth/verify_otp.html", {"email": user.email})
 
+
+def get_opposite_gender(gender):
+    if gender == "Female":
+        return "Male"
+    elif gender == "Male":
+        return "Female"
+    return "Other"
