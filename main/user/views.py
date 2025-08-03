@@ -9,6 +9,7 @@ import random
 from django.urls import reverse
 import string
 import re
+from datetime import date
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode
@@ -159,12 +160,43 @@ def send_otp_email(user):
     email.send()
 
 
+def normalize_phone(phone):
+    """Cleans phone number by stripping spaces and non-digit characters."""
+    if not phone:
+        return ""
+    digits = re.sub(r"\D", "", phone)
+    # Optionally trim to last 10 digits
+    if len(digits) > 10:
+        digits = digits[-10:]
+    return digits
+
+def calculate_age(dob):
+    today = date.today()
+    return (
+        today.year
+        - dob.year
+        - ((today.month, today.day) < (dob.month, dob.day))
+    )
+
 @login_required
 def complete_user(request):
     if request.method == "POST":
         user = request.user
 
-        # Handle "other" logic for dropdowns
+        # Profile Image
+        profile_image = request.FILES.get("profile_image")
+        profile_image_url = upload_to_supabase(profile_image) if profile_image else None
+
+        # Basic Inputs
+        full_name = request.POST.get("full_name", "").strip()
+        phone1 = normalize_phone(request.POST.get("phone1"))
+        phone2 = normalize_phone(request.POST.get("phone2"))
+
+        # Dropdowns with 'other' handling
+        mother_tongue = request.POST.get("mother_tongue")
+        if mother_tongue == "other":
+            mother_tongue = request.POST.get("mother_tongue_other")
+
         gender = request.POST.get("gender")
         if gender == "other":
             gender = request.POST.get("gender_other")
@@ -181,61 +213,62 @@ def complete_user(request):
         if income == "other":
             income = request.POST.get("income_other")
 
+        profession = request.POST.get("profession")
+        if profession == "other":
+            profession = request.POST.get("profession_other")
+
         state = request.POST.get("state")
         if state == "other":
             state = request.POST.get("state_other")
 
+        # Remaining Fields
         dob = request.POST.get("dob")
-
         occupation = request.POST.get("occupation")
+        caste = request.POST.get("caste", "").strip()
+        gotra = request.POST.get("gotra", "").strip()
         city = request.POST.get("city")
-        profile_image = request.FILES.get("profile_image")
-        profile_image_url = None
-
-        if profile_image:
-            profile_image_url = upload_to_supabase(profile_image)
+        bio = request.POST.get("bio", "").strip()
+        looking_for = request.POST.get("looking_for")
+        age = calculate_age(dob)
+        # Update User Model
+        user.full_name = full_name
+        user.user_gender = gender
+        user.age = age
+        if profile_image_url:
             user.image = profile_image_url
-        if gender:
-            user.user_gender = gender
         user.save()
-        # Try to get existing profile, else manually create it with all required fields
-        try:
-            profile = Profile.objects.get(user=user)
-        except Profile.DoesNotExist:
-            profile = Profile(
-                user=user,
-                date_of_birth=dob,
-                gender=gender,
-                religion=religion,
-                education=education,
-                occupation=occupation,
-                income=income,
-                city=city,
-                state=state,
-                looking_for=get_opposite_gender(gender),
-            )
-            if profile_image_url:
-                profile.image = profile_image_url
-            profile.save()
-            return redirect("user_dashboard")
 
-        # If profile already exists, update it
-        profile.gender = gender
+        # Get or create profile
+        profile, _ = Profile.objects.get_or_create(user=user)
+
+        # Update profile fields
+        profile.full_name = full_name
+        profile.phone1 = phone1
+        profile.phone2 = phone2
         profile.date_of_birth = dob
+        profile.gender = gender
         profile.religion = religion
         profile.education = education
         profile.occupation = occupation
         profile.income = income
-        profile.city = city
         profile.state = state
-        if profile_image:
-            profile.image = profile_image
+        profile.city = city
+        profile.mother_tongue = mother_tongue
+        profile.profession = profession
+        profile.looking_for = looking_for or get_opposite_gender(gender)
+        profile.caste = caste
+        profile.gotra = gotra
+        profile.bio = bio
+        profile.age = age
+
+        if profile_image_url:
+            profile.image = profile_image_url
+
         profile.save()
 
         return redirect("user_dashboard")
 
     return render(request, "user/complete_profile.html")
-
 
 def logout_user(request):
     logout(request)
