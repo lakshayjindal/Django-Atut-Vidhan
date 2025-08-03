@@ -89,7 +89,7 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASE_CONNECTION_URL ="postgresql://admin:cUjS090JjaXHlxPHb9RIrKW9RPvinQdo@dpg-d1j767umcj7s73aahn30-a.singapore-postgres.render.com/atut_vidhan"
+DATABASE_CONNECTION_URL ="postgresql://atut_vidhan_db_user:GTyahfgbc5I5rshSP7JIRbmh0iLkasE8@dpg-d272rnvdiees73bf9jo0-a.ohio-postgres.render.com/atut_vidhan_db"
 DATABASES = {
     'default': dj_database_url.config(default=DATABASE_CONNECTION_URL)
 }

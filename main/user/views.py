@@ -186,6 +186,7 @@ def complete_user(request):
             state = request.POST.get("state_other")
 
         dob = request.POST.get("dob")
+
         occupation = request.POST.get("occupation")
         city = request.POST.get("city")
         profile_image = request.FILES.get("profile_image")
