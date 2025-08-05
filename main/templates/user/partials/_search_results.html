@@ -90,7 +90,7 @@
       <p>{{ profile.education }}</p>
       <p><em>{{ profile.bio|truncatechars:100 }}</em></p>
     </a>
-    <a href="{% url send_request profile.user.id %}" class="btn primary">Connect</a>
+    <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
   </div>
   {% empty %}
   <p style="text-align: center; color: #999;">No matching profiles found.</p>
