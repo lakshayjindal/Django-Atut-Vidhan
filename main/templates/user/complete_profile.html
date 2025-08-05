@@ -121,6 +121,24 @@
             border-radius: 4px;
             margin-bottom: 1rem;
         }
+            #bio {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+        background-color: #fff;
+        box-sizing: border-box;
+        transition: border 0.2s ease-in-out;
+    }
+
+    #bio:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
     </style>
 
     </style>
@@ -390,5 +408,29 @@
             removeBtn.style.display = 'none';
         }
     </script>
+
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+            const dobInput = document.getElementById('dob');
+            const today = new Date();
+
+            const pad = (num) => String(num).padStart(2, '0');
+
+            const formatDate = (date) => {
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        };
+
+            const minAge = 18;
+            const maxAge = 65;
+
+            const maxDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+            const minDate = new Date(today.getFullYear() - maxAge, today.getMonth(), today.getDate());
+
+            dobInput.max = formatDate(maxDate);
+            dobInput.min = formatDate(minDate);
+        });
+    </script>
+
 
 {% endblock extra_scripts %}

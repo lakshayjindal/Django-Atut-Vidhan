@@ -9,7 +9,7 @@ import random
 from django.urls import reverse
 import string
 import re
-from datetime import date
+from datetime import date, datetime
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode
@@ -170,7 +170,9 @@ def normalize_phone(phone):
         digits = digits[-10:]
     return digits
 
-def calculate_age(dob):
+
+def calculate_age(dob_str):
+    dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
     today = date.today()
     return (
         today.year
