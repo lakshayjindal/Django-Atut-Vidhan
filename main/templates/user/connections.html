@@ -128,13 +128,13 @@
             {% if received_requests %}
                 {% for req in received_requests %}
                     <div class="request-card" id="received-request-{{ req.id }}">
-                        <p><strong>{% if profile.image %}
-                                <img src="{{ req.receiver.image }}" alt="{{ req.receiver.first_name }}"
+                        <p> <a href="{% url 'profile_detail' req.sender.profile.id %}"><strong>{% if profile.image %}
+                                <img src="{{ req.sender.image }}" alt="{{ req.sender.first_name }}"
                                      class="profile-img">
                             {% else %}
                                 <img src="{% static 'user/img/default.webp' %}" alt="Default Profile"
                                      class="profile-img">
-                            {% endif %}{{ req.sender.first_name }} {{ req.sender.last_name }}</strong> wants to connect with you.</p>
+                            {% endif %}{{ req.sender.first_name }} {{ req.sender.last_name }}</a> </strong> wants to connect with you.</p>
                         <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
                     </div>
                 {% endfor %}
@@ -152,7 +152,7 @@
             {% if sent_requests %}
                 {% for req in sent_requests %}
                     <div class="request-card" id="sent-request-{{ req.id }}">
-                        <p><a href="{% url 'profile_detail' req.receiver.id %}">
+                        <p><a href="{% url 'profile_detail' req.receiver.profile.id %}">
                             {% if profile.image %}
                                 <img src="{{ req.receiver.image }}" alt="{{ req.receiver.first_name }}"
                                      class="profile-img">

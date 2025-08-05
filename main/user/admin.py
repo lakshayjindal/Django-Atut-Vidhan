@@ -1,4 +1,6 @@
 from django.contrib import admin, messages
+from django.contrib.admin import ModelAdmin
+
 from .models import User, Profile
 from django import forms
 from django.shortcuts import render, redirect, HttpResponse
@@ -145,4 +147,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(Profile)
+
+@admin.register(Profile)
+class ProfileModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'age', 'gender', 'phone1', 'phone2')

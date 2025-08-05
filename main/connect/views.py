@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -15,42 +16,55 @@ from django.db import models
 # Custom User model
 User = get_user_model()
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+from .models import ChatMessage, ConnectionRequest
+from user.models import User, Profile  # Assuming Profile is here
 
 @login_required
 def chat_view(request, chat_with=None):
-    chat_users_ids = ChatMessage.objects.filter(
-        Q(sender=request.user) | Q(receiver=request.user)
-    ).values_list('sender', 'receiver')
+    # ✅ 1. Get all actively connected users (either sender or receiver)
+    connections = ConnectionRequest.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user),
+        is_accepted=True,
+        connection_active=True
+    )
 
-    user_ids = set()
-    for sender_id, receiver_id in chat_users_ids:
-        if sender_id != request.user.id:
-            user_ids.add(sender_id)
-        if receiver_id != request.user.id:
-            user_ids.add(receiver_id)
+    connected_user_ids = set()
+    for conn in connections:
+        if conn.sender == request.user:
+            connected_user_ids.add(conn.receiver.id)
+        else:
+            connected_user_ids.add(conn.sender.id)
 
-    chat_users = User.objects.filter(id__in=user_ids)
+    chat_users = User.objects.filter(id__in=connected_user_ids)
 
+    # 🧠 Initialize variables
     selected_user = None
     selected_user_profile = None
     messages = []
 
+    # ✅ 2. If user selects someone to chat with
     if chat_with:
         selected_user = get_object_or_404(User, id=chat_with)
 
-        # 🔒 Block chat unless connected
-        if not are_connected(request.user, selected_user):
+        # 🔒 Check that selected_user is actually connected
+        if selected_user.id not in connected_user_ids:
             return render(request, 'user/chat/not_connected.html', {
                 'selected_user': selected_user,
                 'reason': "You must be connected to this user before chatting."
             })
 
-        selected_user_profile = selected_user.profile
+        # 📨 Fetch messages between the two users
         messages = ChatMessage.objects.filter(
-            sender__in=[request.user, selected_user],
-            receiver__in=[request.user, selected_user]
+            Q(sender=request.user, receiver=selected_user) |
+            Q(sender=selected_user, receiver=request.user)
         ).order_by('timestamp')
 
+        selected_user_profile = selected_user.profile  # Assuming related_name='profile'
+
+    # ✅ 3. Get profiles for chat user sidebar
     user_profiles = {
         user.id: Profile.objects.get_or_create(user=user)[0]
         for user in chat_users
@@ -129,6 +143,7 @@ def accept_request(request, request_id):
         return JsonResponse({'error': 'Already accepted'}, status=400)
 
     conn_request.is_accepted = True
+    conn_request.connection_active = True
     conn_request.save()
 
     # Real-time notify the sender
@@ -181,3 +196,8 @@ def send_request(request, receiver_id):
         messages.warning(request, f"You have already sent a connection request to {receiver.username}.")
 
     return redirect('user_dashboard')
+
+# def block_user(request, user_id):
+#     user = request.user
+#     to_block_user = get_object_or_404(User, id=user_id)
+#     connection = get_object_or_404(ConnectionRequest, q(receiver == user and sender == to_block_user) )
