@@ -78,7 +78,7 @@ class Profile(models.Model):
     notes = models.TextField(blank=True, null=True)
     # Profile Media
     image = models.URLField(blank=True, null=True)
-
+    marital_status = models.CharField(max_length=10, null=True, blank=True, db_index=True, choices=[('Single', 'Single'), ("Married", "Married")])
     # Timestamp
     created_at = models.DateTimeField(auto_now_add=True)
 

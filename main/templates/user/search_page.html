@@ -107,10 +107,15 @@
 </style>
 
 <div class="container">
+<div
+  hx-get="{% url 'search_results' %}?initial=1"
+  hx-target="#results-area"
+  hx-trigger="load"
+>
   <form id="search-form"
         hx-get="{% url 'search_results' %}"
         hx-target="#results-area"
-        hx-trigger="change delay:300ms, keyup delay:300ms from:input">
+        hx-trigger="change delay:100ms, keyup delay:100ms from:input">
 
     <input type="text" name="q" placeholder="Name">
     <input type="text" name="city" placeholder="City">
@@ -118,16 +123,16 @@
 
     <select name="gender">
       <option value="">Gender</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-      <option value="Other">Other</option>
+      <option value="Male" {% if user.profile.gender == 'Female' %} selected {% endif %}>Male</option>
+      <option value="Female" {% if user.profile.gender == 'Male' %} selected {% endif %}>Female</option>
+      <option value="Other" >Other</option>
     </select>
 
-    <select name="marital_status">
-      <option value="">Marital Status</option>
-      <option value="single">Single</option>
-      <option value="divorced">Divorced</option>
-    </select>
+{#    <select name="marital_status">#}
+{#      <option value="">Marital Status</option>#}
+{#      <option value="single">Single</option>#}
+{#      <option value="divorced">Divorced</option>#}
+{#    </select>#}
 
     <input type="number" name="age_min" placeholder="Min Age">
     <input type="number" name="age_max" placeholder="Max Age">
@@ -141,5 +146,5 @@
 
   <div class="space"></div>
 </div>
-
+</div>
 {% endblock %}

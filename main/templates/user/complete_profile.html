@@ -121,24 +121,25 @@
             border-radius: 4px;
             margin-bottom: 1rem;
         }
-            #bio {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 1rem;
-        resize: vertical;
-        background-color: #fff;
-        box-sizing: border-box;
-        transition: border 0.2s ease-in-out;
-    }
 
-    #bio:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-    }
+        #bio {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            background-color: #fff;
+            box-sizing: border-box;
+            transition: border 0.2s ease-in-out;
+        }
+
+        #bio:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+        }
     </style>
 
     </style>
@@ -321,6 +322,7 @@
                     <option value="5_10_lakh">₹5 - ₹10 Lakh</option>
                     <option value="10_20_lakh">₹10 - ₹20 Lakh</option>
                     <option value="above_20_lakh">Above ₹20 Lakh</option>
+                    <option value="other">Other</option>
                 </select>
                 <input type="text" name="income_other" id="income-other" placeholder="Please specify"
                        style="display:none; margin-top: 10px;">
@@ -345,6 +347,23 @@
                     <option value="other">Other</option>
                 </select>
                 <input type="text" name="state_other" id="state-other" placeholder="Please specify"
+                       style="display:none; margin-top: 10px;">
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select name="country" id="country" required onchange="toggleOtherInput('country')">
+                    <option value="">-- Select --</option>
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <input type="text" name="country_other" id="country-other" placeholder="Please specify"
                        style="display:none; margin-top: 10px;">
             </div>
 
@@ -410,16 +429,16 @@
     </script>
 
 
-        <script>
-            window.addEventListener('DOMContentLoaded', () => {
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
             const dobInput = document.getElementById('dob');
             const today = new Date();
 
             const pad = (num) => String(num).padStart(2, '0');
 
             const formatDate = (date) => {
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-        };
+                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+            };
 
             const minAge = 18;
             const maxAge = 65;

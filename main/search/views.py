@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
 def search_page(request):
-    return render(request, 'user/search_page.html')
+    return render(request, 'user/search_page.html', {'user': request.user})
 
 
 
@@ -20,11 +20,28 @@ def search_results(request):
     age_min = request.GET.get('age_min')
     age_max = request.GET.get('age_max')
     page_number = request.GET.get('page', 1)
+    initial = request.GET.get('initial')
 
     filters = Q()
     filters &= ~Q(user=request.user)
     filters &= ~Q(user__is_superuser=True)
 
+    if initial:
+        # Show opposite gender profiles when page first loads
+        user_gender = request.user.profile.gender
+        if user_gender == 'Male':
+            filters &= Q(gender='Female')
+        elif user_gender == 'Female':
+            filters &= Q(gender='Male')
+        else:
+            filters &= ~Q(gender='')  # fallback
+
+        queryset = Profile.objects.filter(filters).select_related('user')[:10]
+        return render(request, 'user/partials/_search_results.html', {
+            'profiles': queryset,
+            'page_obj': None,
+            'paginator': None,
+        })
     if query:
         filters &= (
             Q(full_name__icontains=query) |
