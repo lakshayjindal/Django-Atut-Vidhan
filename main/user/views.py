@@ -222,7 +222,9 @@ def complete_user(request):
         state = request.POST.get("state")
         if state == "other":
             state = request.POST.get("state_other")
-
+        country = request.POST.get("country")
+        if country == "other":
+            country = request.POST.get("country_other")
         # Remaining Fields
         dob = request.POST.get("dob")
         occupation = request.POST.get("occupation")
@@ -261,6 +263,7 @@ def complete_user(request):
         profile.caste = caste
         profile.gotra = gotra
         profile.bio = bio
+        profile.country = country
         profile.age = age
 
         if profile_image_url:
@@ -270,7 +273,7 @@ def complete_user(request):
 
         return redirect("user_dashboard")
 
-    return render(request, "user/complete_profile.html")
+    return render(request, "user/compete_profile.html")
 
 def logout_user(request):
     logout(request)
