@@ -273,7 +273,7 @@ def complete_user(request):
 
         return redirect("user_dashboard")
 
-    return render(request, "user/compete_profile.html")
+    return render(request, "user/complete_profile.html")
 
 def logout_user(request):
     logout(request)
