@@ -3,180 +3,165 @@
 
 {% block extra_head %}
 <style>
-.profile-edit-container {
-    max-width: 700px;
-    margin: auto;
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.08);
-}
+    :root {
+        --primary: #e63946;
+        --primary-hover: #c71f2d;
+        --bg-light: #f8f9fa;
+        --card-bg: #fff;
+        --text-dark: #333;
+        --text-muted: #666;
+        --border: #e0e0e0;
+    }
 
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
+    body {
+        font-family: "Inter", "Segoe UI", sans-serif;
+        background-color: var(--bg-light);
+    }
 
-.editable-section {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+    .profile-edit-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        animation: fadeIn 0.4s ease-in-out;
+    }
 
-.editable-field {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-}
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-.editable-field label {
-    flex: 1;
-    font-weight: bold;
-}
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+        color: var(--text-dark);
+    }
 
-.view-mode {
-    flex: 2;
-}
+    .profile-image-block {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-.edit-mode {
-    flex: 2;
-    padding: 5px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
+    .profile-image-preview {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 10px;
+        border: 3px solid var(--border);
+    }
 
-.edit-toggle {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
+    .editable-section {
+        display: grid;
+        gap: 20px;
+    }
 
-.edit-toggle:hover {
-    color: #007bff;
-}
+    .editable-field {
+        display: flex;
+        flex-direction: column;
+    }
 
-.save-button {
-    display: block;
-    margin: 20px auto 0;
-    padding: 10px 25px;
-    font-size: 1rem;
-    border: none;
-    background-color: #f04d4d;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-}
+    .editable-field label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--text-dark);
+    }
 
-.save-button:hover {
-    background-color: #c0392b;
-}
+    .edit-mode,
+    select,
+    input[type="text"],
+    input[type="date"],
+    input[type="file"],
+    textarea {
+        padding: 10px 12px;
+        font-size: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background-color: #fafafa;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
 
-.profile-image-block {
-    text-align: center;
-    margin-bottom: 20px;
-}
+    .edit-mode:focus,
+    select:focus,
+    input:focus,
+    textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+        outline: none;
+    }
 
-.profile-image-preview {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
+    .save-button {
+        display: block;
+        margin: 30px auto 0;
+        padding: 12px 28px;
+        font-size: 1rem;
+        border: none;
+        background: var(--primary);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
 
+    .save-button:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
 </style>
 {% endblock extra_head %}
+
 {% block content %}
 <div class="profile-edit-container">
     <h2>Edit Profile</h2>
     <form method="POST" enctype="multipart/form-data" class="edit-form">
         {% csrf_token %}
-        
+
         <!-- Profile Picture -->
         <div class="profile-image-block">
             {% if profile.image %}
-                <img src="{{ profile.image.url }}" class="profile-image-preview" alt="Profile Image">
+                <img src="{{ profile.image }}"
+                     class="profile-image-preview"
+                     alt="Profile Image"
+                     id="profileImagePreview">
+            {% else %}
+                <img src="{% static 'user/img/default.webp' %}"
+                     class="profile-image-preview"
+                     alt="Default Profile Image"
+                     id="profileImagePreview">
             {% endif %}
-            <input type="file" name="image">
+            <input type="file" name="image" accept="image/*" onchange="previewImage(this)">
         </div>
 
-        <!-- Dynamic Editable Fields -->
+        <!-- Render all form fields -->
         <div class="editable-section">
-            {% comment %} Full Name {% endcomment %}
-            <div class="editable-field">
-                <label>Full Name:</label>
-                <span class="view-mode" id="full_nameDisplay">{{ profile.full_name }}</span>
-                <input type="text" name="full_name" class="edit-mode" id="full_nameInput" value="{{ profile.full_name }}" style="display: none;">
-                <button type="button" class="edit-toggle" onclick="toggleEdit('full_name')">✏️</button>
-            </div>
-
-            {% comment %} Gender {% endcomment %}
-            <div class="editable-field">
-                <label>Gender:</label>
-                <span class="view-mode" id="genderDisplay">{{ profile.gender }}</span>
-                <select name="gender" id="genderInput" class="edit-mode" style="display: none;">
-                    {% for key, val in profile.GENDER_CHOICES %}
-                        <option value="{{ key }}" {% if profile.gender == key %}selected{% endif %}>{{ val }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" class="edit-toggle" onclick="toggleEdit('gender')">✏️</button>
-            </div>
-
-            {% comment %} Date of Birth {% endcomment %}
-            <div class="editable-field">
-                <label>Date of Birth:</label>
-                <span class="view-mode" id="dobDisplay">{{ profile.date_of_birth }}</span>
-                <input type="date" name="date_of_birth" id="dobInput" class="edit-mode" value="{{ profile.date_of_birth|date:'Y-m-d' }}" style="display: none;">
-                <button type="button" class="edit-toggle" onclick="toggleEdit('dob')">✏️</button>
-            </div>
-
-            {% comment %} Phone Numbers {% endcomment %}
-            <div class="editable-field">
-                <label>Phone 1:</label>
-                <span class="view-mode" id="phone1Display">{{ profile.phone1 }}</span>
-                <input type="text" name="phone1" id="phone1Input" class="edit-mode" value="{{ profile.phone1 }}" style="display: none;">
-                <button type="button" class="edit-toggle" onclick="toggleEdit('phone1')">✏️</button>
-            </div>
-
-            <div class="editable-field">
-                <label>Phone 2:</label>
-                <span class="view-mode" id="phone2Display">{{ profile.phone2 }}</span>
-                <input type="text" name="phone2" id="phone2Input" class="edit-mode" value="{{ profile.phone2 }}" style="display: none;">
-                <button type="button" class="edit-toggle" onclick="toggleEdit('phone2')">✏️</button>
-            </div>
-
-            {% comment %} Add more fields as needed... {% endcomment %}
-
-            <!-- Submit Button -->
-            <div class="submit-button-container">
-                <button type="submit" class="save-button">💾 Save Changes</button>
-            </div>
+            {% for field in form %}
+                <div class="editable-field">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error" style="color: red; font-size: 0.9em;">
+                            {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
+
+        <button type="submit" class="save-button">💾 Save Changes</button>
     </form>
 </div>
 
-<!-- JavaScript for toggle editing -->
 <script>
-    function toggleEdit(fieldId) {
-        const display = document.getElementById(fieldId + 'Display');
-        const input = document.getElementById(fieldId + 'Input');
-
-        if (display && input) {
-            if (display.style.display !== 'none') {
-                display.style.display = 'none';
-                input.style.display = 'inline-block';
-                input.focus();
-            } else {
-                display.innerText = input.value || input.options[input.selectedIndex].text;
-                display.style.display = 'inline-block';
-                input.style.display = 'none';
-            }
-        }
+function previewImage(input) {
+    const preview = document.getElementById('profileImagePreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { preview.src = e.target.result; };
+        reader.readAsDataURL(input.files[0]);
     }
+}
 </script>
 {% endblock %}

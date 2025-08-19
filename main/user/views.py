@@ -296,7 +296,13 @@ def edit_profile(request):
             return redirect('view_profile')
     else:
         form = ProfileForm(instance=profile)
-    return render(request, 'user/profile/edit.html', {'form': form})
+
+    # Pass both form (for validation) + profile (for custom rendering)
+    return render(request, 'user/profile/edit.html', {
+        'form': form,
+        'profile': profile,
+    })
+
 @login_required
 def search_view(request):
     query = request.GET.get('q', '').strip()
@@ -354,27 +360,36 @@ def profile_detail(request, profile_id):
 
     return render(request, 'user/profile_detail.html', context)
 
+def upload_to_supabase(file, folder="profile_images"):
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise RuntimeError("Supabase URL or Key not set")
 
-def upload_to_supabase(file):
-    bucket_name = SUPABASE_BUCKET
+    # Handle both UploadedFile and file path
+    if isinstance(file, UploadedFile):
+        file_ext = file.name.split('.')[-1]
+        unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
 
-    # Generate a unique filename
-    file_ext = file.name.split('.')[-1]
-    unique_filename = f"profile_images/{uuid.uuid4()}.{file_ext}"
+        temp_path = default_storage.save(unique_filename, file)
+        with default_storage.open(temp_path, 'rb') as f:
+            file_bytes = f.read()
+        content_type = file.content_type
+    elif isinstance(file, str):  # file path
+        file_ext = file.split('.')[-1]
+        unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
+        with open(file, 'rb') as f:
+            file_bytes = f.read()
+        content_type = "application/octet-stream"
+    else:
+        raise ValueError("Invalid file type passed to upload_to_supabase")
 
-    # Save temporarily to disk (required for reading binary content)
-    temp_path = default_storage.save(unique_filename, file)
-    with default_storage.open(temp_path, 'rb') as f:
-        file_bytes = f.read()
+    # Upload
+    resp = supabase.storage.from_(SUPABASE_BUCKET).upload(
+        unique_filename, file_bytes, {"content-type": content_type}
+    )
+    if "error" in resp:
+        raise RuntimeError(f"Supabase upload error: {resp['error']}")
 
-    # Upload to Supabase
-    response = supabase.storage.from_(bucket_name).upload(unique_filename, file_bytes, {
-        "content-type": file.content_type,
-    })
-
-    # Make public (optional)
-    public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
-    return public_url
+    return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(unique_filename)
 
 def verify_otp_view(request):
     user_id = request.session.get("pending_user_id")

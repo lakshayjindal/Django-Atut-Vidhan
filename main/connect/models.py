@@ -5,6 +5,7 @@ class ChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     message = models.TextField()
+    file_url = models.URLField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 

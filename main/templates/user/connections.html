@@ -4,247 +4,188 @@
 {% block title %}Connection Requests{% endblock title %}
 
 {% block extra_head %}
-    <style>
-        .connections-container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #fffdf9;
-            border-left: 4px solid #d42f2f;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+<style>
+    .connections-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #fffdf9;
+        border-left: 4px solid #d42f2f;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 
-        .connections-container h2 {
-            color: #d42f2f;
-            font-size: 24px;
-            margin-bottom: 1.5rem;
-        }
+    .connections-container h2 {
+        color: #d42f2f;
+        font-size: 24px;
+        margin-bottom: 1.5rem;
+    }
 
-        .request-card {
-            background-color: #fff0eb;
-            border: 1px solid #ffd3cb;
-            border-radius: 8px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .request-card {
+        background-color: #fff0eb;
+        border: 1px solid #ffd3cb;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        .request-card p {
-            margin: 0;
-            font-size: 16px;
-            color: #333;
-        }
+    .request-card p {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        .accept-btn {
-            background-color: #d42f2f;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    .accept-btn {
+        background-color: #d42f2f;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-        .accept-btn:hover {
-            background-color: #b53030;
-        }
+    .accept-btn:hover {
+        background-color: #b53030;
+    }
 
-        .no-requests {
-            background-color: #fff5f5;
-            border: 1px solid #ffdada;
-            padding: 1rem;
-            border-radius: 6px;
-            color: #b30000;
-            text-align: center;
-            font-style: italic;
-        }
+    .no-requests {
+        background-color: #fff5f5;
+        border: 1px solid #ffdada;
+        padding: 1rem;
+        border-radius: 6px;
+        color: #b30000;
+        text-align: center;
+        font-style: italic;
+    }
 
-        .chat-btn,
-        .cancel-btn {
-            display: inline-block;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            text-decoration: none;
-            text-align: center;
-            user-select: none;
-        }
+    .chat-btn,
+    .cancel-btn {
+        display: inline-block;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        text-decoration: none;
+        text-align: center;
+        user-select: none;
+    }
 
-        .chat-btn {
-            background-color: #1e88e5; /* blue */
-            color: #ffffff;
-        }
+    .chat-btn {
+        background-color: #1e88e5;
+        color: #ffffff;
+    }
+    .chat-btn:hover {
+        background-color: #1565c0;
+        transform: translateY(-1px);
+    }
 
-        .chat-btn:hover {
-            background-color: #1565c0;
-            transform: translateY(-1px);
-        }
+    .cancel-btn {
+        background-color: #e53935;
+        color: #ffffff;
+    }
+    .cancel-btn:hover {
+        background-color: #b71c1c;
+        transform: translateY(-1px);
+    }
 
-        .cancel-btn {
-            background-color: #e53935; /* red */
-            color: #ffffff;
-        }
+    .profile-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+        border: 2px solid #e2e8f0;
+        transition: transform 0.3s ease;
+        vertical-align: middle;
+    }
 
-        .cancel-btn:hover {
-            background-color: #b71c1c;
-            transform: translateY(-1px);
-        }
-
-        .profile-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 12px;
-            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-            border: 2px solid #e2e8f0; /* soft light border */
-            transition: transform 0.3s ease;
-            vertical-align: middle;
-        }
-
-        .profile-img:hover {
-            transform: scale(1.05);
-            border-color: #4f46e5; /* subtle highlight on hover */
-        }
-
-
-
-    </style>
+    .profile-img:hover {
+        transform: scale(1.05);
+        border-color: #4f46e5;
+    }
+</style>
 {% endblock extra_head %}
 
 {% block content %}
-    <div class="connections-container">
-        <h2>Pending Connection Requests</h2>
+<div class="connections-container">
+    <h2>Pending Connection Requests</h2>
 
-        <div id="received-requests">
-            {% if received_requests %}
-                {% for req in received_requests %}
-                    <div class="request-card" id="received-request-{{ req.id }}">
-                        <p> <a href="{% url 'profile_detail' req.sender.profile.id %}"><strong>{% if profile.image %}
-                                <img src="{{ req.sender.image }}" alt="{{ req.sender.first_name }}"
-                                     class="profile-img">
+    <div id="received-requests">
+        {% if received_requests %}
+            {% for req in received_requests %}
+                <div class="request-card" id="received-request-{{ req.id }}">
+                    <p>
+                        <a href="{% url 'profile_detail' req.sender.profile.id %}">
+                            {% if req.sender.profile.image %}
+                                <img src="{{ req.sender.profile.image.url }}" alt="{{ req.sender.first_name }}" class="profile-img">
                             {% else %}
-                                <img src="{% static 'user/img/default.webp' %}" alt="Default Profile"
-                                     class="profile-img">
-                            {% endif %}{{ req.sender.first_name }} {{ req.sender.last_name }}</a> </strong> wants to connect with you.</p>
-                        <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-requests" id="no-received-msg">
-                    No new connection requests at the moment.
-                </div>
-            {% endif %}
-        </div>
-
-        <hr>
-        <h2>Sent Connection Requests</h2>
-
-        <div id="sent-requests">
-            {% if sent_requests %}
-                {% for req in sent_requests %}
-                    <div class="request-card" id="sent-request-{{ req.id }}">
-                        <p><a href="{% url 'profile_detail' req.receiver.profile.id %}">
-                            {% if profile.image %}
-                                <img src="{{ req.receiver.image }}" alt="{{ req.receiver.first_name }}"
-                                     class="profile-img">
-                            {% else %}
-                                <img src="{% static 'user/img/default.webp' %}" alt="Default Profile"
-                                     class="profile-img">
+                                {% if req.sender.profile.gender == "male" %}
+                                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
+                                {% else %}
+                                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
+                                {% endif %}
                             {% endif %}
-                            <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong></a></p>
-                        <p>
-                            {% if req.is_accepted %}
-                                <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
-                            {% else %}
-                                <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
-                            {% endif %}
-                        </p>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-requests" id="no-sent-msg">
-                    You haven't sent any connection requests yet.
+                            <strong>{{ req.sender.first_name }} {{ req.sender.last_name }}</strong>
+                        </a>
+                        wants to connect with you.
+                    </p>
+                    <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
                 </div>
-            {% endif %}
-        </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-requests" id="no-received-msg">
+                No new connection requests at the moment.
+            </div>
+        {% endif %}
     </div>
 
+    <hr>
+    <h2>Sent Connection Requests</h2>
+
+    <div id="sent-requests">
+        {% if sent_requests %}
+            {% for req in sent_requests %}
+                <div class="request-card" id="sent-request-{{ req.id }}">
+                    <p>
+                        <a href="{% url 'profile_detail' req.receiver.profile.id %}">
+                            {% if req.receiver.profile.image %}
+                                <img src="{{ req.receiver.profile.image.url }}" alt="{{ req.receiver.first_name }}" class="profile-img">
+                            {% else %}
+                                {% if req.receiver.profile.gender == "male" %}
+                                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
+                                {% else %}
+                                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
+                                {% endif %}
+                            {% endif %}
+                            <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong>
+                        </a>
+                    </p>
+                    <p>
+                        {% if req.is_accepted %}
+                            <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
+                        {% else %}
+                            <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
+                        {% endif %}
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-requests" id="no-sent-msg">
+                You haven't sent any connection requests yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}
-
-{% block extra_scripts %}
-    <script>
-        function getCSRFToken() {
-            const cookie = document.cookie.match(/csrftoken=([^;]+)/);
-            return cookie ? cookie[1] : '';
-        }
-
-        // Cancel a sent request
-        function cancelRequest(requestId) {
-            if (!confirm("Are you sure you want to cancel this request?")) return;
-
-            fetch(`/cancel-request/${requestId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const card = document.getElementById(`sent-request-${requestId}`);
-                        if (card) card.remove();
-
-                        // Check if sent-requests is empty
-                        if (!document.querySelector('#sent-requests .request-card')) {
-                            document.getElementById('no-sent-msg').style.display = 'block';
-                        }
-                    } else {
-                        alert(data.error || 'Failed to cancel the request.');
-                    }
-                })
-                .catch(err => console.error('Cancel request error:', err));
-        }
-
-        // Accept a received request
-        function acceptRequest(requestId) {
-            fetch(`/chat/connect/accept/${requestId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const card = document.getElementById(`received-request-${requestId}`);
-                        if (card) card.remove();
-
-                        // Check if received-requests is empty
-                        if (!document.querySelector('#received-requests .request-card')) {
-                            document.getElementById('no-received-msg').style.display = 'block';
-                        }
-
-                        // Optionally add a "Chat" card or success message
-                        alert("Connection accepted! You can now chat.");
-                    } else {
-                        alert(data.error || 'Failed to accept the request.');
-                    }
-                })
-                .catch(err => console.error('Accept request error:', err));
-        }
-    </script>
-
-{% endblock %}

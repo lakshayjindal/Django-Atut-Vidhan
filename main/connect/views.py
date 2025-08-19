@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from .models import ChatMessage, ConnectionRequest
 from user.models import Profile
 from django.db.models import Q
+from user.views import upload_to_supabase
 from django.views.decorators.http import require_POST
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -81,24 +82,30 @@ def chat_view(request, chat_with=None):
 
     return render(request, 'user/chat/maininterface.html', context)
 
-
 @login_required
 def send_message(request):
     if request.method == 'POST':
-        message = request.POST.get('message')
+        message = request.POST.get('message', '').strip()
         receiver_id = request.POST.get('receiver_id')
         receiver = get_object_or_404(User, id=receiver_id)
+        uploaded_file = request.FILES.get('attachment')
 
-        if message and receiver:
+        file_url = None
+        if uploaded_file:
+            file_url = upload_to_supabase(uploaded_file)  # Your upload logic
+
+        if message or file_url:
             ChatMessage.objects.create(
                 sender=request.user,
                 receiver=receiver,
-                message=message,
+                message=message if message else None,
+                file_url=file_url if file_url else None,
                 timestamp=timezone.now()
             )
             return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error'}, status=400)
+
 
 @login_required
 def fetch_messages(request):
@@ -106,19 +113,39 @@ def fetch_messages(request):
         receiver_id = request.POST.get('receiver_id')
         receiver = get_object_or_404(User, id=receiver_id)
 
-        messages = ChatMessage.objects.filter(
+        messages_qs = ChatMessage.objects.filter(
             sender__in=[request.user, receiver],
             receiver__in=[request.user, receiver]
         ).order_by('timestamp')
 
         html = ''
-        for msg in messages:
+        for msg in messages_qs:
             css_class = 'sent' if msg.sender == request.user else 'received'
-            html += f'<div class="message {css_class}">{msg.message.replace(chr(10), "<br>")}</div>'
+            html += f'<div class="message {css_class}">'
+
+            # Text message
+            if msg.message:
+                html += f'<p>{msg.message.replace(chr(10), "<br>")}</p>'
+
+            # File attachment
+            if msg.file_url:
+                file_url_lower = msg.file_url.lower()
+                if any(ext in file_url_lower for ext in ['.jpg', '.jpeg', '.png', '.gif']):
+                    html += f'<img src="{msg.file_url}" alt="Attachment" style="max-width:200px; border-radius:10px; margin-top:5px;">'
+                elif '.pdf' in file_url_lower:
+                    html += f'<br><a href="{msg.file_url}" target="_blank">📄 View PDF</a>'
+                else:
+                    file_name = msg.file_url.split("/")[-1]
+                    html += f'<br><a href="{msg.file_url}" download>📎 {file_name}</a>'
+
+            html += '</div>'
 
         return JsonResponse(html, safe=False)
 
     return JsonResponse({'status': 'error'}, status=400)
+
+
+
 
 def are_connected(user1, user2):
     return ConnectionRequest.objects.filter(

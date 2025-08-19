@@ -4,49 +4,65 @@
 <style>
   .container {
     max-width: 1200px;
-    margin: 10px auto;
+    margin: 20px auto;
     padding: 0 1rem;
   }
 
-  /* Search form layout */
+  /* --- Search Box Styling --- */
+  .search-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 25px 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    margin-bottom: 2rem;
+    border: 1px solid #f3e5e5;
+  }
+
   #search-form {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 1.5rem;
+    gap: 14px;
   }
 
   #search-form input,
   #search-form select {
-    flex: 1 1 200px;
+    flex: 1 1 180px;
     padding: 10px 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     font-size: 0.95rem;
+    transition: border-color 0.2s;
   }
 
-  /* Grid for profile cards */
+  #search-form input:focus,
+  #search-form select:focus {
+    border-color: #d73030;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(215,48,48,0.1);
+  }
+
+  /* --- Grid for profiles --- */
   #results-area {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 28px;
+    margin-top: 1rem;
   }
 
   .profile-card {
-    background-color: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    transition: box-shadow 0.3s ease;
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    border: 1px solid #f1f1f1;
   }
 
   .profile-card:hover {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
   }
 
   .profile-card img {
@@ -54,51 +70,61 @@
     height: 110px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ddd;
-    margin-bottom: 15px;
+    border: 3px solid #f5af19;
+    margin-bottom: 12px;
   }
 
   .profile-card h3 {
     margin: 0;
-    font-size: 1.1rem;
-    color: #1a202c;
+    font-size: 1.15rem;
+    color: #222;
+    font-weight: 600;
   }
 
   .profile-card p {
     margin: 4px 0;
-    color: #4a5568;
+    color: #555;
     font-size: 0.95rem;
   }
 
   .profile-card em {
-    color: #718096;
+    color: #888;
     font-style: italic;
   }
 
   .btn.primary {
-    margin-top: 12px;
+    margin-top: 14px;
     padding: 8px 16px;
-    background-color: #3182ce;
+    background: linear-gradient(90deg, #d73030, #f5af19);
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.2s ease-in-out;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.3s ease-in-out;
   }
 
   .btn.primary:hover {
-    background-color: #2b6cb0;
+    background: linear-gradient(90deg, #b82020, #e09d15);
   }
-  .space{
-      height: 10vh
+
+  /* Muted text for initial state */
+  .muted-msg {
+    text-align: center;
+    color: #888;
+    font-size: 1rem;
+    margin-top: 30px;
+  }
+
+  .space {
+    height: 12vh;
   }
 
   @media (max-width: 480px) {
     #search-form {
       flex-direction: column;
     }
-
     #search-form input,
     #search-form select {
       width: 100%;
@@ -107,44 +133,38 @@
 </style>
 
 <div class="container">
-<div
-  hx-get="{% url 'search_results' %}?initial=1"
-  hx-target="#results-area"
-  hx-trigger="load"
->
-  <form id="search-form"
-        hx-get="{% url 'search_results' %}"
-        hx-target="#results-area"
-        hx-trigger="change delay:100ms, keyup delay:100ms from:input">
 
-    <input type="text" name="q" placeholder="Name">
-    <input type="text" name="city" placeholder="City">
-    <input type="text" name="profession" placeholder="Profession">
+  <!-- Search Form Section -->
+  <div class="search-box">
+    <form id="search-form"
+          hx-get="{% url 'search_results' %}"
+          hx-target="#results-area"
+          hx-trigger="change delay:200ms, keyup delay:200ms from:input">
 
-    <select name="gender">
-      <option value="">Gender</option>
-      <option value="Male" {% if user.profile.gender == 'Female' %} selected {% endif %}>Male</option>
-      <option value="Female" {% if user.profile.gender == 'Male' %} selected {% endif %}>Female</option>
-      <option value="Other" >Other</option>
-    </select>
+      <input type="text" name="q" placeholder="Name">
+      <input type="text" name="city" placeholder="City">
+      <input type="text" name="profession" placeholder="Profession">
 
-{#    <select name="marital_status">#}
-{#      <option value="">Marital Status</option>#}
-{#      <option value="single">Single</option>#}
-{#      <option value="divorced">Divorced</option>#}
-{#    </select>#}
+      <select name="gender">
+        <option value="">Gender</option>
+        <option value="Male" {% if user.profile.gender == 'Female' %} selected {% endif %}>Male</option>
+        <option value="Female" {% if user.profile.gender == 'Male' %} selected {% endif %}>Female</option>
+        <option value="Other">Other</option>
+      </select>
 
-    <input type="number" name="age_min" placeholder="Min Age">
-    <input type="number" name="age_max" placeholder="Max Age">
-  </form>
+      <input type="number" name="age_min" placeholder="Min Age">
+      <input type="number" name="age_max" placeholder="Max Age">
+    </form>
+  </div>
 
-  <hr>
-
-  <div id="results-area">
-    <p class="text-muted">Start typing to see search results... <br> Kindly Click Outside after typing to start the search....</p>
+  <!-- Results Area -->
+  <div id="results-area"
+       hx-get="{% url 'search_results' %}?initial=1"
+       hx-trigger="load"
+       hx-target="#results-area">
+    <p class="muted-msg">✨ Start typing to see search results... <br> (Click outside the box to trigger search)</p>
   </div>
 
   <div class="space"></div>
-</div>
 </div>
 {% endblock %}

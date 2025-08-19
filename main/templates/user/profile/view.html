@@ -2,11 +2,10 @@
 {% load static %}
 
 {% block extra_head %}
-
 <style>
 body {
     font-family: 'Segoe UI', sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f9fafb;
     margin: 0;
     padding: 0;
 }
@@ -15,26 +14,27 @@ body {
     max-width: 900px;
     margin: 30px auto;
     background: white;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .profile-card .header {
     display: flex;
     align-items: center;
     gap: 20px;
-    background: #f3cc54;
+    background: linear-gradient(135deg, #f3cc54, #f6e08c);
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 .profile-image {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
     object-fit: cover;
     border-radius: 50%;
     border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .info {
@@ -42,22 +42,26 @@ body {
 }
 
 .name {
-    font-size: 24px;
+    font-size: 26px;
     margin: 0;
-    color: #333;
+    color: #1a202c;
+    font-weight: 600;
 }
 
 .profession, .age {
-    margin: 5px 0;
-    color: #444;
+    margin: 6px 0;
+    color: #4a5568;
+    font-size: 0.95rem;
 }
 
 .section {
-    margin-top: 25px;
+    margin-top: 28px;
 }
 
 .section h3 {
-    color: #a00;
+    color: #c53030;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
     border-bottom: 1px solid #eee;
     padding-bottom: 5px;
 }
@@ -65,39 +69,46 @@ body {
 .section ul {
     list-style: none;
     padding-left: 0;
-    margin: 10px 0;
+    margin: 0;
 }
 
 .section ul li {
-    padding: 5px 0;
-    color: #555;
+    padding: 6px 0;
+    color: #444;
+    font-size: 0.95rem;
 }
 
 .quote {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #ffe5e5;
-    color: #b00;
-    border-left: 5px solid #e60000;
+    margin-top: 25px;
+    padding: 16px;
+    background-color: #fff5f5;
+    color: #b91c1c;
+    border-left: 5px solid #e53e3e;
     font-style: italic;
+    border-radius: 6px;
 }
 
 .buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 30px;
 }
 
 .btn {
     padding: 10px 20px;
     text-decoration: none;
-    color: white;
-    background-color: #888;
-    border-radius: 5px;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .btn.primary {
-    background-color: #e60000;
+    background-color: #e53e3e;
+}
+
+.btn.primary:hover {
+    background-color: #c53030;
 }
 </style>
 {% endblock extra_head %}
@@ -107,9 +118,9 @@ body {
     <div class="profile-card">
         <div class="header">
             {% if profile.image %}
-            <img src="{{ profile.image }}" alt="Profile Image" class="profile-image">
+                <img src="{{ profile.image.url }}" alt="{{ profile.full_name }}'s profile picture" class="profile-image">
             {% else %}
-            <img src="{% static 'user/img/default.webp' %}" alt="Default Profile" class="profile-image">
+                <img src="{% static 'user/img/default.webp' %}" alt="Default profile picture" class="profile-image">
             {% endif %}
             <div class="info">
                 <h2 class="name">{{ profile.full_name }}</h2>
@@ -156,18 +167,14 @@ body {
         </div>
 
         {% if profile.bio %}
-        <div class="quote">
-            "{{ profile.bio }}"
-        </div>
+            <div class="quote">
+                “{{ profile.bio }}”
+            </div>
         {% endif %}
 
         <div class="buttons">
-            <a href="#" class="btn">Back</a>
             <a href="{% url 'edit_profile' %}" class="btn primary">Edit Profile</a>
-            <a href="#" class="btn">Next</a>
         </div>
     </div>
 </div>
-</body>
-</html>
 {% endblock content %}

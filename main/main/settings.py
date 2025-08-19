@@ -17,7 +17,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = 'django-insecure-j73yrt8#0*c7m&dqno$_4$6l%90r%bn03_blq02l*0fa9rbkvd
 DEBUG = True
 
 ALLOWED_HOSTS = [".onrender.com", "atutvidhan.com", "localhost", '127.0.0.1']
-
 
 # Application definition
 
@@ -70,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'user.context_processors.fallback_images',
             ],
         },
     },
@@ -89,7 +88,7 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASE_CONNECTION_URL ="postgresql://atut_vidhan_db_user:GTyahfgbc5I5rshSP7JIRbmh0iLkasE8@dpg-d272rnvdiees73bf9jo0-a.ohio-postgres.render.com/atut_vidhan_db"
+DATABASE_CONNECTION_URL = "postgresql://atut_vidhan_db_user:GTyahfgbc5I5rshSP7JIRbmh0iLkasE8@dpg-d272rnvdiees73bf9jo0-a.ohio-postgres.render.com/atut_vidhan_db"
 DATABASES = {
     'default': dj_database_url.config(default=DATABASE_CONNECTION_URL)
 }
@@ -112,7 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -124,13 +122,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "main/static"]  # ✅ only existing dir
-STATIC_ROOT = BASE_DIR / "staticfiles"         # ✅ where collectstatic dumps into
+STATIC_ROOT = BASE_DIR / "staticfiles"  # ✅ where collectstatic dumps into
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEBUG = True
@@ -151,10 +148,9 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "pro.soci.app@gmail.com"        # 🔑 Your Gmail
-EMAIL_HOST_PASSWORD = "urpxhjyipickezpx"       # 🔒 App password
+EMAIL_HOST_USER = "pro.soci.app@gmail.com"  # 🔑 Your Gmail
+EMAIL_HOST_PASSWORD = "urpxhjyipickezpx"  # 🔒 App password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -165,3 +161,6 @@ DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
 # Output: how dates are displayed in forms or rendered
 DATE_FORMAT = 'd-m-Y'
+
+DEFAULT_FEMALE_FALLBACK_URL = "https://krtiayhjqgtsruzboour.supabase.co/storage/v1/object/public/media/profile_images/femaledefault.png"
+DEFAULT_MALE_FALLBACK_URL = "https://krtiayhjqgtsruzboour.supabase.co/storage/v1/object/public/media/profile_images/maledefault.png"
