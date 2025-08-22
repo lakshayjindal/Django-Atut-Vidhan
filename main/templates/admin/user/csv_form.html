@@ -1,8 +1,40 @@
 {% extends "admin/base_site.html" %}
+
 {% block content %}
-  <h2>Upload CSV to Create Users</h2>
-  <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="default">Upload</button>
+<div style="
+    max-width: 600px;
+    margin: 40px auto;
+    background: #FFF8F2; /* Ivory Blush */
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+    color: #2F2F2F; /* Charcoal Silk */
+">
+  <h2 style="color: #D72638; margin-bottom: 20px; text-align: center;">
+    📂 Upload CSV to Create Users
+  </h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div style="margin-bottom: 20px;">
+      {{ form.as_p }}
+    </div>
+
+    <button type="submit" style="
+      display: inline-block;
+      background: #D72638; /* Royal Rose */
+      color: #fff;
+      font-weight: bold;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    ">
+      🚀 Upload
+    </button>
   </form>
+</div>
 {% endblock %}

@@ -8,6 +8,7 @@ from connect.models import ConnectionRequest
 import random
 from django.urls import reverse
 import string
+import mimetypes
 import re
 from datetime import date, datetime
 from django.utils.http import urlsafe_base64_encode
@@ -26,6 +27,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 # Create your views here.
 
 User = get_user_model()
@@ -364,31 +366,34 @@ def upload_to_supabase(file, folder="profile_images"):
     if not SUPABASE_URL or not SUPABASE_KEY:
         raise RuntimeError("Supabase URL or Key not set")
 
-    # Handle both UploadedFile and file path
+    # Generate unique filename
     if isinstance(file, UploadedFile):
         file_ext = file.name.split('.')[-1]
         unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
+        file_bytes = file.read()
+        content_type = file.content_type or "application/octet-stream"
 
-        temp_path = default_storage.save(unique_filename, file)
-        with default_storage.open(temp_path, 'rb') as f:
-            file_bytes = f.read()
-        content_type = file.content_type
     elif isinstance(file, str):  # file path
         file_ext = file.split('.')[-1]
         unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
-        with open(file, 'rb') as f:
+        with open(file, "rb") as f:
             file_bytes = f.read()
-        content_type = "application/octet-stream"
+        content_type, _ = mimetypes.guess_type(file)
+        if not content_type:
+            content_type = "application/octet-stream"
+
     else:
         raise ValueError("Invalid file type passed to upload_to_supabase")
 
-    # Upload
-    resp = supabase.storage.from_(SUPABASE_BUCKET).upload(
-        unique_filename, file_bytes, {"content-type": content_type}
-    )
-    if "error" in resp:
-        raise RuntimeError(f"Supabase upload error: {resp['error']}")
+    # Upload to Supabase
+    try:
+        supabase.storage.from_(SUPABASE_BUCKET).upload(
+            unique_filename, file_bytes, {"content-type": content_type}
+        )
+    except Exception as e:
+        raise RuntimeError(f"Supabase upload error: {str(e)}")
 
+    # Return public URL
     return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(unique_filename)
 
 def verify_otp_view(request):

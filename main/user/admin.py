@@ -13,7 +13,7 @@ from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-
+from .views import upload_to_supabase
 admin.site.site_header = "Atut Vidhan Admin"
 admin.site.site_title = "Atut Vidhan"
 admin.site.index_title = "Welcome to Website Management"
@@ -49,7 +49,7 @@ def send_link(modeladmin, request, queryset):
 
         {login_url}
 
-        If you didn’t request this, you can ignore it.
+        If you didn't request this, you can ignore it.
         """
 
         # Styled HTML version
@@ -139,81 +139,47 @@ class UserAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def import_csv(self, request):
-        if request.method == "POST":
+        if request.method == "POST" and "csv_file" in request.FILES:
+            # Step 1: Upload CSV and preview
             csv_file = request.FILES["csv_file"]
             decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
+            reader = list(csv.DictReader(decoded_file))  # keep rows in memory
 
+            request.session["csv_rows"] = reader  # store rows for next step
+            return render(request, "admin/user/csv_preview.html", {"rows": reader})
+
+        elif request.method == "POST" and "confirm_import" in request.POST:
+            # Step 2: Confirm & Import
+            rows = request.session.get("csv_rows", [])
             imported_count = 0
 
-            user_fields = [field.name for field in User._meta.get_fields() if field.concrete and not field.many_to_many and not field.one_to_many]
-            profile_fields = [field.name for field in Profile._meta.get_fields() if field.concrete and field.name != "user"]
-
-            for row_num, row in enumerate(reader, start=1):
+            for idx, row in enumerate(rows):
                 try:
-                    username = row.get("username") or f"user_{slugify(row.get('full_name', 'anon'))}_{row_num}"
-                    user_data = {}
-                    profile_data = {}
-
-                    # Assign User fields
-                    for field in user_fields:
-                        if field == "password":
-                            continue  # set manually
-                        if field in row and row[field]:
-                            user_data[field] = row[field]
-
-                    # Create or get user
-                    user, created = User.objects.get_or_create(username=username, defaults=user_data)
+                    username = row.get("username") or f"user_{slugify(row.get('full_name', 'anon'))}_{idx}"
+                    user, created = User.objects.get_or_create(username=username, defaults=row)
 
                     if created:
                         user.set_password("Welcome123")
                         user.save()
 
-                    # Prepare profile data
-                    dob = None  # track DOB separately to calculate age
-
-                    for field in profile_fields:
-                        if field in row and row[field]:
-                            value = row[field]
-
-                            if field == "date_of_birth":
-                                try:
-                                    dob = datetime.strptime(value, "%d-%m-%Y").date()
-                                    value = dob
-                                except:
-                                    dob = None
-                                    value = None
-
-                            elif field == "created_at":
-                                try:
-                                    value = datetime.strptime(value, "%d-%m-%Y").date()
-                                except:
-                                    value = None
-
-                            profile_data[field] = value
-
-                    # Calculate age from DOB, or fallback to 20
-                    if "age" in profile_fields:
-                        if dob:
-                            today = date.today()
-                            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-                            profile_data["age"] = age
-                        elif "age" not in profile_data:
-                            profile_data["age"] = 20
-
-                    # Create profile if doesn't exist
-                    if created or not hasattr(user, 'profile'):
-                        Profile.objects.create(user=user, **profile_data)
+                    # Handle profile pic upload from preview form
+                    file_field = f"profile_pic_{idx}"
+                    if file_field in request.FILES:
+                        file = request.FILES[file_field]
+                        url = upload_to_supabase(file, folder="profile_images")
+                        user.profile.image = url
+                        user.profile.save()
 
                     imported_count += 1
-
                 except Exception as e:
-                    print(f"⚠️ Row {row_num} skipped due to error: {e}")
+                    print("⚠️ Import error:", e)
                     continue
 
-            self.message_user(request, f"✅ {imported_count} users with profiles imported successfully.")
+            self.message_user(request, f"✅ {imported_count} users imported successfully with images.")
+            request.session.pop("csv_rows", None)
             return redirect("..")
 
+        # First-time GET request
         form = CsvImportForm()
         return render(request, "admin/user/csv_form.html", {"form": form})
 
@@ -234,9 +200,53 @@ class PictureModelAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path('Upload Images', self.upload_images, name='Upload Images')
+            path('upload_images', self.upload_images, name='upload_images')
         ]
         return urls + my_urls
+    
     def upload_images(self, request):
-        form = UploadImageForm()
+        users = User.objects.all()
 
+        if request.method == "POST":
+            # Step 1: Handle image uploads
+            if request.FILES.getlist("images"):
+                for file in request.FILES.getlist("images"):
+                    supabase_url = upload_to_supabase(file)
+                    Picture.objects.create(picture_url=supabase_url)  # user will be assigned later
+                messages.success(request, "Images uploaded. Now map them to users.")
+                return redirect("admin:upload_images")  # reload page
+
+            # Step 2: Handle mapping (user assignment + profile pic)
+            pictures = Picture.objects.filter(user__isnull=True)
+            for picture in pictures:
+                user_id = request.POST.get(f"user_{picture.id}")
+                if user_id:
+                    user = User.objects.get(pk=user_id)
+                    picture.user = user
+                    picture.save()
+
+            # Step 3: Handle profile picture setting
+            for user in users:
+                chosen_id = request.POST.get(f"profile_picture_user_{user.id}")
+                if chosen_id:
+                    pic = Picture.objects.get(pk=chosen_id)
+                    # reset all others for this user
+                    Picture.objects.filter(user=user, is_profile_picture=True).update(is_profile_picture=False)
+                    pic.is_profile_picture = True
+                    pic.save()
+                    # update User and Profile images
+                    user.image = pic.picture_url
+                    if hasattr(user, "profile"):
+                        user.profile.image = pic.picture_url
+                        user.profile.save()
+                    user.save()
+
+            messages.success(request, "Pictures mapped successfully.")
+            return redirect("admin:upload_images")
+
+        # GET request → show upload + mapping form
+        pictures = Picture.objects.filter(user__isnull=True)  # only unassigned images
+        return render(request, "admin/user/upload_image.html", {
+            "users": users,
+            "pictures": pictures
+        })

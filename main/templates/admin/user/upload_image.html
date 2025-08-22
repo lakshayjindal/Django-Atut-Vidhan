@@ -1,5 +1,186 @@
-<form method="post" enctype="multipart/form-data">
+<h2 class="upload-title">Upload Images</h2>
+<form method="post" enctype="multipart/form-data" class="upload-form">
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Upload</button>
+  <input type="file" name="images" multiple class="file-input">
+  <button type="submit" class="btn-primary">Upload</button>
 </form>
+
+{% if pictures %}
+  <hr class="divider">
+  <h2 class="map-title">Map Images to Users</h2>
+
+  <form method="post" class="mapping-form">
+    {% csrf_token %}
+    <table class="mapping-table">
+      <thead>
+        <tr>
+          <th>Preview</th>
+          <th>Assign to User</th>
+          <th>Profile Picture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for picture in pictures %}
+          <tr>
+            <!-- Image Preview -->
+            <td>
+              <img src="{{ picture.picture_url }}" alt="preview" class="preview-img">
+            </td>
+
+            <!-- User Dropdown -->
+            <td>
+              <select name="user_{{ picture.id }}" class="user-select">
+                <option value="">-- Select User --</option>
+                {% for user in users %}
+                  <option value="{{ user.id }}">{{ user.username }}</option>
+                {% endfor %}
+              </select>
+            </td>
+
+            <!-- Profile Picture Radio -->
+            <td>
+              <label class="radio-label">
+                <input type="radio" name="profile_picture_{{ picture.id }}" class="profile-radio" value="{{ picture.id }}">
+                Set as Profile
+              </label>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="actions">
+      <button type="submit" class="btn-success">Save Mappings</button>
+    </div>
+  </form>
+{% endif %}
+
+<style>
+/* Headings */
+.upload-title, .map-title {
+  color: #D72638; /* Royal Rose */
+  font-family: "Georgia", serif;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Forms */
+.upload-form, .mapping-form {
+  background: #FFF8F2; /* Ivory Blush */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 2px dashed #F4C95D; /* Golden Sand */
+  margin: 30px 0;
+}
+
+/* File Input */
+.file-input {
+  padding: 8px;
+  border: 2px solid #F4C95D;
+  border-radius: 6px;
+  background: #F9EFE3; /* Champagne Mist */
+  margin-right: 10px;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #D72638; /* Royal Rose */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-primary:hover {
+  background: #a51d2a;
+}
+
+.btn-success {
+  background: #5BA67A; /* Eucalyptus */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-success:hover {
+  background: #4c8c66;
+}
+
+/* Table */
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #FFF8F2; /* Ivory Blush */
+}
+.mapping-table th {
+  background: #F4C95D; /* Golden Sand */
+  color: #2F2F2F; /* Charcoal Silk */
+  padding: 12px;
+}
+.mapping-table td {
+  border: 1px solid #F9EFE3; /* Champagne Mist */
+  padding: 12px;
+  text-align: center;
+}
+
+/* Image Preview */
+.preview-img {
+  max-height: 120px;
+  max-width: 120px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+.preview-img:hover {
+  transform: scale(1.05);
+}
+
+/* Dropdown */
+.user-select {
+  padding: 6px 10px;
+  border: 1px solid #7D6E63; /* Dusty Taupe */
+  border-radius: 6px;
+  background: #F9EFE3;
+  color: #2F2F2F;
+}
+
+/* Radio */
+.radio-label {
+  font-size: 14px;
+  color: #7D6E63; /* Dusty Taupe */
+  cursor: pointer;
+}
+
+/* Actions */
+.actions {
+  margin-top: 20px;
+  text-align: right;
+}
+</style>
+
+<script>
+document.querySelectorAll(".user-select").forEach(select => {
+  select.addEventListener("change", function () {
+    const pictureId = this.name.split("_")[1];
+    const selectedUserId = this.value;
+
+    const radio = document.querySelector(`input[name="profile_picture_${pictureId}"]`);
+    if (selectedUserId) {
+      radio.name = `profile_picture_user_${selectedUserId}`;
+    } else {
+      radio.name = `profile_picture_${pictureId}`;
+    }
+  });
+});
+</script>

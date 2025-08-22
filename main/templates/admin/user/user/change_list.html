@@ -1,9 +1,32 @@
 {% extends "admin/change_list.html" %}
 
-{% block object-tools %}
-    {{ block.super }}
-    <li>
-        <a href="{% url 'admin:import_csv' %}" class="addlink">Import Users via CSV</a>
-    </li>
+{% block object-tools-items %}
+<li>
+    <a href="{% url 'admin:import_csv' %}" class="csv-import-btn">
+        📂 Import Users via CSV
+    </a>
+</li>
+{{ block.super }}
 {% endblock %}
-    
+
+<style>
+.csv-import-btn {
+    display: inline-block;
+    background: #D72638; /* Royal Rose */
+    color: #fff !important;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.csv-import-btn:hover {
+    background: #a51d2a; /* darker rose */
+    border-color: #F4C95D; /* Golden Sand */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+</style>
