@@ -86,3 +86,16 @@ class Profile(models.Model):
         return f"{self.full_name or self.user.username} ({self.user.username})"
 
 
+class Picture(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,   # if user is deleted, delete their pictures too
+        related_name="pictures",     # lets you access user.pictures.all()
+        null=True,blank=True
+    )
+    picture_url = models.URLField()  # stores picture link
+    is_profile = models.BooleanField(default=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.picture_url}"

@@ -1,15 +1,18 @@
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin
-
-from .models import User, Profile
+from .models import *
 from django import forms
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
 import csv
 from django.utils.text import slugify
-from datetime import date
-from datetime import datetime
-
+from datetime import date, datetime
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 admin.site.site_header = "Atut Vidhan Admin"
 admin.site.site_title = "Atut Vidhan"
@@ -18,6 +21,72 @@ admin.site.index_title = "Welcome to Website Management"
 class CsvImportForm(forms.Form):
     csv_file = forms.FileField()
 
+
+@admin.action(description="Send Login Link to All the selected users")
+def send_link(modeladmin, request, queryset):
+    sent_count = 0
+
+    for user in queryset:
+        if not user.email:
+            continue  # skip users with no email
+
+        # Generate secure login link
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        login_url = request.build_absolute_uri(
+            reverse("magic_login", kwargs={"uidb64": uid, "token": token})
+        )
+
+        # Subject + plain fallback
+        subject = "🔑 Your One-Click Login Link"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to = [user.email]
+
+        text_content = f"""
+        Hi {user.first_name or user.username},
+
+        Use the link below to log into your Atut Vidhan account:
+
+        {login_url}
+
+        If you didn’t request this, you can ignore it.
+        """
+
+        # Styled HTML version
+        html_content = f"""
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #2c5282;">✨ One-Click Login</h2>
+          <p>Hi {user.first_name or user.username},</p>
+          <p>We generated a secure login link for your <strong>Atut Vidhan</strong> account.</p>
+          <p>Click the button below to log in instantly:</p>
+
+          <div style="margin: 20px 0; text-align: center;">
+            <a href="{login_url}" style="
+              background-color: #38a169;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: bold;
+              display: inline-block;
+            ">Log In</a>
+          </div>
+
+          <p style="font-size: 0.9rem; color: #555;">
+            This link will expire soon for security reasons. If you didn’t request it, no worries — just ignore this email.
+          </p>
+          <p style="margin-top: 32px;">With ❤️,<br><strong>Atut Vidhan Team</strong></p>
+        </div>
+        """
+
+        # Build + send email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+        sent_count += 1
+
+    messages.success(request, f"Login links sent to {sent_count} user(s).")
 
 @admin.action(description="Export selected users and profiles as CSV")
 def export_csv(self, request, queryset):
@@ -54,11 +123,14 @@ def export_csv(self, request, queryset):
 
     return response
 
+
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    actions = ['export_csv']
+    actions = ['export_csv', 'send_link']
     list_display = ('id', 'first_name', 'last_name')
     export_csv = export_csv
+    send_link = send_link
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -151,3 +223,20 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileModelAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_name', 'age', 'gender', 'phone1', 'phone2')
+
+
+class UploadImageForm(forms.Form):
+    images = forms.FileField()
+
+@admin.register(Picture)
+class PictureModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'uploaded_at')
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('Upload Images', self.upload_images, name='Upload Images')
+        ]
+        return urls + my_urls
+    def upload_images(self, request):
+        form = UploadImageForm()
+

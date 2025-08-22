@@ -3,10 +3,9 @@
 {% block title %}Login | My App{% endblock %}
 
 {% block extra_head %}
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap"
-    rel="stylesheet">
-  {% comment %} <link rel="stylesheet" href={% static "user/css/login.css" %} /> {% endcomment %}
+<link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap"
+        rel="stylesheet">
 <style>
     body{
           overflow: hidden;
@@ -21,10 +20,18 @@
       flex: 1;
     }
 
+    .imgcontainer{
+      width: 165%;
+      height: 100%;
+      position: relative;
+      top: -5%;
+      left: -15%;
+      object-fit: cover;
+      z-index: -1;
+    }
     .couple-img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      position: relative;
     }
 
     .right-section {
@@ -32,7 +39,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff8f1;
     }
 
     .login-box {
@@ -42,6 +48,8 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       width: 420px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .login-heading {
@@ -101,35 +109,47 @@
       .left-section {
         display: none;
       }
+      main{
+        padding: 0;
+      }
+      .main-container{
+        display: block;
+        position: relative;
+        /* margin-top: 10vh; */
+      }
 
       .right-section {
-        background-image: url("{% static "user/img/weddingcouple.jpg" %}");
+        width: 100%;
+        height: 100%;
+        /* transform: translate(-10%, -10%); */
+        background-image: url({% static 'user/img/weddingcouple.jpg' %});
         background-size: cover;
         background-position: center;
       }
     }
-  </style>
+</style>
 {% endblock %}
 {% block content %}
 <!-- Top Bar -->
 
 <!-- Main Content -->
 <div class="main-container">
-  <div class="left-section">
-    <img src="{% static 'user/img/weddingcouple.jpg' %}" alt="Wedding Couple" class="couple-img">
-  </div>
+    <div class="left-section">
+        <div class="imgcontainer">
+            <img src="{% static 'user/img/weddingcouple.jpg' %}" alt="Wedding Couple" class="couple-img">
+        </div>
+    </div>
+    <div class="right-section">
+        <div class="login-box">
+            <h2 class="login-heading">Login</h2>
+            <div class="heart-icon">
+                <img src="{% static 'user/img/heart 1.webp' %}" style="height: 30px">
+            </div>
 
-  <div class="right-section">
-    <div class="login-box">
-      <h2 class="login-heading">Login</h2>
-      <div class="heart-icon">
-        <img src="{% static 'user/img/heart 1.png' %}" style="height: 30px">
-      </div>
-
-      {% if messages %}
-  <div style="margin-bottom: 1rem;">
-    {% for message in messages %}
-      <div style="
+            {% if messages %}
+            <div style="margin-bottom: 1rem;">
+                {% for message in messages %}
+                <div style="
         padding: 0.75rem 1rem;
         border-radius: 10px;
         background-color: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#fff3cd{% endif %};
@@ -137,24 +157,43 @@
         border: 1px solid {% if message.tags == 'success' %}#c3e6cb{% elif message.tags == 'error' %}#f5c6cb{% else %}#ffeeba{% endif %};
         margin-bottom: 0.5rem;
       ">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-      <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-        <input type="text" name="email" placeholder="Email or Username" required class="input-field">
-        <input type="password" name="password" placeholder="Password" required class="input-field">
-        <button type="submit" class="login-btn">Let's Go</button>
-      </form>
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="email" placeholder="Email or Username" required class="input-field">
+                <div style="position: relative;  width: 100%">
+                    <input type="password" id="password" name="password" placeholder="Password" required
+                           class="input-field" style="width: 100%; padding-right: 40px;">
 
-      <p class="new-user">New Here? <a href="{% url 'signup' %}" class="signup-here">Sign Up</a></p>
-      <p class="new-user">Forgot your Password, Don't worry <a href="{% url 'forgot_password' %}" class="signup-here">Reset Here</a></p>
+                    <!-- Eye Button -->
+                    <button type="button" onclick="togglePassword()"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                        <img src="{% static 'user/img/view.png' %}" style="width: 20px;">
+                    </button>
+                </div>
 
+                <script>
+                    function togglePassword() {
+                      const passwordInput = document.getElementById("password");
+                      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                      passwordInput.setAttribute("type", type);
+                    }
+                </script>
+
+                <button type="submit" class="login-btn">Let's Go</button>
+            </form>
+
+            <p class="new-user">New Here? <a href="{% url 'signup' %}" class="signup-here">Sign Up</a></p>
+            <p class="new-user">Forgot your Password, Don't worry <a href="{% url 'forgot_password' %}"
+                                                                     class="signup-here">Reset Here</a></p>
+
+        </div>
     </div>
-  </div>
 </div>
 
 {% endblock %}
