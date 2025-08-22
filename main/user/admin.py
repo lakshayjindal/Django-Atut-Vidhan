@@ -128,7 +128,7 @@ def export_csv(self, request, queryset):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     actions = ['export_csv', 'send_link']
-    list_display = ('id', 'first_name', 'last_name')
+    list_display = ('id', 'first_name', 'last_name', 'username', 'email')
     export_csv = export_csv
     send_link = send_link
     def get_urls(self):

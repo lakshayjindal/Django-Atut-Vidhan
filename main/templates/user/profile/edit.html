@@ -138,6 +138,9 @@
         <!-- Render all form fields -->
         <div class="editable-section">
             {% for field in form %}
+                {% if feild.label == 'image' %}
+                    
+                {% else %}
                 <div class="editable-field">
                     <label>{{ field.label }}</label>
                     {{ field }}
@@ -147,6 +150,7 @@
                         </div>
                     {% endif %}
                 </div>
+                {% endif %}
             {% endfor %}
         </div>
 
