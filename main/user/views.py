@@ -293,7 +293,8 @@ def view_profile(request):
 @login_required
 def edit_profile(request):
     profile = request.user.profile
-    pictures = list(request.user.pictures.all()[:6])  # max 6 pictures
+    user = request.user
+    pictures = list(user.pictures.all()[:6])  # max 6 pictures
 
     # Pad to always have 6 slots
     while len(pictures) < 6:
@@ -303,7 +304,22 @@ def edit_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            # handle Supabase uploads for new photos here
+
+            # Handle new uploaded photos
+            uploaded_files = request.FILES.getlist('photos')
+            for uploaded_file in uploaded_files:
+                # Upload to Supabase
+                try:
+                    file_url = upload_to_supabase(uploaded_file, folder="user_photos")
+                    # Create Picture instance
+                    Picture.objects.create(
+                        user=user,
+                        picture_url=file_url,
+                        is_profile=False
+                    )
+                except Exception as e:
+                    print(f"⚠️ Failed to upload {uploaded_file.name}: {e}")
+
             return redirect('view_profile')
     else:
         form = ProfileForm(instance=profile)
