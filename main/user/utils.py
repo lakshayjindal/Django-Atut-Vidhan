@@ -2,20 +2,26 @@ import csv
 import datetime
 import random
 import re
+import uuid
 import string
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def generate_unique_username(prefix="user", max_attempts=10):
-    for _ in range(max_attempts):
-        timestamp = int(datetime.datetime.now().timestamp())
-        rand_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
-        username = f"{prefix}_{timestamp}_{rand_suffix}"
+def generate_username(first_name, last_name):
+    first_part = first_name[:2].lower() if first_name else ""
+    last_part = last_name[-2:].lower() if last_name else ""
+    random_digits = ''.join(random.choices(string.digits, k=8))
+    return f"user{first_part}{last_part}{random_digits}"
+
+
+def generate_unique_username(first_name, last_name):
+    for _ in range(5):
+        username = generate_username(first_name, last_name)
         if not User.objects.filter(username=username).exists():
             return username
-    import uuid
-    return f"{prefix}_{uuid.uuid4().hex[:12]}"
+    # Fallback if collisions continue
+    return f"user{uuid.uuid4().hex[:10]}"
 
 def parse_date_from_string(date_str):
     if not date_str or not date_str.strip():

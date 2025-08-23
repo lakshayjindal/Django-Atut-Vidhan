@@ -9,7 +9,6 @@
         --bg-light: #f8f9fa;
         --card-bg: #fff;
         --text-dark: #333;
-        --text-muted: #666;
         --border: #e0e0e0;
     }
 
@@ -19,18 +18,25 @@
     }
 
     .profile-edit-container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 40px auto;
         background: var(--card-bg);
         border-radius: 16px;
         padding: 40px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         animation: fadeIn 0.4s ease-in-out;
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     h2 {
@@ -40,18 +46,49 @@
         color: var(--text-dark);
     }
 
-    .profile-image-block {
-        text-align: center;
+    /* ===== Photo grid styling ===== */
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
         margin-bottom: 30px;
     }
 
-    .profile-image-preview {
-        width: 140px;
-        height: 140px;
+    .photo-slot {
+        width: 100%;
+        padding-top: 100%;
+        /* square aspect ratio */
+        position: relative;
+        background: #f9f9f9;
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: border 0.2s;
+    }
+
+    .photo-slot:hover {
+        border-color: var(--primary);
+    }
+
+    .photo-slot img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        border-radius: 50%;
-        margin-bottom: 10px;
-        border: 3px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .plus-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        color: var(--primary);
+        font-weight: bold;
     }
 
     .editable-section {
@@ -74,7 +111,6 @@
     select,
     input[type="text"],
     input[type="date"],
-    input[type="file"],
     textarea {
         padding: 10px 12px;
         font-size: 1rem;
@@ -110,6 +146,63 @@
         background: var(--primary-hover);
         transform: translateY(-2px);
     }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .photo-slot {
+        width: 150px;
+        height: 150px;
+        border: 2px dashed #ccc;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        background: #fafafa;
+    }
+
+    .slot-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .delete-btn:hover {
+        background: rgba(230, 57, 70, 0.8);
+        /* your primary color vibe */
+    }
+
+    .upload-slot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        color: #aaa;
+        font-size: 2rem;
+    }
 </style>
 {% endblock extra_head %}
 
@@ -119,38 +212,41 @@
     <form method="POST" enctype="multipart/form-data" class="edit-form">
         {% csrf_token %}
 
-        <!-- Profile Picture -->
-        <div class="profile-image-block">
-            {% if profile.image %}
-                <img src="{{ profile.image }}"
-                     class="profile-image-preview"
-                     alt="Profile Image"
-                     id="profileImagePreview">
-            {% else %}
-                <img src="{% static 'user/img/default.webp' %}"
-                     class="profile-image-preview"
-                     alt="Default Profile Image"
-                     id="profileImagePreview">
-            {% endif %}
-            <input type="file" name="image" accept="image/*" onchange="previewImage(this)">
+        <!-- Dating-style Photo Grid -->
+        <div class="photo-grid">
+            {% for pic in pictures %}
+            <div class="photo-slot">
+                {% if pic %}
+                <div class="photo-wrapper">
+                    <img src="{{ pic.picture_url }}" alt="User Photo">
+                    <button type="button" class="delete-btn" onclick="deleteSlot({{ pic.id }}, this)">✖</button>
+                </div>
+                {% else %}
+                <label class="upload-slot">
+                    <span class="plus-icon">+</span>
+                    <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
+                </label>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
 
-        <!-- Render all form fields -->
+
+
+        <!-- Profile Info Fields -->
         <div class="editable-section">
             {% for field in form %}
-                {% if feild.label == 'image' %}
-                    
-                {% else %}
-                <div class="editable-field">
-                    <label>{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="error" style="color: red; font-size: 0.9em;">
-                            {{ field.errors|striptags }}
-                        </div>
-                    {% endif %}
+            {% if field.name != "image" %}
+            <div class="editable-field">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="error" style="color: red; font-size: 0.9em;">
+                    {{ field.errors|striptags }}
                 </div>
                 {% endif %}
+            </div>
+            {% endif %}
             {% endfor %}
         </div>
 
@@ -159,13 +255,68 @@
 </div>
 
 <script>
-function previewImage(input) {
-    const preview = document.getElementById('profileImagePreview');
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => { preview.src = e.target.result; };
-        reader.readAsDataURL(input.files[0]);
+    function previewSlot(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const slot = input.closest(".photo-slot");
+                let img = slot.querySelector("img");
+                if (!img) {
+                    img = document.createElement("img");
+                    slot.appendChild(img);
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
-}
+    function previewSlot(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const slot = input.closest(".photo-slot");
+                slot.innerHTML = `
+                <div class="photo-wrapper">
+                    <img src="${e.target.result}" class="slot-image">
+                    <button type="button" class="delete-btn" onclick="removePreview(this)">✖</button>
+                </div>`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    // Remove newly uploaded preview before save
+    function removePreview(btn) {
+        const slot = btn.closest(".photo-slot");
+        slot.innerHTML = `
+        <label class="upload-slot">
+            <span class="plus-icon">+</span>
+            <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
+        </label>`;
+    }
+
+    // Delete existing picture from DB
+    function deleteSlot(pictureId, btn) {
+        if (!confirm("Delete this photo?")) return;
+
+        fetch(`/delete-picture/${pictureId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        }).then(res => {
+            if (res.ok) {
+                // Reset slot to empty upload
+                const slot = btn.closest(".photo-slot");
+                slot.innerHTML = `
+                <label class="upload-slot">
+                    <span class="plus-icon">+</span>
+                    <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
+                </label>`;
+            } else {
+                alert("Failed to delete photo.");
+            }
+        });
+    }
 </script>
 {% endblock %}

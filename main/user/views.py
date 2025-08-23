@@ -6,10 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from connect.models import ConnectionRequest
 import random
+from django.http import JsonResponse
 from django.urls import reverse
 import string
 import mimetypes
 import re
+from .models import Picture
 from datetime import date, datetime
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -291,18 +293,27 @@ def view_profile(request):
 @login_required
 def edit_profile(request):
     profile = request.user.profile
+    pictures = list(request.user.pictures.all()[:6])  # max 6 pictures
+
+    # Pad to always have 6 slots
+    while len(pictures) < 6:
+        pictures.append(None)
+
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            # handle Supabase uploads for new photos here
             return redirect('view_profile')
     else:
         form = ProfileForm(instance=profile)
 
-    # Pass both form (for validation) + profile (for custom rendering)
+    # pass list of 6 items, each either Picture instance or None
     return render(request, 'user/profile/edit.html', {
         'form': form,
         'profile': profile,
+        'pictures': pictures,
+        'slots': range(6),
     })
 
 @login_required
@@ -553,3 +564,10 @@ def reset_password_view(request, uidb64, token):
         return render(request, "user/auth/reset_password.html", {"valid": True})
     else:
         return render(request, "user/auth/reset_password.html", {"valid": False})
+    
+
+@login_required
+def delete_picture(request, picture_id):
+    picture = get_object_or_404(Picture, id=picture_id, user=request.user)
+    picture.delete()
+    return JsonResponse({"success": True})

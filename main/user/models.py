@@ -89,11 +89,11 @@ class Profile(models.Model):
 class Picture(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,   # if user is deleted, delete their pictures too
-        related_name="pictures",     # lets you access user.pictures.all()
+        on_delete=models.CASCADE,   
+        related_name="pictures",    
         null=True,blank=True
     )
-    picture_url = models.URLField()  # stores picture link
+    picture_url = models.URLField()
     is_profile = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
