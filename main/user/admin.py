@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
 import csv
 from django.utils.text import slugify
+from . import utils
 from datetime import date, datetime
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
@@ -155,7 +156,7 @@ class UserAdmin(admin.ModelAdmin):
 
             for idx, row in enumerate(rows):
                 try:
-                    username = row.get("username") or f"user_{slugify(row.get('full_name', 'anon'))}_{idx}"
+                    username = row.get("username") or utils.generate_unique_username(row.get("first_name"), row.get("last_name")) or f"user_{slugify(row.get('full_name', 'anon'))}_{idx}"
                     user, created = User.objects.get_or_create(username=username, defaults=row)
 
                     if created:

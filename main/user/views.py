@@ -587,3 +587,18 @@ def delete_picture(request, picture_id):
     picture = get_object_or_404(Picture, id=picture_id, user=request.user)
     picture.delete()
     return JsonResponse({"success": True})
+
+def magic_login(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        login(request, user)
+        messages.success(request, f"Welcome back, {user.first_name or user.username}! 🎉")
+        return redirect("user_dashboard")  # or your dashboard url
+    else:
+        messages.error(request, "This login link is invalid or has expired.")
+        return redirect("login")  # fallback to normal login
