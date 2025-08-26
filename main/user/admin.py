@@ -161,14 +161,36 @@ class UserAdmin(admin.ModelAdmin):
             imported_count = 0
 
             # Identify model fields so we can split row dicts
-            user_fields = {f.name for f in User._meta.get_fields() if f.concrete and not f.many_to_many and not f.one_to_many}
-            profile_fields = {f.name for f in Profile._meta.get_fields() if f.concrete and f.name != "user"}
+            user_fields = {
+                f.name for f in User._meta.get_fields()
+                if f.concrete and not f.many_to_many and not f.one_to_many
+            }
+            profile_fields = {
+                f.name for f in Profile._meta.get_fields()
+                if f.concrete and f.name != "user"
+            }
+
+            # Detect date fields in Profile
+            profile_date_fields = {
+                f.name for f in Profile._meta.get_fields() if isinstance(f, models.DateField)
+            }
 
             for idx, row in enumerate(rows):
                 try:
                     # --- Split into User vs Profile ---
-                    user_data = {k: v for k, v in row.items() if k in user_fields}
-                    profile_data = {k: v for k, v in row.items() if k in profile_fields}
+                    user_data = {k: v for k, v in row.items() if k in user_fields and v}
+                    profile_data = {k: v for k, v in row.items() if k in profile_fields and v}
+
+                    # --- Handle Date Fields (dd-mm-yyyy → yyyy-mm-dd) ---
+                    for date_field in profile_date_fields:
+                        if profile_data.get(date_field):
+                            try:
+                                profile_data[date_field] = datetime.datetime.strptime(
+                                    profile_data[date_field], "%d-%m-%Y"
+                                ).date()
+                            except ValueError:
+                                # Skip invalid date format
+                                profile_data.pop(date_field, None)
 
                     # --- Handle username ---
                     username = (
