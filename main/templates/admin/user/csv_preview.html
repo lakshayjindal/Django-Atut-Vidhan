@@ -6,36 +6,38 @@
     Review the data below before importing. You can also upload a profile picture for each user.
   </p>
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+ <form method="post">
+  {% csrf_token %}
+  
+  <h3>Preview CSV</h3>
+  <div class="csv-table-wrapper">
 
-    <div class="csv-table-wrapper">
-      <table class="csv-table">
-        <thead>
-          <tr>
-            <th>Profile Picture</th>
-            {% for key in rows.0.keys %}
-              <th>{{ key }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in rows %}
-            <tr>
-            <td><input type="file" name="profile_pic_{{ forloop.counter0 }}"></td>
-              {% for key, val in row.items %}
-                <td>{{ val }}</td>
-              {% endfor %}
-            </tr>
+    <table border="1" class="csv-table">
+      <thead>
+        <tr>
+          {% for header in rows.0.keys %}
+          <th>{{ header }}</th>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+          {% for value in row.values %}
+          <td>{{ value }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-    <div style="margin-top:20px; text-align:right;">
-      <button type="submit" class="import-btn">✅ Confirm & Import</button>
-    </div>
-  </form>
+  <!-- Hidden JSON to preserve rows -->
+  <input type="hidden" name="rows_json" value='{{ hidden_rows|escape }}'>
+
+  <button type="submit" name="confirm_import" value="1">Confirm Import</button>
+</form>
+
 {% endblock %}
 
 {% block extrastyle %}

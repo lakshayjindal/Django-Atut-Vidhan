@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
 import csv
 from django.utils.text import slugify
+import json
+from django.utils.safestring import mark_safe
 from . import utils
 from datetime import date, datetime
 from django.contrib.auth.tokens import default_token_generator
@@ -57,8 +59,8 @@ def send_link(modeladmin, request, queryset):
         html_content = f"""
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2 style="color: #2c5282;">✨ One-Click Login</h2>
-          <p>Hi {user.first_name or user.username},</p>
-          <p>We generated a secure login link for your <strong>Atut Vidhan</strong> account.</p>
+          <p>Hi {(user.first_name or user.username).title()},</p>
+          <p>We generated a secure login link for your <strong>Atut Vidhan Matrimony</strong> account.</p>
           <p>Click the button below to log in instantly:</p>
 
           <div style="margin: 20px 0; text-align: center;">
@@ -143,41 +145,59 @@ class UserAdmin(admin.ModelAdmin):
         if request.method == "POST" and "csv_file" in request.FILES:
             # Step 1: Upload CSV and preview
             csv_file = request.FILES["csv_file"]
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = list(csv.DictReader(decoded_file))  # keep rows in memory
+            decoded_file = csv_file.read().decode("utf-8").splitlines()
+            reader = list(csv.DictReader(decoded_file))
 
-            request.session["csv_rows"] = reader  # store rows for next step
-            return render(request, "admin/user/csv_preview.html", {"rows": reader})
+            hidden_rows = json.dumps(reader)
+
+            return render(request, "admin/user/csv_preview.html", {
+                "rows": reader,
+                "hidden_rows": hidden_rows
+            })
 
         elif request.method == "POST" and "confirm_import" in request.POST:
             # Step 2: Confirm & Import
-            rows = request.session.get("csv_rows", [])
+            rows = json.loads(request.POST.get("rows_json", "[]"))
             imported_count = 0
+
+            # Identify model fields so we can split row dicts
+            user_fields = {f.name for f in User._meta.get_fields() if f.concrete and not f.many_to_many and not f.one_to_many}
+            profile_fields = {f.name for f in Profile._meta.get_fields() if f.concrete and f.name != "user"}
 
             for idx, row in enumerate(rows):
                 try:
-                    username = row.get("username") or utils.generate_unique_username(row.get("first_name"), row.get("last_name")) or f"user_{slugify(row.get('full_name', 'anon'))}_{idx}"
-                    user, created = User.objects.get_or_create(username=username, defaults=row)
+                    # --- Split into User vs Profile ---
+                    user_data = {k: v for k, v in row.items() if k in user_fields}
+                    profile_data = {k: v for k, v in row.items() if k in profile_fields}
+
+                    # --- Handle username ---
+                    username = (
+                        user_data.get("username")
+                        or utils.generate_unique_username(row.get("first_name"), row.get("last_name"))
+                        or f"user_{slugify(row.get('full_name', 'anon'))}_{idx}"
+                    )
+
+                    user, created = User.objects.get_or_create(username=username, defaults=user_data)
 
                     if created:
                         user.set_password("Welcome123")
                         user.save()
+                    else:
+                        # Update existing user if needed
+                        for k, v in user_data.items():
+                            setattr(user, k, v)
+                        user.save()
 
-                    # Handle profile pic upload from preview form
-                    file_field = f"profile_pic_{idx}"
-                    if file_field in request.FILES:
-                        file = request.FILES[file_field]
-                        url = upload_to_supabase(file, folder="profile_images")
-                        user.profile.image = url
-                        user.profile.save()
+                    # --- Handle Profile ---
+                    Profile.objects.update_or_create(user=user, defaults=profile_data)
 
                     imported_count += 1
+
                 except Exception as e:
                     print("⚠️ Import error:", e)
                     continue
 
-            self.message_user(request, f"✅ {imported_count} users imported successfully with images.")
-            request.session.pop("csv_rows", None)
+            self.message_user(request, f"✅ {imported_count} users imported successfully (with profiles).")
             return redirect("..")
 
         # First-time GET request
@@ -187,10 +207,10 @@ class UserAdmin(admin.ModelAdmin):
 
 
 
+
 @admin.register(Profile)
 class ProfileModelAdmin(admin.ModelAdmin):
     list_display = ('id', 'full_name', 'age', 'gender', 'phone1', 'phone2')
-
 
 class UploadImageForm(forms.Form):
     images = forms.FileField()
@@ -249,5 +269,5 @@ class PictureModelAdmin(admin.ModelAdmin):
         pictures = Picture.objects.filter(user__isnull=True)  # only unassigned images
         return render(request, "admin/user/upload_image.html", {
             "users": users,
-            "pictures": pictures
+            "pictures": pictures,
         })
