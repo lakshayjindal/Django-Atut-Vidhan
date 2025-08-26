@@ -252,8 +252,8 @@ class PictureModelAdmin(admin.ModelAdmin):
                 if chosen_id:
                     pic = Picture.objects.get(pk=chosen_id)
                     # reset all others for this user
-                    Picture.objects.filter(user=user, is_profile_picture=True).update(is_profile_picture=False)
-                    pic.is_profile_picture = True
+                    Picture.objects.filter(user=user, is_profile=True).update(is_profile=False)
+                    pic.is_profile = True
                     pic.save()
                     # update User and Profile images
                     user.image = pic.picture_url
