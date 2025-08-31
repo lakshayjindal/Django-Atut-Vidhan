@@ -148,8 +148,8 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "pro.soci.app@gmail.com"  # 🔑 Your Gmail
-EMAIL_HOST_PASSWORD = "urpxhjyipickezpx"  # 🔒 App password
+EMAIL_HOST_USER = "atutvidhanmatrimony@gmail.com"  # 🔑 Your Gmail
+EMAIL_HOST_PASSWORD = "htynyxqhcfpzapvt"  # 🔒 App password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

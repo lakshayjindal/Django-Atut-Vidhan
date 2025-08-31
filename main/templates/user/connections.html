@@ -51,7 +51,6 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
-
     .accept-btn:hover {
         background-color: #b53030;
     }
@@ -129,9 +128,9 @@
                     <p>
                         <a href="{% url 'profile_detail' req.sender.profile.id %}">
                             {% if req.sender.profile.image %}
-                                <img src="{{ req.sender.profile.image.url }}" alt="{{ req.sender.first_name }}" class="profile-img">
+                                <img src="{{ req.sender.profile.image }}" alt="{{ req.sender.first_name }}" class="profile-img">
                             {% else %}
-                                {% if req.sender.profile.gender == "male" %}
+                                {% if req.sender.profile.gender == "Male" %}
                                     <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
                                 {% else %}
                                     <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
@@ -161,9 +160,9 @@
                     <p>
                         <a href="{% url 'profile_detail' req.receiver.profile.id %}">
                             {% if req.receiver.profile.image %}
-                                <img src="{{ req.receiver.profile.image.url }}" alt="{{ req.receiver.first_name }}" class="profile-img">
+                                <img src="{{ req.receiver.profile.image }}" alt="{{ req.receiver.first_name }}" class="profile-img">
                             {% else %}
-                                {% if req.receiver.profile.gender == "male" %}
+                                {% if req.receiver.profile.gender == "Male" %}
                                     <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
                                 {% else %}
                                     <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
@@ -189,3 +188,87 @@
     </div>
 </div>
 {% endblock content %}
+{% block extra_scripts %}
+<script>
+function getCSRFToken() {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+            return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    }
+    return '';
+}
+
+async function acceptRequest(requestId) {
+    try {
+        const res = await fetch(`/chat/connect/accept/${requestId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // 🎉 Animate & remove card
+            const card = document.getElementById(`received-request-${requestId}`);
+            card.style.transition = "all 0.4s ease";
+            card.style.opacity = "0";
+            card.style.transform = "translateX(40px)";
+            setTimeout(() => card.remove(), 400);
+
+            // If no cards left, show fallback
+            if (!document.querySelector("#received-requests .request-card")) {
+                document.getElementById("received-requests").innerHTML =
+                    '<div class="no-requests">No new connection requests at the moment.</div>';
+            }
+        } else {
+            alert(data.error || "Something went wrong!");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network error. Try again!");
+    }
+}
+
+async function cancelRequest(requestId) {
+    try {
+        const res = await fetch(`/chat/cancel-request/${requestId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // 🎉 Animate & remove card
+            const card = document.getElementById(`sent-request-${requestId}`);
+            card.style.transition = "all 0.4s ease";
+            card.style.opacity = "0";
+            card.style.transform = "translateX(-40px)";
+            setTimeout(() => card.remove(), 400);
+
+            // If no cards left, show fallback
+            if (!document.querySelector("#sent-requests .request-card")) {
+                document.getElementById("sent-requests").innerHTML =
+                    '<div class="no-requests">You haven\'t sent any connection requests yet.</div>';
+            }
+        } else {
+            alert(data.error || "Something went wrong!");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network error. Try again!");
+    }
+}
+</script>
+
+{% endblock %}

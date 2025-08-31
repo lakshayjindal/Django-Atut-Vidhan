@@ -129,7 +129,7 @@
                     <a href="{% url 'login' %}" class="login-link">Log In</a>
                 {% endif %}
 
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and user.profile and 'auth' not in request.path %}
                     <a href="{% url 'search_page' %}"><i class="fas fa-search"></i> Search</a>
                     <a href="{% url 'user_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
                     <a href="{% url 'chat' %}"><i class="fas fa-comments"></i> Chat</a>

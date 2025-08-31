@@ -1,0 +1,4 @@
+{# partials/_messages.html #}
+{% for msg in messages %}
+  {% include "partials/_message.html" with msg=msg %}
+{% endfor %}

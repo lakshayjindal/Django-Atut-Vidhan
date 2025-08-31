@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from .models import ChatMessage, ConnectionRequest
+from .models import ChatMessage as Message, ConnectionRequest
 from user.models import Profile
 from django.db.models import Q
 from user.views import upload_to_supabase
@@ -14,6 +14,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.contrib import messages
 from django.db import models
+from django.template.loader import render_to_string
 # Custom User model
 User = get_user_model()
 
@@ -82,71 +83,97 @@ def chat_view(request, chat_with=None):
 
     return render(request, 'user/chat/maininterface.html', context)
 
+
+
+
+MAX_FILE_SIZE_MB = 25
+ALLOWED_EXT = {'.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.xls', '.xlsx'}
+
+
+def _validate_attachment(f):
+    import os
+    if not f:
+        return True, None
+    name = f.name.lower()
+    ext = os.path.splitext(name)[1]
+    if ext not in ALLOWED_EXT:
+        return False, "Unsupported file type"
+    if f.size > MAX_FILE_SIZE_MB * 1024 * 1024:
+        return False, "File too large"
+    return True, None
+
+
 @login_required
 def send_message(request):
-    if request.method == 'POST':
-        message = request.POST.get('message', '').strip()
-        receiver_id = request.POST.get('receiver_id')
-        receiver = get_object_or_404(User, id=receiver_id)
-        uploaded_file = request.FILES.get('attachment')
+    """
+    Accepts POST with receiver_id, message (optional), attachment (optional).
+    If request is AJAX (fetch), return JSON: { ok: True, id: <id>, html: "<rendered partial>" }
+    Otherwise return rendered partial for HTMX.
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest("Only POST allowed")
 
-        file_url = None
-        if uploaded_file:
-            file_url = upload_to_supabase(uploaded_file)  # Your upload logic
+    receiver_id = request.POST.get("receiver_id")
+    if not receiver_id:
+        return HttpResponseBadRequest("Missing receiver_id")
 
-        if message or file_url:
-            ChatMessage.objects.create(
-                sender=request.user,
-                receiver=receiver,
-                message=message if message else None,
-                file_url=file_url if file_url else None,
-                timestamp=timezone.now()
-            )
-            return JsonResponse({'status': 'success'})
+    receiver = get_object_or_404(User, id=receiver_id)
+    text = request.POST.get("message", "").strip()
+    attachment = request.FILES.get("attachment")
 
-    return JsonResponse({'status': 'error'}, status=400)
+    # ensure not empty
+    if not text and not attachment:
+        return HttpResponseBadRequest("Empty message")
+
+    # validate file
+    ok, err = _validate_attachment(attachment)
+    if not ok:
+        return HttpResponseBadRequest(err)
+
+    msg = Message.objects.create(
+        sender=request.user,
+        receiver=receiver,
+        message=text if text else None,
+        file_url=attachment if attachment else None,
+        timestamp=timezone.now()
+    )
+
+    # render partial
+    html = render_to_string("user/partials/_message.html", {"msg": msg, "request": request})
+
+    # If this is an HTMX request, return the partial directly
+    if request.headers.get("HX-Request") == "true":
+        return render(request, "user/partials/_message.html", {"msg": msg})
+
+    # else return JSON (for our fetch flow)
+    return JsonResponse({"ok": True, "id": msg.id, "html": html})
 
 
 @login_required
-def fetch_messages(request):
-    if request.method == 'POST':
-        receiver_id = request.POST.get('receiver_id')
-        receiver = get_object_or_404(User, id=receiver_id)
+def fetch_messages(request, user_id):
+    """
+    Expects GET param last_id (int). Returns only messages with id > last_id
+    Renders _messages.html which loops through messages partials
+    """
+    try:
+        last_id = int(request.GET.get("last_id", 0))
+    except (ValueError, TypeError):
+        last_id = 0
 
-        messages_qs = ChatMessage.objects.filter(
-            sender__in=[request.user, receiver],
-            receiver__in=[request.user, receiver]
-        ).order_by('timestamp')
+    other = get_object_or_404(User, id=user_id)
 
-        html = ''
-        for msg in messages_qs:
-            css_class = 'sent' if msg.sender == request.user else 'received'
-            html += f'<div class="message {css_class}">'
+    msgs = Message.objects.filter(
+        Q(sender=request.user, receiver=other) | Q(sender=other, receiver=request.user),
+        id__gt=last_id
+    ).order_by("id")
 
-            # Text message
-            if msg.message:
-                html += f'<p>{msg.message.replace(chr(10), "<br>")}</p>'
+    # If AJAX/JSON wanted:
+    if request.headers.get("HX-Request") != "true" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        html = render_to_string("user/partials/_messages.html", {"messages": msgs, "request": request})
+        return JsonResponse({"ok": True, "html": html})
 
-            # File attachment
-            if msg.file_url:
-                file_url_lower = msg.file_url.lower()
-                if any(ext in file_url_lower for ext in ['.jpg', '.jpeg', '.png', '.gif']):
-                    html += f'<img src="{msg.file_url}" alt="Attachment" style="max-width:200px; border-radius:10px; margin-top:5px;">'
-                elif '.pdf' in file_url_lower:
-                    html += f'<br><a href="{msg.file_url}" target="_blank">📄 View PDF</a>'
-                else:
-                    file_name = msg.file_url.split("/")[-1]
-                    html += f'<br><a href="{msg.file_url}" download>📎 {file_name}</a>'
-
-            html += '</div>'
-
-        return JsonResponse(html, safe=False)
-
-    return JsonResponse({'status': 'error'}, status=400)
-
-
-
-
+    # Default: return HTMX partial (works if you keep hx-get)
+    return render(request, "user/partials/_messages.html", {"messages": msgs})
 def are_connected(user1, user2):
     return ConnectionRequest.objects.filter(
         ((models.Q(sender=user1) & models.Q(receiver=user2)) |

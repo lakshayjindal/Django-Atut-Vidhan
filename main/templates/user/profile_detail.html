@@ -187,8 +187,9 @@
             <h3>Lifestyle Preferences</h3>
             <ul>
                 <li>Looking For: {{ profile.looking_for }}</li>
-                <li>Phone 1: {{ profile.phone1 }}</li>
-                <li>Phone 2: {{ profile.phone2 }}</li>
+                <li>For Phone Number Click This link <a href="wa.me/+919634400703/message='Hey\nI am Interested in {{ profile.user.username }} - {{ profile.user.first_name }} {{ profile.user.last_name }}. \nKindly Provide me the contact number for them'"><img src="{% static 'user/img/whatsapp.svg' %}" alt="whatsapp"></a></li>
+                <!-- <li>Phone 1: {{ profile.phone1 }}</li>
+                <li>Phone 2: {{ profile.phone2 }}</li> -->
             </ul>
         </div>
 

@@ -41,11 +41,14 @@ supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABAS
 
 
 def normalize_phone(phone):
-    """Strip spaces, dashes, and country codes from phone input."""
-    phone = re.sub(r'\D', '', phone)  # Remove non-digit characters
-    if phone.startswith('91') and len(phone) > 10:
-        phone = phone[-10:]  # Keep only the last 10 digits
-    return phone
+    """Cleans phone number by stripping spaces and non-digit characters."""
+    if not phone:
+        return ""
+    digits = re.sub(r"\D", "", phone)
+    # Optionally trim to last 10 digits
+    if len(digits) > 10:
+        digits = digits[-10:]
+    return digits
 
 
 def login_user(request):
@@ -164,15 +167,6 @@ def send_otp_email(user):
     email.send()
 
 
-def normalize_phone(phone):
-    """Cleans phone number by stripping spaces and non-digit characters."""
-    if not phone:
-        return ""
-    digits = re.sub(r"\D", "", phone)
-    # Optionally trim to last 10 digits
-    if len(digits) > 10:
-        digits = digits[-10:]
-    return digits
 
 
 def calculate_age(dob_str):

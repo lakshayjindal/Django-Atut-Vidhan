@@ -1,0 +1,18 @@
+{# partials/_message.html #}
+<div class="message bubble {% if msg.sender.id == request.user.id %}sent{% else %}received{% endif %}" data-id="{{ msg.id }}">
+  {% if msg.message %}
+    <p>{{ msg.message|linebreaksbr }}</p>
+  {% endif %}
+
+  {% if msg.attachment %}
+    {% with file_url=msg.attachment.url|lower %}
+      {% if ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".gif" in file_url %}
+        <img src="{{ msg.attachment.url }}" alt="Attachment">
+      {% elif ".pdf" in file_url %}
+        <a href="{{ msg.attachment.url }}" target="_blank" class="file-link">📄 View PDF</a>
+      {% else %}
+        <a href="{{ msg.attachment.url }}" download class="file-link">📎 Download File</a>
+      {% endif %}
+    {% endwith %}
+  {% endif %}
+</div>

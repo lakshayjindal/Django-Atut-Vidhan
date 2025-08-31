@@ -4,195 +4,129 @@
 {% block title %}Chats{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'chat/chat.css' %}">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: #faf7f2;
-        }
+<link rel="stylesheet" href="{% static 'chat/chat.css' %}">
+<style>
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: #faf7f2;
+    }
+    .container {
+        display: flex;
+        height: 80vh;
+        border-radius: 0;
+        overflow: scroll;
+    }
+    /* Sidebar */
+    .sidebar {
+        width: 25%;
+        background-color: #fff9e6;
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 2px solid #F4C95D;
+    }
+    .sidebar h2 { margin-bottom: 20px; font-weight: 600; color: #d68a00; }
+    .chat-user {
+        display: flex; align-items: center;
+        margin-bottom: 15px;
+        padding: 8px;
+        text-decoration: none; color: black;
+        border-radius: 10px;
+        transition: background 0.2s ease;
+    }
+    .chat-user:hover { background-color: rgba(244, 201, 93, 0.2); }
+    .chat-user img { width: 45px; height: 45px; border-radius: 50%; margin-right: 10px; border: 2px solid #F4C95D; }
 
-        .container {
-            display: flex;
-            height: 85vh;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
+    /* Chat Section */
+    .chat-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-image: url('{% static "user/img/mandala.png" %}');
+        background-position: center;
+        background-repeat: no-repeat;
+    }
 
-        /* Sidebar */
-        .sidebar {
-            width: 25%;
-            background-color: #fff9e6;
-            padding: 20px;
-            overflow-y: auto;
-            border-right: 2px solid #F4C95D;
-        }
+    /* Chat Header */
+    .chat-header {
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex; align-items: center;
+        border-bottom: 2px solid #F4C95D;
+        position: sticky; top: 0; z-index: 10;
+    }
+    .chat-header img {
+        width: 50px; height: 50px;
+        border-radius: 50%; margin-right: 12px;
+        border: 2px solid #ef476f;
+    }
+    .chat-header h3 { font-size: 1.2rem; font-weight: 600; color: #ef476f; }
 
-        .sidebar h2 {
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #d68a00;
-        }
+    /* Messages */
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        scroll-behavior: smooth;
+    }
+    .message {
+        max-width: 65%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        font-size: 14px;
+        word-wrap: break-word;
+        animation: fadeIn 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .sent { align-self: flex-end; background: linear-gradient(135deg, #fbb1bd, #f78ca0); color: #fff; }
+    .received { align-self: flex-start; background: linear-gradient(135deg, #f7c948, #f4a259); color: #fff; }
 
-        .chat-user {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            text-decoration: none;
-            color: black;
-            padding: 8px;
-            border-radius: 10px;
-            transition: background 0.2s ease;
-        }
+    .message img { max-width: 200px; border-radius: 10px; display: block; margin-top: 5px; border: 2px solid rgba(255, 255, 255, 0.6); }
+    .file-link { display: inline-block; margin-top: 5px; padding: 5px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; font-weight: 500; }
+    .file-link:hover { background: rgba(255, 255, 255, 0.3); }
 
-        .chat-user:hover {
-            background-color: rgba(244, 201, 93, 0.2);
-        }
+    /* Input area */
+    .chat-input {
+        padding: 12px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        border-top: 2px solid #F4C95D;
+    }
+    .chat-input input[type="text"] {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin-right: 10px;
+        background: #fdfdfd;
+        outline: none;
+        font-size: 14px;
+    }
+    .chat-input button {
+        padding: 10px 14px;
+        border: none;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+    }
+    .chat-input button.file-btn { background-color: #f7c948; margin-right: 6px; }
+    .chat-input button#sendButton { background-color: #ef476f; color: white; }
+    .chat-input button:hover { transform: scale(1.05); }
 
-        .chat-user img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid #F4C95D;
-        }
+    .no-chat-selected { text-align: center; margin-top: 50px; font-size: 18px; color: #999; }
 
-        /* Chat Section */
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-image: url('{% static "user/img/mandala.png" %}');
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* Chat Header */
-        .chat-header {
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid #F4C95D;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .chat-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 12px;
-            border: 2px solid #ef476f;
-        }
-
-        .chat-header h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #ef476f;
-        }
-
-        /* Messages */
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            max-width: 65%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            font-size: 14px;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .sent {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #fbb1bd, #f78ca0);
-            color: #fff;
-        }
-
-        .received {
-            align-self: flex-start;
-            background: linear-gradient(135deg, #f7c948, #f4a259);
-            color: #fff;
-        }
-
-        .message img {
-            max-width: 200px;
-            border-radius: 10px;
-            display: block;
-            margin-top: 5px;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .file-link {
-            display: inline-block;
-            margin-top: 5px;
-            padding: 5px 10px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .file-link:hover { background: rgba(255, 255, 255, 0.3); }
-
-        /* Input area */
-        .chat-input {
-            padding: 12px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            border-top: 2px solid #F4C95D;
-        }
-
-        .chat-input input[type="text"] {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            margin-right: 10px;
-            background: #fdfdfd;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .chat-input button {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            transition: transform 0.15s ease;
-        }
-
-        .chat-input button.file-btn { background-color: #f7c948; margin-right: 6px; }
-        .chat-input button#sendButton { background-color: #ef476f; color: white; }
-        .chat-input button:hover { transform: scale(1.05); }
-
-        .no-chat-selected {
-            text-align: center;
-            margin-top: 50px;
-            font-size: 18px;
-            color: #999;
-        }
-    </style>
+    @media(max-width: 768px) {
+        .sidebar { display: none; }
+        .container { flex-direction: column; }
+        .chat-section { width: 100%; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -201,125 +135,268 @@
     <div class="sidebar">
         <h2>Chats</h2>
         {% for chat_user in chat_users %}
-            <a href="{% url 'chat' chat_with=chat_user.id %}"
-               class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}">
-                {% if chat_user.profile.image %}
-                    <img src="{{ chat_user.profile.image.url }}" alt="Profile picture">
-                {% else %}
-                    {% if chat_user.profile.gender == "Male" %}
-                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default male profile picture">
-                    {% else %}
-                        <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default female profile picture">
-                    {% endif %}
-                {% endif %}
-                <span>{{ chat_user.get_full_name }}</span>
-            </a>
+        <a href="{% url 'chat' chat_with=chat_user.id %}"
+           class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}"
+           hx-get="{% url 'chat' chat_with=chat_user.id %}"
+           hx-target="#chatContainer"
+           hx-push-url="true"
+           hx-swap="innerHTML">
+            {% if chat_user.profile.image %}
+            <img src="{{ chat_user.profile.image.url }}" alt="Profile picture">
+            {% else %}
+            {% if chat_user.profile.gender == "Male" %}
+            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default male profile picture">
+            {% else %}
+            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default female profile picture">
+            {% endif %}
+            {% endif %}
+            <span>{{ chat_user.get_full_name }}</span>
+        </a>
         {% endfor %}
     </div>
 
     <!-- Chat Section -->
     <div class="chat-section" id="chatContainer">
         {% if selected_user %}
-            <!-- Header -->
-            <div class="chat-header">
-                {% if selected_user.image.url %}
-                    <img src="{{ selected_user.image.url }}" alt="User Picture">
-                {% else %}
-                    <img src="{% static 'user/img/default.webp' %}" alt="Default profile picture">
-                {% endif %}
-                <h3>{{ selected_user.get_full_name }}</h3>
-            </div>
+        <!-- Header -->
+        <div class="chat-header">
+            {% if selected_user.image.url %}
+            <img src="{{ selected_user.image.url }}" alt="User Picture">
+            {% else %}
+            <img src="{% static 'user/img/default.webp' %}" alt="Default profile picture">
+            {% endif %}
+            <h3>{{ selected_user.get_full_name }}</h3>
+        </div>
 
-            <!-- Messages -->
-            <div class="chat-messages" id="chatMessages">
-                {% for msg in messages %}
-                    <div class="message {% if msg.sender.id == request.user.id %}sent{% else %}received{% endif %}" data-id="{{ msg.id }}">
-                        {% if msg.message %}
-                            <p>{{ msg.message|linebreaksbr }}</p>
-                        {% endif %}
-                        {% if msg.attachment %}
-                            {% with file_url=msg.attachment.url|lower %}
-                                {% if ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".gif" in file_url %}
-                                    <img src="{{ msg.attachment.url }}" alt="Attachment">
-                                {% elif ".pdf" in file_url %}
-                                    <a href="{{ msg.attachment.url }}" target="_blank" class="file-link">📄 View PDF</a>
-                                {% else %}
-                                    <a href="{{ msg.attachment.url }}" download class="file-link">📎 Download File</a>
-                                {% endif %}
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
+        <!-- Messages -->
+        <div class="chat-messages"
+             id="chatMessages"
+             hx-get="{% url 'fetch_messages' selected_user.id %}"
+             hx-trigger="load, every 3s"
+             hx-swap="beforeend"
+             hx-target="this"
+             hx-vals='js:{"last_id": document.querySelector("#chatMessages .message:last-child")?.dataset.id || 0}'>
 
-            <!-- Input -->
-            <form class="chat-input" method="POST" id="chatInputArea" enctype="multipart/form-data">
+            {% for msg in messages %}
+                {% include "../partials/_message.html" with msg=msg %}
+            {% endfor %}
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input">
+            <!-- Attachment Form -->
+            <form id="fileForm"
+                  hx-post="{% url 'send_message' %}"
+                  hx-encoding="multipart/form-data"
+                  hx-target="#chatMessages"
+                  hx-swap="beforeend"
+                  style="display:inline;">
                 {% csrf_token %}
-                <input type="hidden" name="receiver_id" value="{{ selected_user.id }}" id="toUserId">
-                <input type="text" name="message" placeholder="Type a message..." id="messageInput">
-                <input type="file" name="attachment" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xlsx" style="display:none;">
-                <button type="button" class="file-btn" onclick="document.getElementById('fileInput').click()" style="display:none">📎</button>
-                <button type="submit" id="sendButton">➤</button>
+                <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+                <input type="file" name="attachment" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xlsx" style="display:none;"
+                       onchange="document.getElementById('fileForm').requestSubmit();">
+                <button type="button" class="file-btn" onclick="document.getElementById('fileInput').click()">📎</button>
             </form>
+
+            <!-- Text Message Form -->
+        </div>
+        <form id="messageForm"
+              hx-post="{% url 'send_message' %}"
+              hx-target="#chatMessages"
+              hx-swap="beforeend"
+              _="on htmx:afterRequest reset() me"
+              style="flex:1; display:flex;">
+            {% csrf_token %}
+            <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+            <input type="text" name="message" placeholder="Type a message..." id="messageInput">
+            <button type="submit" id="sendButton">➤</button>
+        </form>
         {% else %}
-            <p class="no-chat-selected">Select a chat to start messaging!</p>
+        <p class="no-chat-selected">Select a chat to start messaging!</p>
         {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function () {
-    let lastMessageId = $(".message").last().data("id") || 0;
+/* ------------------------------
+   Helper: create optimistic bubble
+   ------------------------------ */
+function createOptimisticBubble(payload) {
+  // payload: { text, filename (optional), isFile, filePreviewUrl (optional), senderIsMe }
+  const container = document.createElement('div');
+  container.className = 'message bubble sent'; // optimistic assume sent by me
+  container.setAttribute('data-pending', 'true');
+  container.setAttribute('data-tempid', 't_' + Date.now() + '_' + Math.floor(Math.random()*9999));
+  // simple structure - server will replace with full partial
+  const p = document.createElement('p');
+  p.textContent = payload.text || '';
+  container.appendChild(p);
 
-    function loadMessages() {
-        var receiver_id = $('#toUserId').val();
-        if (receiver_id) {
-            $.ajax({
-                url: "{% url 'fetch_messages' %}",
-                type: 'POST',
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                data: {receiver_id: receiver_id, last_id: lastMessageId},
-                success: function (response) {
-                    if (response.trim() !== "") {
-                        $('#chatMessages').append(response);
-                        lastMessageId = $(".message").last().data("id");
-                        $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
-                    }
-                },
-                error: function (xhr) {
-                    console.error("Error fetching messages:", xhr.responseText);
-                }
-            });
-        }
+  if (payload.isFile && payload.filePreviewUrl) {
+    const img = document.createElement('img');
+    img.src = payload.filePreviewUrl;
+    img.alt = 'attachment';
+    img.style.opacity = '0.85';
+    container.appendChild(img);
+  } else if (payload.isFile) {
+    const link = document.createElement('div');
+    link.className = 'file-link';
+    link.textContent = payload.filename || 'Uploading...';
+    container.appendChild(link);
+  }
+
+  return container;
+}
+
+/* ------------------------------
+   Replace optimistic with server HTML
+   ------------------------------ */
+function replaceOptimisticBubble(tempid, serverHtml) {
+  const tmp = document.querySelector(`[data-tempid="${tempid}"]`);
+  if (!tmp) {
+    // nothing to replace, just append serverHtml
+    const wrapper = document.getElementById('chatMessages');
+    wrapper.insertAdjacentHTML('beforeend', serverHtml);
+    wrapper.scrollTop = wrapper.scrollHeight;
+    return;
+  }
+  // create fragment for serverHtml
+  const frag = document.createRange().createContextualFragment(serverHtml);
+  tmp.replaceWith(frag);
+}
+
+/* ------------------------------
+   Get last numeric message id
+   ------------------------------ */
+function getLastRealMessageId() {
+  const nodes = document.querySelectorAll('#chatMessages .message[data-id]');
+  if (!nodes.length) return 0;
+  const last = nodes[nodes.length - 1];
+  const id = parseInt(last.dataset.id, 10);
+  return isNaN(id) ? 0 : id;
+}
+
+/* ------------------------------
+   Submit form via fetch with optimistic UI
+   Works for both text form and file form
+   ------------------------------ */
+async function submitChatForm(formEl) {
+  const url = formEl.action || '{{ request.path }}'; // fallback
+  const fd = new FormData(formEl);
+
+  // Create preview info (if file)
+  const file = fd.get('attachment') || fd.get('file') || null;
+  let previewUrl = null;
+  let filename = null;
+  if (file && file instanceof File && file.size > 0) {
+    filename = file.name;
+    // If it's an image, create a local preview
+    if (file.type && file.type.startsWith('image/')) {
+      previewUrl = URL.createObjectURL(file);
     }
+  }
 
-    $('#chatInputArea').submit(function (e) {
-        e.preventDefault();
-        var formData = new FormData(this);
+  // Build optimistic bubble and append
+  const optimisticPayload = {
+    text: fd.get('message') || '',
+    isFile: !!file,
+    filePreviewUrl: previewUrl,
+    filename: filename
+  };
+  const optimistic = createOptimisticBubble(optimisticPayload);
+  const chatBox = document.getElementById('chatMessages');
+  chatBox.appendChild(optimistic);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-        $.ajax({
-            url: "{% url 'send_message' %}",
-            type: 'POST',
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function () {
-                $('#messageInput').val('');
-                $('#fileInput').val('');
-                setTimeout(loadMessages, 200);
-            },
-            error: function (xhr) {
-                console.error("Error sending message:", xhr.responseText);
-            }
-        });
+  // store tempid for replacement
+  const tempid = optimistic.dataset.tempid;
+
+  // send request via fetch
+  try {
+    const headers = { 'X-Requested-With': 'XMLHttpRequest' }; // signal AJAX
+    const resp = await fetch(formEl.action, {
+      method: formEl.method || 'POST',
+      headers: headers,
+      body: fd,
+      credentials: 'same-origin'
     });
 
-    setInterval(loadMessages, 3000);
-    loadMessages();
+    if (!resp.ok) {
+      // show error visually
+      optimistic.style.opacity = '0.6';
+      optimistic.style.filter = 'grayscale(0.6)';
+      // optionally show an error badge
+      console.error('Send failed', resp.status);
+      return;
+    }
+
+    const data = await resp.json();
+    if (data && data.ok && data.html) {
+      // replace optimistic bubble with server HTML
+      replaceOptimisticBubble(tempid, data.html);
+      // revoke preview URL if existed
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      // update last_id logic — no need, poller will pick up future messages
+      // scroll to bottom
+      const cb = document.getElementById('chatMessages');
+      cb.scrollTop = cb.scrollHeight;
+    } else {
+      // fallback: append raw text
+      optimistic.style.opacity = '0.6';
+      console.error('Unexpected server response', data);
+    }
+  } catch (err) {
+    optimistic.style.opacity = '0.6';
+    console.error('Network error', err);
+  }
+}
+
+/* ------------------------------
+   Hook forms: text and file forms
+   Put these IDs on your forms:
+   - messageForm (text)
+   - fileForm (attachment)
+   ------------------------------ */
+document.addEventListener('DOMContentLoaded', function () {
+  const msgForm = document.getElementById('messageForm');
+  const fileForm = document.getElementById('fileForm');
+
+  if (msgForm) {
+    msgForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      // if empty, ignore
+      const text = msgForm.querySelector('[name="message"]').value.trim();
+      const fileInput = msgForm.querySelector('[name="attachment"]');
+      if (!text && (!fileInput || !fileInput.files.length)) return;
+      submitChatForm(msgForm);
+      // reset input quickly for instant feel
+      msgForm.reset();
+      msgForm.querySelector('[name="message"]').focus();
+    });
+  }
+
+  if (fileForm) {
+    // we handle fileForm the same: onchange triggers submit, but intercept default
+    fileForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const fileInput = fileForm.querySelector('[name="attachment"]');
+      if (!fileInput || !fileInput.files.length) return;
+      submitChatForm(fileForm);
+      fileForm.reset();
+    });
+  }
+
+  // auto-scroll when HTMX (or other mechanisms) append content to chatMessages
+  document.body.addEventListener('htmx:afterSwap', function (e) {
+    if (e.target && e.target.id === 'chatMessages') {
+      e.target.scrollTop = e.target.scrollHeight;
+    }
+  });
+
+  // small protection: poller must use numeric last id; when user scrolls up and poller returns new messages, we show a badge? (optional)
 });
 </script>
+
 {% endblock %}
