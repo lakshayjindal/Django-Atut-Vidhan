@@ -203,7 +203,7 @@ I am Interested in {{ profile.user.username }} - {{ profile.user.first_name }} {
 Kindly Provide me the contact number for them`;
 
     navigator.clipboard.writeText(msg).then(() => {
-        alert("📋 Message copied! If it doesn’t auto-fill, just paste (Ctrl+V) in WhatsApp.");
+        alert("📋 Message copied! If it doesn't auto-fill, just paste (Ctrl+V) in WhatsApp.");
     }).catch(err => {
         console.error("Clipboard error: ", err);
     });
