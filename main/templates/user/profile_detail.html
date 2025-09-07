@@ -253,13 +253,19 @@
     <div class="container">
         <div class="profile-card">
             <div class="header">
-                {% if profile.image %}
-                    <img src="{{ profile.image }}" alt="{{ profile.full_name }}" class="profile-image">
-                {% elif profile.gender == 'Male' %}
-                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="{{ profile.full_name }}" class="profile-image">
-                {% else %}
-                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="{{ profile.full_name }}" class="profile-image">
-                {% endif %}
+                {% with first_pic=profile.user.pictures.first %}
+                    {% if first_pic %}
+                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-main-image">
+                    {% else %}
+                        {% if profile.gender == "Male" %}
+                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                 class="profile-main-image">
+                        {% else %}
+                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                 class="profile-main-image">
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
                 <div class="info">
                     <h2 class="name">{{ profile.full_name }}</h2>
                     <p class="profession">{{ profile.profession }}</p>

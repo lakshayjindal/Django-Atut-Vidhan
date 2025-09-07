@@ -244,13 +244,19 @@
             {% for chat_user in chat_users %}
                 <a href="{% url 'chat' chat_with=chat_user.id %}"
                    class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}">
-                    {% if chat_user.profile.image.url %}
-                        <img src="{{ chat_user.profile.image.url }}" alt="Profile">
-                    {% elif chat_user.user_gender == 'Male' %}
-                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% with first_pic=chat_user.pictures.first %}
+                    {% if first_pic %}
+                        <img src="{{ first_pic.picture_url }}" alt="{{ chat_user.profile.full_name }}" class="profile-main-image">
                     {% else %}
-                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                        {% if profile.gender == "Male" %}
+                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                 class="profile-main-image">
+                        {% else %}
+                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                 class="profile-main-image">
+                        {% endif %}
                     {% endif %}
+                {% endwith %}
                     <span class="meta">
           <span class="name">{{ chat_user.get_full_name }}</span>
           <span class="last">{{ chat_user.last_message_preview|default:"" }}</span>
@@ -263,13 +269,19 @@
         <section class="chat-section">
             {% if selected_user %}
                 <div class="chat-header">
-                    {% if selected_user.profile.image.url %}
-                        <img src="{{ selected_user.profile.image.url }}" alt="Profile">
-                    {% elif selected_user.user_gender == 'Male' %}
-                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% with first_pic=selected_user.user.pictures.first %}
+                    {% if first_pic %}
+                        <img src="{{ first_pic.picture_url }}" alt="{{ selected_user.profile.full_name }}" class="profile-main-image">
                     {% else %}
-                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                        {% if profile.gender == "Male" %}
+                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                 class="profile-main-image">
+                        {% else %}
+                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                 class="profile-main-image">
+                        {% endif %}
                     {% endif %}
+                {% endwith %}
                     <div class="titles">
                         <h3>{{ selected_user.get_full_name }}</h3>
 {#                        <span class="presence"><span class="status-dot online"></span> Online</span>#}

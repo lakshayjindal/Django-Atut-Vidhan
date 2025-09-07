@@ -4,282 +4,295 @@
 {% block title %}Connection Requests{% endblock title %}
 
 {% block extra_head %}
-<style>
-    :root {
-        --bg: #FFF8F2;
-        --panel: #ffffff;
-        --accent: #D72638;
-        --accent-dark: #a81d2c;
-        --accent-soft: #FFECE8;
-        --header-grad-1: #F4C95D;
-        --header-grad-2: #FFB7A1;
-        --border: #f0e6db;
-        --muted: #7D6E63;
-        --text-dark: #2F2F2F;
-        --text: #4a3f39;
-        --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    }
+    <style>
+        :root {
+            --bg: #FFF8F2;
+            --panel: #ffffff;
+            --accent: #D72638;
+            --accent-dark: #a81d2c;
+            --accent-soft: #FFECE8;
+            --header-grad-1: #F4C95D;
+            --header-grad-2: #FFB7A1;
+            --border: #f0e6db;
+            --muted: #7D6E63;
+            --text-dark: #2F2F2F;
+            --text: #4a3f39;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
 
-    .connections-container {
-        max-width: 600px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: var(--bg);
-        border-left: 4px solid var(--accent);
-        border-radius: 8px;
-        box-shadow: var(--shadow);
-    }
+        .connections-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--bg);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
 
-    .connections-container h2 {
-        color: var(--accent);
-        font-size: 24px;
-        margin-bottom: 1.5rem;
-    }
+        .connections-container h2 {
+            color: var(--accent);
+            font-size: 24px;
+            margin-bottom: 1.5rem;
+        }
 
-    .request-card {
-        background-color: var(--accent-soft);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+        .request-card {
+            background-color: var(--accent-soft);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .request-card p {
-        margin: 0;
-        font-size: 16px;
-        color: var(--text-dark);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .request-card p {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .accept-btn {
-        background-color: var(--accent);
-        color: #fff;
-        border: none;
-        padding: 8px 16px;
-        font-size: 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    .accept-btn:hover {
-        background-color: var(--accent-dark);
-    }
+        .accept-btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-    .no-requests {
-        background-color: var(--accent-soft);
-        border: 1px solid var(--border);
-        padding: 1rem;
-        border-radius: 6px;
-        color: var(--muted);
-        text-align: center;
-        font-style: italic;
-    }
+        .accept-btn:hover {
+            background-color: var(--accent-dark);
+        }
 
-    .chat-btn,
-    .cancel-btn {
-        display: inline-block;
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        text-decoration: none;
-        text-align: center;
-        user-select: none;
-    }
+        .no-requests {
+            background-color: var(--accent-soft);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            color: var(--muted);
+            text-align: center;
+            font-style: italic;
+        }
 
-    .chat-btn {
-        background-color: var(--header-grad-1);
-        color: #fff;
-    }
-    .chat-btn:hover {
-        background-color: var(--header-grad-2);
-    }
+        .chat-btn,
+        .cancel-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            user-select: none;
+        }
 
-    .cancel-btn {
-        background-color: var(--accent);
-        color: #fff;
-    }
-    .cancel-btn:hover {
-        background-color: var(--accent-dark);
-    }
+        .chat-btn {
+            background-color: var(--header-grad-1);
+            color: #fff;
+        }
 
-    .profile-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 8px;
-        box-shadow: var(--shadow);
-        border: 2px solid var(--border);
-        transition: transform 0.3s ease;
-    }
+        .chat-btn:hover {
+            background-color: var(--header-grad-2);
+        }
 
-    .profile-img:hover {
-        transform: scale(1.05);
-        border-color: var(--accent);
-    }
-</style>
+        .cancel-btn {
+            background-color: var(--accent);
+            color: #fff;
+        }
+
+        .cancel-btn:hover {
+            background-color: var(--accent-dark);
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+    </style>
 {% endblock extra_head %}
 
 {% block content %}
-<div class="connections-container">
-    <h2>Pending Connection Requests</h2>
+    <div class="connections-container">
+        <h2>Pending Connection Requests</h2>
 
-    <div id="received-requests">
-        {% if received_requests %}
-            {% for req in received_requests %}
-                <div class="request-card" id="received-request-{{ req.id }}">
-                    <p>
-                        <a href="{% url 'profile_detail' req.sender.profile.id %}">
-                            {% if req.sender.profile.image %}
-                                <img src="{{ req.sender.profile.image }}" alt="{{ req.sender.first_name }}" class="profile-img">
-                            {% else %}
-                                {% if req.sender.profile.gender == "Male" %}
-                                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
-                                {% else %}
-                                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
-                                {% endif %}
-                            {% endif %}
-                            <strong>{{ req.sender.first_name }} {{ req.sender.last_name }}</strong>
-                        </a>
-                        wants to connect with you.
-                    </p>
-                    <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
+        <div id="received-requests">
+            {% if received_requests %}
+                {% for req in received_requests %}
+                    <div class="request-card" id="received-request-{{ req.id }}">
+                        <p>
+                            <a href="{% url 'profile_detail' req.sender.profile.id %}">
+                                {% with first_pic=req.sender.pictures.first %}
+                                    {% if first_pic %}
+                                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}"
+                                             class="profile-img">
+                                    {% else %}
+                                        {% if profile.gender == "Male" %}
+                                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                                 class="profile-img">
+                                        {% else %}
+                                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                                 class="profile-img">
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                                <strong>{{ req.sender.first_name }} {{ req.sender.last_name }}</strong>
+                            </a>
+                            wants to connect with you.
+                        </p>
+                        <button onclick="acceptRequest({{ req.id }})" class="accept-btn">Accept</button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-requests" id="no-received-msg">
+                    No new connection requests at the moment.
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-requests" id="no-received-msg">
-                No new connection requests at the moment.
-            </div>
-        {% endif %}
-    </div>
+            {% endif %}
+        </div>
 
-    <hr>
-    <h2>Sent Connection Requests</h2>
+        <hr>
+        <h2>Sent Connection Requests</h2>
 
-    <div id="sent-requests">
-        {% if sent_requests %}
-            {% for req in sent_requests %}
-                <div class="request-card" id="sent-request-{{ req.id }}">
-                    <p>
-                        <a href="{% url 'profile_detail' req.receiver.profile.id %}">
-                            {% if req.receiver.profile.image %}
-                                <img src="{{ req.receiver.profile.image }}" alt="{{ req.receiver.first_name }}" class="profile-img">
+        <div id="sent-requests">
+            {% if sent_requests %}
+                {% for req in sent_requests %}
+                    <div class="request-card" id="sent-request-{{ req.id }}">
+                        <p>
+                            <a href="{% url 'profile_detail' req.receiver.profile.id %}">
+                                {% with first_pic=req.receiver.pictures.first %}
+                                    {% if first_pic %}
+                                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}"
+                                             class="profile-img">
+                                    {% else %}
+                                        {% if profile.gender == "Male" %}
+                                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                                 class="profile-img">
+                                        {% else %}
+                                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                                 class="profile-img">
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                                <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong>
+                            </a>
+                        </p>
+                        <p>
+                            {% if req.is_accepted %}
+                                <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
                             {% else %}
-                                {% if req.receiver.profile.gender == "Male" %}
-                                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male" class="profile-img">
-                                {% else %}
-                                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female" class="profile-img">
-                                {% endif %}
+                                <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
                             {% endif %}
-                            <strong>{{ req.receiver.first_name }} {{ req.receiver.last_name }}</strong>
-                        </a>
-                    </p>
-                    <p>
-                        {% if req.is_accepted %}
-                            <a href="{% url 'chat' req.receiver.id %}" class="chat-btn">Chat</a>
-                        {% else %}
-                            <button onclick="cancelRequest({{ req.id }})" class="cancel-btn">Cancel Request</button>
-                        {% endif %}
-                    </p>
+                        </p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-requests" id="no-sent-msg">
+                    You haven't sent any connection requests yet.
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-requests" id="no-sent-msg">
-                You haven't sent any connection requests yet.
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock content %}
 {% block extra_scripts %}
-<script>
-function getCSRFToken() {
-    const name = 'csrftoken';
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + '=')) {
-            return decodeURIComponent(cookie.substring(name.length + 1));
+    <script>
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            }
+            return '';
         }
-    }
-    return '';
-}
 
-async function acceptRequest(requestId) {
-    try {
-        const res = await fetch(`/chat/connect/accept/${requestId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-                "X-Requested-With": "XMLHttpRequest"
+        async function acceptRequest(requestId) {
+            try {
+                const res = await fetch(`/chat/connect/accept/${requestId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // 🎉 Animate & remove card
+                    const card = document.getElementById(`received-request-${requestId}`);
+                    card.style.transition = "all 0.4s ease";
+                    card.style.opacity = "0";
+                    card.style.transform = "translateX(40px)";
+                    setTimeout(() => card.remove(), 400);
+
+                    // If no cards left, show fallback
+                    if (!document.querySelector("#received-requests .request-card")) {
+                        document.getElementById("received-requests").innerHTML =
+                            '<div class="no-requests">No new connection requests at the moment.</div>';
+                    }
+                } else {
+                    alert(data.error || "Something went wrong!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error. Try again!");
             }
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            // 🎉 Animate & remove card
-            const card = document.getElementById(`received-request-${requestId}`);
-            card.style.transition = "all 0.4s ease";
-            card.style.opacity = "0";
-            card.style.transform = "translateX(40px)";
-            setTimeout(() => card.remove(), 400);
-
-            // If no cards left, show fallback
-            if (!document.querySelector("#received-requests .request-card")) {
-                document.getElementById("received-requests").innerHTML =
-                    '<div class="no-requests">No new connection requests at the moment.</div>';
-            }
-        } else {
-            alert(data.error || "Something went wrong!");
         }
-    } catch (err) {
-        console.error(err);
-        alert("Network error. Try again!");
-    }
-}
 
-async function cancelRequest(requestId) {
-    try {
-        const res = await fetch(`/chat/cancel-request/${requestId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-                "X-Requested-With": "XMLHttpRequest"
+        async function cancelRequest(requestId) {
+            try {
+                const res = await fetch(`/chat/cancel-request/${requestId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // 🎉 Animate & remove card
+                    const card = document.getElementById(`sent-request-${requestId}`);
+                    card.style.transition = "all 0.4s ease";
+                    card.style.opacity = "0";
+                    card.style.transform = "translateX(-40px)";
+                    setTimeout(() => card.remove(), 400);
+
+                    // If no cards left, show fallback
+                    if (!document.querySelector("#sent-requests .request-card")) {
+                        document.getElementById("sent-requests").innerHTML =
+                            '<div class="no-requests">You haven\'t sent any connection requests yet.</div>';
+                    }
+                } else {
+                    alert(data.error || "Something went wrong!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error. Try again!");
             }
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            // 🎉 Animate & remove card
-            const card = document.getElementById(`sent-request-${requestId}`);
-            card.style.transition = "all 0.4s ease";
-            card.style.opacity = "0";
-            card.style.transform = "translateX(-40px)";
-            setTimeout(() => card.remove(), 400);
-
-            // If no cards left, show fallback
-            if (!document.querySelector("#sent-requests .request-card")) {
-                document.getElementById("sent-requests").innerHTML =
-                    '<div class="no-requests">You haven\'t sent any connection requests yet.</div>';
-            }
-        } else {
-            alert(data.error || "Something went wrong!");
         }
-    } catch (err) {
-        console.error(err);
-        alert("Network error. Try again!");
-    }
-}
-</script>
+    </script>
 
 {% endblock %}

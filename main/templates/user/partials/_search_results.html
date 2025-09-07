@@ -81,14 +81,19 @@
 <div class="search-results">
     {% for profile in profiles %}
         <div class="profile-card">
-            <a href="/user/profile/{{ profile.id }}/" style="text-decoration: none; color: inherit;">
-                {% if profile.image %}
-                    <img src="{{ profile.image }}" alt="{{ profile.full_name }}">
-                {% elif profile.gender == 'Male' %}
-                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="{{ profile.full_name }}">
-                {% else %}
-                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="{{ profile.full_name }}">
-                {% endif %}
+            {% with first_pic=profile.user.pictures.first %}
+                    {% if first_pic %}
+                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-main-image">
+                    {% else %}
+                        {% if profile.gender == "Male" %}
+                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                                 class="profile-main-image">
+                        {% else %}
+                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                                 class="profile-main-image">
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
 
                 <h3>{{ profile.full_name }}</h3>
                 <p><strong>{{ profile.profession }}</strong></p>
