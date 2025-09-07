@@ -5,45 +5,370 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Atut Vidhan | Where Eternal Bonds Begin</title>
+
+  <title>Atut Vidhan® – Find Your Perfect Life Partner | Trusted Matrimonial Service</title>
+
+  <meta name="description" content="Atut Vidhan® is India's most trusted matrimonial platform, offering a secure and elegant way for singles to connect based on religion, caste, profession, and more. Start your journey toward eternal companionship today." />
+  <meta name="keywords" content="matrimonial, life partner, marriage, Indian matrimonial, Atut Vidhan, trusted matchmaking, verified profiles" />
+  <meta name="author" content="Atut Vidhan®" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:title" content="Atut Vidhan® – Trusted Matrimonial Platform for Finding Life Partners" />
+  <meta property="og:description" content="Explore verified profiles and use advanced search filters to connect with your ideal life partner on Atut Vidhan®. Secure, easy, and meaningful matchmaking." />
+  <meta property="og:image" content="https://www.atutvidhan.com/static/user/img/background.webp" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.atutvidhan.com/" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Atut Vidhan® – Where Eternal Bonds Begin" />
+  <meta name="twitter:description" content="Join Atut Vidhan® – India’s elegant matrimonial platform offering secure and verified matchmaking to help singles find their life partners." />
+  <meta name="twitter:image" content="https://www.atutvidhan.com/static/user/img/background.webp" />
+
   <link rel="stylesheet" href="{% static 'user/css/style.css' %}" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap"
     rel="stylesheet">
 
   <style>
-    html{
-      font-size: 3vmin;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: url("{% static 'user/img/background.webp' %}") no-repeat center center/cover;
-      height: 100vh;
-      position: relative;
-      color: var(--color-text-primary);
-      overflow: hidden;
-    }
+    /* =========================
+   Root & Global Styles
+========================= */
+:root {
+  --primary: #b44e5c;           /* warm rose */
+  --primary-light: #d97a7a;     /* soft terracotta */
+  --bg: #faf7f5;                /* ivory background */
+  --card: #fffaf8;              /* cream cards */
+  --text: #3a2e2e;              /* warm dark text */
+  --text-light: #6f5e5e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* =========================
+   Navbar
+========================= */
+.navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 14px 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  position: fixed;
+  top: -80px;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  transition: top 0.2s ease-in-out, background 0.4s ease;
+}
+
+.navbar.visible {
+  top: 0;
+}
+
+.site-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  margin-left: 24px;
+  padding: 8px 20px;
+  border-radius: 30px;
+  transition: all 0.4s ease-in-out;
+}
+.nav-links a:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--primary));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(180, 78, 92, 0.2);
+}
+
+/* =========================
+   Hero Section
+========================= */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 90px 10%;
+  background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.35)),
+              url("{% static 'user/img/background.webp' %}") center/cover no-repeat;
+  min-height: 90vh;
+  color: #fff;
+  text-align: left;
+}
+
+.hero-text {
+  max-width: 600px;
+}
+.hero-text h1 {
+  font-family: 'Great Vibes', cursive;
+  font-size: 4.5rem;
+  margin-bottom: 15px;
+}
+.hero-text p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  font-weight: 300;
+}
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+}
+.hero-buttons a {
+  background: linear-gradient(to right, var(--primary-light), var(--primary));
+  color: #fff;
+  padding: 14px 32px;
+  text-decoration: none;
+  border-radius: 40px;
+  font-weight: 500;
+  transition: all 0.4s ease-in-out;
+}
+.hero-buttons a:hover {
+  box-shadow: 0 6px 16px rgba(180, 78, 92, 0.3);
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Features Section
+========================= */
+.features-section {
+  padding: 80px 10%;
+  background: #fff;
+  text-align: center;
+}
+.features-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  margin-bottom: 40px;
+  color: var(--text);
+}
+.features-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+.feature-card {
+  background: var(--card);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  max-width: 300px;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+}
+.feature-card h3 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+.feature-card p {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+/* =========================
+   CTA Section
+========================= */
+.cta-section {
+  text-align: center;
+  background: linear-gradient(to right, var(--primary-light), var(--primary));
+  color: #fff;
+  padding: 80px 20px;
+  border-radius: 60px 60px 0 0;
+}
+.cta-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+.cta-section a {
+  background: #fff;
+  color: var(--primary);
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: 40px;
+  font-weight: 600;
+  transition: all 0.4s ease;
+}
+.cta-section a:hover {
+  background: #fff7f7;
+  box-shadow: 0 6px 18px rgba(255,255,255,0.3);
+}
+
+/* =========================
+   Footer
+========================= */
+.footer {
+  background: #4a3f3f;
+  color: #eaeaea;
+  text-align: center;
+  padding: 30px 40px;
+  font-size: 0.95rem;
+}
+.footer a {
+  color: #eaeaea;
+  text-decoration: none;
+  margin: 0 12px;
+  transition: color 0.3s ease;
+}
+.footer a:hover {
+  color: var(--primary-light);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 992px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 80px 6%;
+  }
+  .hero-text {
+    max-width: 100%;
+  }
+  .hero-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 12px 20px;
+  }
+  .nav-links {
+    margin-top: 10px;
+  }
+  .features-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .footer {
+    text-align: center;
+    padding: 20px;
+  }
+}
+
   </style>
 </head>
 
 <body>
-  <div class="landing-container">
-    <div class="logo-top-left">
-      <img src="{% static "user/img/logo.webp" %}" alt="Atut Vidhan Logo" style="border-radius: 50%; border: 1px solid #D72638; width: 150px;"/>
+  <!-- Header -->
+<header class="navbar" id="navbar">
+  <div class="container" style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: auto;">
+    <div class="navbar-left" style="display: flex; align-items: center;">
+      <img src="{% static 'user/img/logo.webp' %}" alt="Atut Vidhan Logo" style="width: 60px; border-radius: 12px; border: 2px solid #D72638;" />
+      <span class="site-name" style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; margin-left: 12px; color: #333;">Atut Vidhan<sup>®</sup></span>
     </div>
 
-    <div class="landing-buttons">
-      <a href="auth/" class="landing-btn">Log In</a>
-      <a href="auth/signup" class="landing-btn">Sign Up</a>
-    </div>
-
-    <div class="landing-content">
-      <h1 class="landing-title">Atut Vidhan<sup>®</sup></h1>
-      <p class="landing-subtitle">Where Eternal Bonds Begin</p>
-    </div>
+    <nav class="nav-links">
+      <a href="auth/">Log In</a>
+      <a href="auth/signup">Sign Up</a>
+    </nav>
   </div>
+</header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-text">
+      <h1>Atut Vidhan<sup>®</sup></h1>
+      <p>Where Eternal Bonds Begin – Trusted matrimonial platform connecting singles across India for meaningful relationships and marriage.</p>
+      <div class="hero-buttons">
+        <a href="auth/signup">Get Started</a>
+        <a href="auth/">Log In</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <h2>Why Atut Vidhan®?</h2>
+    <div class="features-cards">
+      <div class="feature-card">
+        <h3>Verified Profiles</h3>
+        <p>Every profile undergoes strict verification to ensure authenticity and a safe experience for our users.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Advanced Search</h3>
+        <p>Filter matches by religion, caste, location, profession, and other preferences to find exactly who you're looking for.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Privacy First</h3>
+        <p>Your data and interactions are secured with end-to-end privacy controls, giving you full control over what you share.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Secure Messaging</h3>
+        <p>Chat securely with potential matches using our built-in system without needing to share personal contact details.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call To Action -->
+  <section class="cta-section">
+    <h2>Start Your Journey Today</h2>
+    <a href="auth/signup">Join Atut Vidhan® Now</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container" style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+      <div class="footer-left" style="font-family: 'Playfair Display', serif; font-weight: 500;">
+        © 2025 Atut Vidhan®
+      </div>
+
+      <div class="footer-links">
+        <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+        <a href="{% url 'terms_conditions' %}">Terms & Conditions</a>
+        <a href="{% url 'about' %}">About Us</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </div>
+    </div>
+  </footer>
+<script>
+  let lastScroll = 0;
+  const navbar = document.getElementById('navbar');
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+
+    if (currentScroll > lastScroll && currentScroll > 100) {
+      // Scrolling down — hide navbar
+      navbar.classList.remove('visible');
+    } else {
+      // Scrolling up — show navbar
+      navbar.classList.add('visible');
+    }
+
+    lastScroll = currentScroll;
+  });
+</script>
 </body>
 
 </html>
