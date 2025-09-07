@@ -28,4 +28,9 @@ urlpatterns = [
                   path('user_dashboard', views.redirect_user_dashboard, name="user_dashboard"),
                   path('chat/', include("connect.urls")),
                   path('search/', include("search.urls")),
+                  path('privacy/',views.privacy, name='privacy_policy'),
+                  path('terms/',views.terms, name='terms_conditions'),
+                  path('about/',views.about, name='about'),
+                  path('contact/',views.contact, name='contact'),
+                  path('faq/',views.faq, name='help'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

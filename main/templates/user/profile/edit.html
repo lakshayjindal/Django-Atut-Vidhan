@@ -2,321 +2,286 @@
 {% load static %}
 
 {% block extra_head %}
-<style>
-    :root {
-        --primary: #e63946;
-        --primary-hover: #c71f2d;
-        --bg-light: #f8f9fa;
-        --card-bg: #fff;
-        --text-dark: #333;
-        --border: #e0e0e0;
-    }
-
-    body {
-        font-family: "Inter", "Segoe UI", sans-serif;
-        background-color: var(--bg-light);
-    }
-
-    .profile-edit-container {
-        max-width: 900px;
-        margin: 40px auto;
-        background: var(--card-bg);
-        border-radius: 16px;
-        padding: 40px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        animation: fadeIn 0.4s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+    <style>
+        :root {
+            --bg: #FFF8F2; /* Ivory Blush */
+            --panel: #ffffff; /* Pure white panel */
+            --accent: #D72638; /* Royal Rose */
+            --accent-dark: #a81d2c; /* Darker rose */
+            --accent-soft: #FFECE8; /* Soft rose background */
+            --header-grad-1: #F4C95D; /* Golden Sand */
+            --header-grad-2: #FFB7A1; /* Peach Bloom */
+            --border: #f0e6db; /* Champagne Mist */
+            --muted: #7D6E63; /* Dusty Taupe */
+            --text-dark: #2F2F2F; /* Charcoal Silk */
+            --text: #4a3f39; /* Warm gray-brown */
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        body {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
         }
-    }
 
-    h2 {
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 1.8rem;
-        color: var(--text-dark);
-    }
+        .profile-edit-container {
+            max-width: 920px;
+            margin: 50px auto;
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-in-out;
+        }
 
-    /* ===== Photo grid styling ===== */
-    .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 30px;
-    }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .photo-slot {
-        width: 100%;
-        padding-top: 100%;
-        /* square aspect ratio */
-        position: relative;
-        background: #f9f9f9;
-        border: 2px dashed var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: border 0.2s;
-    }
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--accent);
+            background: linear-gradient(90deg, var(--header-grad-1), var(--header-grad-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
 
-    .photo-slot:hover {
-        border-color: var(--primary);
-    }
+        /* ===== Photo Grid ===== */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 18px;
+            justify-items: center;
+            margin-bottom: 40px;
+        }
 
-    .photo-slot img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 12px;
-    }
+        .photo-slot {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: border 0.3s, transform 0.2s;
+            cursor: pointer;
+        }
 
-    .plus-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 2rem;
-        color: var(--primary);
-        font-weight: bold;
-    }
+        .photo-slot:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
 
-    .editable-section {
-        display: grid;
-        gap: 20px;
-    }
+        .slot-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
 
-    .editable-field {
-        display: flex;
-        flex-direction: column;
-    }
+        .plus-icon {
+            font-size: 2.2rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
 
-    .editable-field label {
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: var(--text-dark);
-    }
+        .delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-    .edit-mode,
-    select,
-    input[type="text"],
-    input[type="date"],
-    textarea {
-        padding: 10px 12px;
-        font-size: 1rem;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background-color: #fafafa;
-        transition: border 0.2s, box-shadow 0.2s;
-    }
+        .delete-btn:hover {
+            background: var(--accent-dark);
+        }
 
-    .edit-mode:focus,
-    select:focus,
-    input:focus,
-    textarea:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
-        outline: none;
-    }
+        /* ===== Editable Fields ===== */
+        .editable-section {
+            display: grid;
+            gap: 25px;
+        }
 
-    .save-button {
-        display: block;
-        margin: 30px auto 0;
-        padding: 12px 28px;
-        font-size: 1rem;
-        border: none;
-        background: var(--primary);
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
-    }
+        .editable-field {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .save-button:hover {
-        background: var(--primary-hover);
-        transform: translateY(-2px);
-    }
+        .editable-field label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
 
-    .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-    }
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--accent-soft);
+            font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
 
-    .photo-slot {
-        width: 150px;
-        height: 150px;
-        border: 2px dashed #ccc;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        position: relative;
-        background: #fafafa;
-    }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(215, 38, 56, 0.15);
+            outline: none;
+        }
 
-    .slot-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 12px;
-    }
+        .save-button {
+            display: block;
+            margin: 40px auto 0;
+            padding: 14px 32px;
+            font-size: 1rem;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
 
-    .delete-btn {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        background: rgba(0, 0, 0, 0.6);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
+        .save-button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
 
-    .delete-btn:hover {
-        background: rgba(230, 57, 70, 0.8);
-        /* your primary color vibe */
-    }
-
-    .upload-slot {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        color: #aaa;
-        font-size: 2rem;
-    }
-</style>
+        .error {
+            color: #d72638;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+    </style>
 {% endblock extra_head %}
 
 {% block content %}
-<div class="profile-edit-container">
-    <h2>Edit Profile</h2>
-    <form method="POST" enctype="multipart/form-data" class="edit-form">
-        {% csrf_token %}
+    <div class="profile-edit-container">
+        <h2>Edit Profile</h2>
+        <form method="POST" enctype="multipart/form-data" class="edit-form">
+            {% csrf_token %}
 
-        <!-- Dating-style Photo Grid -->
-        <div class="photo-grid">
-            {% for pic in pictures %}
-            <div class="photo-slot">
-                {% if pic %}
-                <div class="photo-wrapper">
-                    <img src="{{ pic.picture_url }}" alt="User Photo">
-                    <button type="button" class="delete-btn" onclick="deleteSlot({{ pic.id }}, this)">✖</button>
-                </div>
-                {% else %}
-                <label class="upload-slot">
-                    <span class="plus-icon">+</span>
-                    <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
-                </label>
-                {% endif %}
+            <!-- Photo Grid -->
+            <div class="photo-grid">
+                {% for pic in pictures %}
+                    <div class="photo-slot">
+                        <label class="upload-slot">
+                            <span class="plus-icon">+</span>
+                            <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
+                                   onchange="previewSlot(this)">
+                        </label>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-
-
-        <!-- Profile Info Fields -->
-        <div class="editable-section">
-            {% for field in form %}
-            {% if field.name != "image" %}
-            <div class="editable-field">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <div class="error" style="color: red; font-size: 0.9em;">
-                    {{ field.errors|striptags }}
-                </div>
-                {% endif %}
+            <!-- Profile Fields -->
+            <div class="editable-section">
+                {% for field in form %}
+                    {% if field.name != "image" %}
+                        <div class="editable-field">
+                            <label>{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="error">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-            {% endif %}
-            {% endfor %}
-        </div>
 
-        <button type="submit" class="save-button">💾 Save Changes</button>
-    </form>
-</div>
+            <button type="submit" class="save-button">💾 Save Changes</button>
+        </form>
+    </div>
 
-<script>
-    function previewSlot(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const slot = input.closest(".photo-slot");
-                let img = slot.querySelector("img");
-                if (!img) {
-                    img = document.createElement("img");
-                    slot.appendChild(img);
-                }
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    function previewSlot(input) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const slot = input.closest(".photo-slot");
-                slot.innerHTML = `
-                <div class="photo-wrapper">
-                    <img src="${e.target.result}" class="slot-image">
-                    <button type="button" class="delete-btn" onclick="removePreview(this)">✖</button>
-                </div>`;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    // Remove newly uploaded preview before save
-    function removePreview(btn) {
-        const slot = btn.closest(".photo-slot");
-        slot.innerHTML = `
-        <label class="upload-slot">
-            <span class="plus-icon">+</span>
-            <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
-        </label>`;
-    }
+    <script>
+        function previewSlot(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const slot = input.closest(".photo-slot");
 
-    // Delete existing picture from DB
-    function deleteSlot(pictureId, btn) {
-        if (!confirm("Delete this photo?")) return;
+                    // Add preview image if not already there
+                    let img = slot.querySelector('.slot-image');
+                    if (!img) {
+                        img = document.createElement('img');
+                        img.className = 'slot-image';
+                        slot.appendChild(img);
+                    }
 
-        fetch(`/delete-picture/${pictureId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
+                    img.src = e.target.result;
+
+                    // Show delete button
+                    let deleteBtn = slot.querySelector('.delete-btn');
+                    if (!deleteBtn) {
+                        deleteBtn = document.createElement('button');
+                        deleteBtn.type = 'button';
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = '✖';
+                        deleteBtn.onclick = () => removePreview(input);
+                        slot.appendChild(deleteBtn);
+                    }
+                };
+                reader.readAsDataURL(file);
             }
-        }).then(res => {
-            if (res.ok) {
-                // Reset slot to empty upload
-                const slot = btn.closest(".photo-slot");
-                slot.innerHTML = `
+        }
+
+
+        function removePreview(input) {
+            const slot = input.closest(".photo-slot");
+
+            // Clear the file input value
+            input.value = '';
+
+            // Remove preview image & delete button
+            const img = slot.querySelector('.slot-image');
+            if (img) img.remove();
+
+            const deleteBtn = slot.querySelector('.delete-btn');
+            if (deleteBtn) deleteBtn.remove();
+        }
+
+
+        function deleteSlot(pictureId, btn) {
+            if (!confirm("Delete this photo?")) return;
+
+            fetch(`/delete-picture/${pictureId}/`, {
+                method: "POST",
+                headers: {"X-CSRFToken": "{{ csrf_token }}"}
+            }).then(res => {
+                if (res.ok) {
+                    const slot = btn.closest(".photo-slot");
+                    slot.innerHTML = `
                 <label class="upload-slot">
                     <span class="plus-icon">+</span>
                     <input type="file" name="photos" accept="image/*" hidden onchange="previewSlot(this)">
                 </label>`;
-            } else {
-                alert("Failed to delete photo.");
-            }
-        });
-    }
-</script>
+                } else alert("Failed to delete photo.");
+            });
+        }
+    </script>
 {% endblock %}

@@ -185,7 +185,14 @@ def complete_user(request):
 
         # Profile Image
         profile_image = request.FILES.get("profile_image")
-        profile_image_url = upload_to_supabase(profile_image) if profile_image else None
+        if profile_image:
+            profile_image_url = upload_to_supabase(profile_image)
+            Picture.objects.create(
+                user=user,
+                profile_image_url=profile_image_url,
+                is_profile=True
+            )
+
 
         # Basic Inputs
         full_name = request.POST.get("full_name", "").strip()
@@ -236,8 +243,6 @@ def complete_user(request):
         user.full_name = full_name
         user.user_gender = gender
         user.age = age
-        if profile_image_url:
-            user.image = profile_image_url
         user.save()
 
         # Get or create profile
@@ -263,10 +268,6 @@ def complete_user(request):
         profile.bio = bio
         profile.country = country
         profile.age = age
-
-        if profile_image_url:
-            profile.image = profile_image_url
-
         profile.save()
 
         return redirect("user_dashboard")
@@ -300,12 +301,11 @@ def edit_profile(request):
             form.save()
 
             # Handle new uploaded photos
-            uploaded_files = request.FILES.getlist('photos')
+            uploaded_files = [file for key, file in request.FILES.items() if key.startswith('photos_')]
+            print(uploaded_files)
             for uploaded_file in uploaded_files:
-                # Upload to Supabase
                 try:
                     file_url = upload_to_supabase(uploaded_file, folder="user_photos")
-                    # Create Picture instance
                     Picture.objects.create(
                         user=user,
                         picture_url=file_url,

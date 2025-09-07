@@ -1,0 +1,119 @@
+{% extends "../base.html" %}
+
+{% block title %}Terms & Conditions | Atut Vidhan®{% endblock %}
+
+{% block content %}
+<style>
+    .terms-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 40px 20px;
+        background: var(--color-primary-bg);
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .terms-container h1 {
+        color: var(--color-accent-1);
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .terms-container h2 {
+        color: var(--color-accent-1);
+        font-size: 1.3rem;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+
+    .terms-container p,
+    .terms-container li {
+        color: var(--color-text-secondary);
+        line-height: 1.7;
+        font-size: 15px;
+    }
+
+    .terms-container ul {
+        padding-left: 20px;
+    }
+
+    .last-updated {
+        font-size: 14px;
+        color: var(--color-text-secondary);
+        text-align: center;
+        margin-top: 30px;
+        font-style: italic;
+    }
+</style>
+
+<div class="terms-container">
+    <h1>Terms & Conditions</h1>
+
+    <p>
+        Welcome to <strong>Atut Vidhan®</strong>. By registering and using our matrimonial platform,
+        you agree to comply with the following Terms & Conditions. These terms are designed to ensure
+        a respectful, safe, and transparent experience for all users.
+    </p>
+
+    <h2>1. Eligibility</h2>
+    <ul>
+        <li>You must be at least 18 years of age to register on this platform.</li>
+        <li>You confirm that you are legally allowed to marry under applicable laws.</li>
+        <li>Profiles created with false or misleading information will be removed.</li>
+    </ul>
+
+    <h2>2. User Responsibilities</h2>
+    <ul>
+        <li>You agree to provide accurate, truthful, and updated personal details.</li>
+        <li>You are responsible for maintaining confidentiality of your login credentials.</li>
+        <li>You agree to interact respectfully with other members.</li>
+        <li>Any form of harassment, abusive language, or fraudulent behavior will not be tolerated.</li>
+    </ul>
+
+    <h2>3. Platform Limitations</h2>
+    <p>
+        Atut Vidhan® provides a matchmaking platform, but does not guarantee successful matches or marriages.
+        We are not liable for personal interactions or disputes beyond our platform.
+    </p>
+
+    <h2>4. Subscription & Payments</h2>
+    <p>
+        Some features may require paid subscriptions. All payments are non-refundable
+        unless otherwise stated in specific offers.
+    </p>
+
+    <h2>5. Privacy & Data Protection</h2>
+    <p>
+        Your data is handled as per our <a href="/privacy-policy/" style="color:var(--color-accent-1);">Privacy Policy</a>.
+        By using the platform, you consent to our data collection and usage practices.
+    </p>
+
+    <h2>6. Termination of Account</h2>
+    <ul>
+        <li>We reserve the right to suspend or terminate accounts that violate our policies.</li>
+        <li>You may request account deletion at any time by contacting support.</li>
+    </ul>
+
+    <h2>7. Governing Law</h2>
+    <p>
+        These Terms shall be governed by and construed in accordance with the laws of India.
+        Any disputes will fall under the jurisdiction of courts in Delhi, India.
+    </p>
+
+    <h2>8. Changes to Terms</h2>
+    <p>
+        Atut Vidhan® reserves the right to update these Terms & Conditions at any time.
+        Users will be notified of major changes via the website or email.
+    </p>
+
+    <h2>9. Contact Us</h2>
+    <p>
+        For questions regarding these Terms, reach us at: <br>
+        📧 <a href="mailto:support@atutvidhan.com" style="color:var(--color-accent-1);">support@atutvidhan.com</a>
+    </p>
+
+    <p class="last-updated">Last updated: January 2025</p>
+</div>
+{% endblock %}

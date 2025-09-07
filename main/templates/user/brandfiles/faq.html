@@ -1,0 +1,117 @@
+{% extends "../base.html" %}
+
+{% block title %}Help & FAQs | Atut Vidhan®{% endblock %}
+
+{% block content %}
+<style>
+    .faq-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 40px 20px;
+        background: var(--color-primary-bg);
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .faq-container h1 {
+        text-align: center;
+        color: var(--color-accent-1);
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 25px;
+    }
+
+    .accordion-button {
+        background: var(--color-secondary-bg);
+        color: var(--color-text-primary);
+        font-weight: 500;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: var(--color-accent-1);
+        color: #fff;
+    }
+
+    .accordion-body {
+        color: var(--color-text-secondary);
+        font-size: 15px;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="faq-container">
+    <h1>Help & Frequently Asked Questions</h1>
+
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+                    How do I create an account?
+                </button>
+            </h2>
+            <div id="a1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    To create an account, click on the <strong>Sign Up</strong> link in the navigation bar.
+                    Fill in your details, verify your email/phone, and your profile will be created instantly.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+                    Is my information safe on Atut Vidhan®?
+                </button>
+            </h2>
+            <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Yes. We value your privacy. All sensitive data is securely stored and protected.
+                    Please refer to our <a href="/privacy-policy/" style="color:var(--color-accent-1);">Privacy Policy</a> for details.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+                    How can I search for potential matches?
+                </button>
+            </h2>
+            <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Log in to your account and use the <strong>Search</strong> feature in the dashboard.
+                    You can filter profiles by community, education, profession, location, and more.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a4">
+                    What should I do if I face inappropriate behavior?
+                </button>
+            </h2>
+            <div id="a4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Please report the profile immediately using the <strong>Report</strong> option on the user’s profile.
+                    Our moderation team will take necessary action.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="q5">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a5">
+                    How do I delete my account?
+                </button>
+            </h2>
+            <div id="a5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    To delete your account, go to <strong>Edit Profile</strong> → <strong>Delete Account</strong>.
+                    Once deleted, your profile will be permanently removed from our platform.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

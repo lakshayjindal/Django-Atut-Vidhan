@@ -1,0 +1,93 @@
+{% extends "../base.html" %}
+
+{% block title %}About Us | Atut Vidhan®{% endblock %}
+
+{% block content %}
+<style>
+    .about-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 40px 20px;
+        background: var(--color-primary-bg);
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .about-container h1 {
+        color: var(--color-accent-1);
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .about-container p {
+        color: var(--color-text-secondary);
+        line-height: 1.7;
+        font-size: 15px;
+        margin-bottom: 18px;
+    }
+
+    .mission-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: var(--color-secondary-bg);
+        border-radius: 10px;
+    }
+
+    .mission-section h2 {
+        color: var(--color-accent-1);
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+
+    .values-list {
+        text-align: left;
+        margin-top: 15px;
+    }
+
+    .values-list li {
+        margin-bottom: 8px;
+        color: var(--color-text-secondary);
+    }
+</style>
+
+<div class="about-container">
+    <h1>About Us</h1>
+
+    <p>
+        <strong>Atut Vidhan®</strong> was founded with a simple yet powerful vision:
+        to bring people together for meaningful, lifelong relationships.
+        We blend the warmth of traditional values with the efficiency of modern technology,
+        creating a matrimonial platform that respects culture, privacy, and individuality.
+    </p>
+
+    <p>
+        Unlike generic matchmaking sites, we focus on building trust and ensuring genuine connections.
+        Every profile is carefully curated to maintain authenticity, safety, and respect.
+        Our mission is not just to help people find a partner, but to create a community
+        where families feel confident in the matches being made.
+    </p>
+
+    <div class="mission-section">
+        <h2>Our Mission</h2>
+        <p>
+            To create a trusted matrimonial platform where tradition meets modernity,
+            empowering individuals and families to find the right match with confidence and dignity.
+        </p>
+
+        <h2>Our Core Values</h2>
+        <ul class="values-list">
+            <li>🤝 <strong>Trust:</strong> Every match begins with honesty and transparency.</li>
+            <li>💖 <strong>Respect:</strong> We honor cultural traditions and personal choices.</li>
+            <li>🔒 <strong>Privacy:</strong> Your data is secure and never misused.</li>
+            <li>🌸 <strong>Simplicity:</strong> Minimalist design for a seamless user experience.</li>
+        </ul>
+    </div>
+
+    <p style="margin-top:25px;">
+        Atut Vidhan® is more than just a matrimonial site — it’s a step toward
+        building stronger families, happier marriages, and lasting bonds.
+    </p>
+</div>
+{% endblock %}

@@ -2,233 +2,372 @@
 {% load static %}
 
 {% block extra_head %}
-<style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #faf9f7;
-        margin: 0;
-        padding: 0;
-    }
+    <style>
+        :root {
+            --color-bg: #faf9f7;
+            --color-card: #ffffff;
+            --color-accent: #e60000;
+            --color-accent-dark: #b50000;
+            --color-accent-soft: #f3cc54;
+            --color-text: #333;
+            --color-text-light: #666;
+            --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
 
-    .container {
-        max-width: 900px;
-        margin: 30px auto;
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            margin: 0;
+            padding: 0;
+        }
 
-    .profile-card .header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        background: linear-gradient(135deg, #f3cc54, #f6e29f);
-        padding: 25px;
-        border-radius: 14px;
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
-    }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: var(--color-card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .profile-image {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 4px solid #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        flex-shrink: 0;
-    }
+        .container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        }
 
-    .info {
-        flex-grow: 1;
-    }
+        /* Profile header */
+        .profile-card .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, var(--color-accent-soft), #fdf6d9);
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
 
-    .name {
-        font-size: 26px;
-        font-weight: 700;
-        margin: 0;
-        color: #333;
-    }
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: var(--shadow-soft);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
 
-    .profession {
-        margin: 5px 0;
-        font-size: 16px;
-        color: #444;
-    }
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
 
-    .age {
-        font-size: 14px;
-        color: #666;
-    }
+        .info {
+            flex-grow: 1;
+        }
 
-    .section {
-        margin-top: 30px;
-        padding: 15px 20px;
-        background: #fffdf9;
-        border: 1px solid #f1e4d2;
-        border-radius: 10px;
-    }
+        .name {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--color-text);
+        }
 
-    .section h3 {
-        color: #a00;
-        font-size: 18px;
-        margin-bottom: 10px;
-        border-bottom: 2px solid #f5c6cb;
-        display: inline-block;
-        padding-bottom: 4px;
-    }
+        .profession {
+            margin: 5px 0;
+            font-size: 16px;
+            color: var(--color-text);
+            font-weight: 500;
+        }
 
-    .section ul {
-        list-style: none;
-        padding-left: 0;
-        margin: 8px 0 0 0;
-    }
+        .age {
+            font-size: 14px;
+            color: var(--color-text-light);
+        }
 
-    .section ul li {
-        padding: 6px 0;
-        font-size: 15px;
-        color: #444;
-    }
+        /* Sections */
+        .section {
+            margin-top: 30px;
+            padding: 15px 20px;
+            background: #fffdf9;
+            border: 1px solid #f1e4d2;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
 
-    .quote {
-        margin-top: 25px;
-        padding: 18px 20px;
-        background-color: #fff5f5;
-        color: #a30000;
-        border-left: 5px solid #e60000;
-        font-style: italic;
-        border-radius: 6px;
-        font-size: 15px;
-    }
+        .section:hover {
+            background: #fff8ee;
+        }
 
-    .buttons {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 35px;
-        gap: 15px;
-    }
+        .section h3 {
+            color: var(--color-accent);
+            font-size: 18px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f5c6cb;
+            display: inline-block;
+            padding-bottom: 4px;
+        }
 
-    .btn {
-        padding: 12px 22px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-        transition: all 0.2s ease-in-out;
-    }
+        .section ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 8px 0 0 0;
+        }
 
-    .btn.primary {
-        background-color: #e60000;
-    }
+        .section ul li {
+            padding: 6px 0;
+            font-size: 15px;
+            color: #444;
+        }
 
-    .btn.primary:hover {
-        background-color: #b50000;
-        transform: translateY(-2px);
-    }
+        /* Quote */
+        .quote {
+            margin-top: 25px;
+            padding: 18px 20px;
+            background-color: #fff5f5;
+            color: var(--color-accent);
+            border-left: 5px solid var(--color-accent);
+            font-style: italic;
+            border-radius: 6px;
+            font-size: 15px;
+            opacity: 0.9;
+        }
 
-    .btn.secondary {
-        background-color: #777;
-    }
+        /* Buttons */
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 35px;
+            gap: 15px;
+        }
 
-    .btn.secondary:hover {
-        background-color: #555;
-        transform: translateY(-2px);
-    }
-</style>
+        .btn {
+            padding: 12px 22px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.25s ease-in-out;
+        }
+
+        .btn.primary {
+            background-color: var(--color-accent);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--color-accent-dark);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .btn.secondary {
+            background-color: #777;
+        }
+
+        .btn.secondary:hover {
+            background-color: #555;
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Contact request modal */
+        #reqContact {
+            color: var(--color-accent);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        #reqContact:hover {
+            color: var(--color-accent-dark);
+        }
+
+        #request {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            backdrop-filter: blur(6px);
+            transition: opacity 0.3s ease;
+        }
+
+        #requestBox {
+            width: fit-content;
+            padding: 20px;
+            background-color: var(--color-card);
+            margin: auto;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.35s ease;
+            z-index: 60;
+        }
+
+        #request.active #requestBox {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #requestBackground {
+            height: 100%;
+            width: 100%;
+            background-color: rgba(170, 0, 0, 0.25);
+            position: absolute;
+            inset: 0;
+            z-index: 55;
+        }
+
+        #container {
+            display: flex;
+            gap: 20px;
+        }
+
+        #whatsapp,
+        #qrcode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #whatsapp img {
+            width: 120px;
+            height: 120px;
+            margin-top: 10px;
+        }
+
+        #qrcode {
+            border-left: 2px solid #ddd;
+            padding-left: 20px;
+        }
+
+        #qrcode img {
+            width: 120px;
+            height: 120px;
+        }
+    </style>
 {% endblock extra_head %}
 
 {% block content %}
-<div class="container">
-    <div class="profile-card">
-        <div class="header">
-            {% if profile.image %}
-                <img src="{{ profile.image }}" alt="Profile Image" class="profile-image">
-            {% else %}
-                <img src="{% static 'user/img/default.webp' %}" alt="Default Profile" class="profile-image">
+    <div class="container">
+        <div class="profile-card">
+            <div class="header">
+                {% if profile.image %}
+                    <img src="{{ profile.image }}" alt="{{ profile.full_name }}" class="profile-image">
+                {% elif profile.gender == 'Male' %}
+                    <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="{{ profile.full_name }}" class="profile-image">
+                {% else %}
+                    <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="{{ profile.full_name }}" class="profile-image">
+                {% endif %}
+                <div class="info">
+                    <h2 class="name">{{ profile.full_name }}</h2>
+                    <p class="profession">{{ profile.profession }}</p>
+                    <p class="age">Age: {{ profile.age }} | Qualification: {{ profile.education }}</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Basic Details</h3>
+                <ul>
+                    <li>Height: {{ profile.height }}</li>
+                    <li>Hometown: {{ profile.city }}</li>
+                    <li>Current Place: {{ profile.state }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Education Details</h3>
+                <ul>
+                    <li>Qualification: {{ profile.education }}</li>
+                    <li>Profession: {{ profile.profession }}</li>
+                    <li>Workplace: {{ profile.occupation }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Family Background</h3>
+                <ul>
+                    <li>Caste: {{ profile.caste }}</li>
+                    <li>Gotra: {{ profile.gotra }}</li>
+                    <li>Religion: {{ profile.religion }}</li>
+                    <li>Notes: {{ profile.notes }}</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>Lifestyle Preferences</h3>
+                <ul>
+                    <li>Looking For: {{ profile.looking_for }}</li>
+                    <li><span id="reqContact">Request Contact Number</span></li>
+                </ul>
+            </div>
+
+            {% if profile.bio %}
+                <div class="quote">
+                    "{{ profile.bio }}"
+                </div>
             {% endif %}
-            <div class="info">
-                <h2 class="name">{{ profile.full_name }}</h2>
-                <p class="profession">{{ profile.profession }}</p>
-                <p class="age">Age: {{ profile.age }} | Qualification: {{ profile.education }}</p>
+
+            <div class="buttons">
+                {% if connected %}
+                    <a href="{% url 'chat' profile.user.id %}" class="btn primary">Chat</a>
+                {% else %}
+                    <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
+                {% endif %}
+                <a href="{% url 'user_dashboard' %}" class="btn primary">Back to Dashboard</a>
+
             </div>
         </div>
+    </div>
 
-        <div class="section">
-            <h3>Basic Details</h3>
-            <ul>
-                <li>Height: {{ profile.height }}</li>
-                <li>Hometown: {{ profile.city }}</li>
-                <li>Current Place: {{ profile.state }}</li>
-            </ul>
+    <!-- Modal -->
+    <div id="request">
+        <div id="requestBox">
+            <div id="container">
+                <div id="whatsapp">
+                    <p>Contact The admin team on WhatsApp</p>
+                    <a href="https://wa.me/919634400703" onclick="copyWhatsAppMessage()" target="_blank">
+                        <img src="{% static 'user/img/whatsapp.svg' %}" alt="whatsapp">
+                    </a>
+                </div>
+                <div id="qrcode">
+                    <p>Scan this QR code and pay</p>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                         alt="QrCode">
+                </div>
+            </div>
         </div>
+        <div id="requestBackground"></div>
+    </div>
 
-        <div class="section">
-            <h3>Education Details</h3>
-            <ul>
-                <li>Qualification: {{ profile.education }}</li>
-                <li>Profession: {{ profile.profession }}</li>
-                <li>Workplace: {{ profile.occupation }}</li>
-            </ul>
-        </div>
+    <script>
+        const requestEl = document.getElementById('request');
+        const requestBox = document.getElementById('requestBox');
+        const openBtn = document.getElementById('reqContact');
+        const bg = document.getElementById('requestBackground');
 
-        <div class="section">
-            <h3>Family Background</h3>
-            <ul>
-                <li>Caste: {{ profile.caste }}</li>
-                <li>Gotra: {{ profile.gotra }}</li>
-                <li>Religion: {{ profile.religion }}</li>
-                <li>Notes: {{ profile.notes }}</li>
-            </ul>
-        </div>
+        function toggleRequest(open) {
+            if (open) {
+                requestEl.style.display = 'flex';
+                setTimeout(() => requestEl.classList.add('active'), 20);
+            } else {
+                requestEl.classList.remove('active');
+                setTimeout(() => requestEl.style.display = 'none', 300);
+            }
+        }
 
-        <div class="section">
-            <h3>Lifestyle Preferences</h3>
-            <ul>
-                <li>Looking For: {{ profile.looking_for }}</li>
-<li>
-  <a href="https://wa.me/919634400703" 
-     onclick="copyWhatsAppMessage()" 
-     target="_blank">
-    <img src="{% static 'user/img/whatsapp.svg' %}" 
-         alt="whatsapp" style="height: 50px">
-  </a>
-</li>
+        openBtn.addEventListener('click', () => toggleRequest(true));
+        bg.addEventListener('click', () => toggleRequest(false));
 
-<script>
-function copyWhatsAppMessage() {
-    const msg = `Hey
+        function copyWhatsAppMessage() {
+            const msg = `Hey
 I am Interested in {{ profile.user.username }} - {{ profile.user.first_name }} {{ profile.user.last_name }}.
 Kindly Provide me the contact number for them`;
 
-    navigator.clipboard.writeText(msg).then(() => {
-        alert("📋 Message copied! If it doesn't auto-fill, just paste (Ctrl+V) in WhatsApp.");
-    }).catch(err => {
-        console.error("Clipboard error: ", err);
-    });
-}
-</script>
-
-
-                <!-- <li>Phone 1: {{ profile.phone1 }}</li>
-                <li>Phone 2: {{ profile.phone2 }}</li> -->
-            </ul>
-        </div>
-
-        {% if profile.bio %}
-            <div class="quote">
-                "{{ profile.bio }}"
-            </div>
-        {% endif %}
-
-        <div class="buttons">
-            {% if connected %}
-                <a href="{% url 'chat' profile.user.id %}" class="btn primary">Chat</a>
-            {% else %}
-                <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
-            {% endif %}
-        </div>
-    </div>
-</div>
+            navigator.clipboard.writeText(msg).then(() => {
+                alert("📋 Message copied! Paste it in WhatsApp if not auto-filled.");
+            });
+        }
+    </script>
 {% endblock content %}

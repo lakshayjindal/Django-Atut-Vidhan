@@ -5,25 +5,40 @@
 
 {% block extra_head %}
 <style>
+    :root {
+        --bg: #FFF8F2;
+        --panel: #ffffff;
+        --accent: #D72638;
+        --accent-dark: #a81d2c;
+        --accent-soft: #FFECE8;
+        --header-grad-1: #F4C95D;
+        --header-grad-2: #FFB7A1;
+        --border: #f0e6db;
+        --muted: #7D6E63;
+        --text-dark: #2F2F2F;
+        --text: #4a3f39;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
     .connections-container {
         max-width: 600px;
         margin: 2rem auto;
         padding: 2rem;
-        background-color: #fffdf9;
-        border-left: 4px solid #d42f2f;
+        background-color: var(--bg);
+        border-left: 4px solid var(--accent);
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
     }
 
     .connections-container h2 {
-        color: #d42f2f;
+        color: var(--accent);
         font-size: 24px;
         margin-bottom: 1.5rem;
     }
 
     .request-card {
-        background-color: #fff0eb;
-        border: 1px solid #ffd3cb;
+        background-color: var(--accent-soft);
+        border: 1px solid var(--border);
         border-radius: 8px;
         padding: 1rem 1.5rem;
         margin-bottom: 1rem;
@@ -35,15 +50,15 @@
     .request-card p {
         margin: 0;
         font-size: 16px;
-        color: #333;
+        color: var(--text-dark);
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
     .accept-btn {
-        background-color: #d42f2f;
-        color: white;
+        background-color: var(--accent);
+        color: #fff;
         border: none;
         padding: 8px 16px;
         font-size: 14px;
@@ -52,15 +67,15 @@
         transition: background-color 0.3s ease;
     }
     .accept-btn:hover {
-        background-color: #b53030;
+        background-color: var(--accent-dark);
     }
 
     .no-requests {
-        background-color: #fff5f5;
-        border: 1px solid #ffdada;
+        background-color: var(--accent-soft);
+        border: 1px solid var(--border);
         padding: 1rem;
         border-radius: 6px;
-        color: #b30000;
+        color: var(--muted);
         text-align: center;
         font-style: italic;
     }
@@ -74,28 +89,25 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.1s ease;
         text-decoration: none;
         text-align: center;
         user-select: none;
     }
 
     .chat-btn {
-        background-color: #1e88e5;
-        color: #ffffff;
+        background-color: var(--header-grad-1);
+        color: #fff;
     }
     .chat-btn:hover {
-        background-color: #1565c0;
-        transform: translateY(-1px);
+        background-color: var(--header-grad-2);
     }
 
     .cancel-btn {
-        background-color: #e53935;
-        color: #ffffff;
+        background-color: var(--accent);
+        color: #fff;
     }
     .cancel-btn:hover {
-        background-color: #b71c1c;
-        transform: translateY(-1px);
+        background-color: var(--accent-dark);
     }
 
     .profile-img {
@@ -104,15 +116,14 @@
         border-radius: 50%;
         object-fit: cover;
         margin-right: 8px;
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-        border: 2px solid #e2e8f0;
+        box-shadow: var(--shadow);
+        border: 2px solid var(--border);
         transition: transform 0.3s ease;
-        vertical-align: middle;
     }
 
     .profile-img:hover {
         transform: scale(1.05);
-        border-color: #4f46e5;
+        border-color: var(--accent);
     }
 </style>
 {% endblock extra_head %}

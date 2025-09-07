@@ -1,15 +1,16 @@
 {% extends "./base.html" %}
 {% load static %}
 
-{% block title %}User Dashboard | Atut Vidhan{% endblock title %}
+{% block title %}User Dashboard | Atut Vidhan®{% endblock title %}
 
 {% block extra_head %}
     <style>
         body {
-            background: #fafafa;
-            font-family: 'Inter', sans-serif;
+            background: var(--color-primary-bg);
+            font-family: 'Poppins', sans-serif;
         }
 
+        /* Welcome section */
         .welcome {
             margin: 40px 60px 10px;
             text-align: left;
@@ -18,51 +19,52 @@
         .welcome h2 {
             font-weight: 600;
             font-size: 28px;
-            color: #333;
+            color: var(--color-text-primary);
         }
 
         .welcome span {
             font-family: 'Great Vibes', cursive;
-            font-size: 48px;
-            color: #f5af19;
+            font-size: 42px;
+            color: var(--color-accent-1);
         }
 
         .subtitle {
             font-family: 'Playfair Display', serif;
-            font-size: 22px;
+            font-size: 20px;
             margin: 0 60px 30px;
-            color: #666;
+            color: var(--color-text-secondary);
         }
 
+        /* Profile grid */
         .profiles {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 28px;
             margin: 20px 60px;
             padding-bottom: 60px;
         }
 
         .profile-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .profile-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
         }
 
         .profile-card img {
             width: 100%;
-            height: 260px;
+            height: 240px;
             object-fit: cover;
-            border-bottom: 2px solid #f5af19;
+            border-bottom: 2px solid var(--color-highlight);
         }
 
         .profile-info {
@@ -71,45 +73,66 @@
         }
 
         .profile-info h3 {
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 6px;
             font-weight: 600;
+            color: var(--color-text-primary);
         }
 
         .profile-info p {
             margin: 3px 0;
             font-size: 14px;
-            color: #555;
+            color: var(--color-text-secondary);
         }
 
         .profile-info p strong {
-            color: #333;
+            color: var(--color-text-primary);
+        }
+
+        /* Action buttons */
+        .card-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 0 18px;
         }
 
         .btn {
-            padding: 12px 20px;
-            text-decoration: none;
-            color: white;
+            padding: 8px 16px;
             font-size: 14px;
             font-weight: 500;
-            background: linear-gradient(135deg, #f5af19, #e60000);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            margin: 12px auto 20px;
-            display: inline-block;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
         }
 
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(229, 0, 0, 0.4);
-            background: linear-gradient(135deg, #e60000, #f5af19);
+        .btn-view {
+            background: var(--color-secondary-bg);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-highlight);
+        }
+
+        .btn-view:hover {
+            background: var(--color-highlight);
+            color: white;
+        }
+
+        .btn-connect {
+            background: var(--color-accent-1);
+            color: white;
+            border: none;
+        }
+
+        .btn-connect:hover {
+            background: var(--color-accent-2);
+            color: var(--color-text-primary);
         }
 
         /* Empty state */
         .no-profiles {
             margin: 40px auto;
-            font-size: 18px;
-            color: #777;
+            font-size: 17px;
+            color: var(--color-text-secondary);
             text-align: center;
         }
     </style>
@@ -127,34 +150,38 @@
     <div class="profiles">
         {% for profile in matched_profiles %}
             <div class="profile-card">
-                <a href="{% url 'profile_detail' profile.id %}" style="text-decoration: none; color: inherit;">
-                    {% if profile.image %}
-                        <img src="{{ profile.image.url }}"
-                             alt="{{ profile.full_name }}"
-                             onerror="this.onerror=null;
-                                     {% if profile.gender == 'male' %}
-                                         this.src='{{ DEFAULT_MALE_FALLBACK_URL }}';
-                                     {% else %}
-                                         this.src='{{ DEFAULT_FEMALE_FALLBACK_URL }}';
-                                     {% endif %}">
+                {% if profile.image %}
+                    <img src="{{ profile.image.url }}"
+                         alt="{{ profile.full_name }}"
+                         onerror="this.onerror=null;
+                                 {% if profile.gender == 'male' %}
+                                     this.src='{{ DEFAULT_MALE_FALLBACK_URL }}';
+                                 {% else %}
+                                     this.src='{{ DEFAULT_FEMALE_FALLBACK_URL }}';
+                                 {% endif %}">
+                {% else %}
+                    {% if profile.gender == "Male" %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile">
                     {% else %}
-                        {% if profile.gender == "Male" %}
-                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile">
-                        {% else %}
-                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile">
-                        {% endif %}
+                        <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile">
                     {% endif %}
+                {% endif %}
 
-                    <div class="profile-info">
-                        <h3>{{ profile.full_name }}</h3>
-                        <p><strong>{{ profile.profession }}</strong></p>
-                        <p>📍 {{ profile.city }}</p>
-                        <p>👤 {{ profile.age }}</p>
-                        <p>{{ profile.education }}</p>
-                        <p><em>{{ profile.bio|truncatewords:10 }}</em></p>
-                    </div>
-                </a>
-                <a href="{% url 'send_request' profile.user.id %}" class="btn">Connect</a>
+                <div class="profile-info">
+                    <h3>{{ profile.full_name }}</h3>
+                    <p><strong>{{ profile.profession }}</strong></p>
+                    <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" xml:space="preserve" width="40" height="40"><path fill="var(--color-accent-1)" d="M100.232 149.198c-2.8 0-5.4-1.8-7.2-5.2-22.2-41-22.4-41.4-22.4-41.6-3.2-5.1-4.9-11.3-4.9-17.6 0-19.1 15.5-34.6 34.6-34.6s34.6 15.5 34.6 34.6c0 6.5-1.8 12.8-5.2 18.2 0 0-1.2 2.4-22.2 41-1.9 3.4-4.4 5.2-7.3 5.2z"/><path fill="var(--color-secondary-bg)"
+        d="M100.332 105.598c-10.6 0-19.1-8.6-19.1-19.1s8.5-19.2 19.1-19.2c10.6 0 19.1 8.6 19.1 19.1s-8.6 19.2-19.1 19.2z"/>
+</svg> {{ profile.city }}</p>
+                    <p>👤 {{ profile.age }}</p>
+                    <p>{{ profile.education }}</p>
+                    <p><em>{{ profile.bio|truncatewords:10 }}</em></p>
+                </div>
+
+                <div class="card-actions">
+                    <a href="{% url 'profile_detail' profile.id %}" class="btn btn-view">View Profile</a>
+                    <a href="{% url 'send_request' profile.user.id %}" class="btn btn-connect">Connect</a>
+                </div>
             </div>
         {% empty %}
             <p class="no-profiles">No matching profiles found. Please check back later 🙏</p>

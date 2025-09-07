@@ -4,399 +4,334 @@
 {% block title %}Chats{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'chat/chat.css' %}">
 <style>
-    body {
-        margin: 0;
-        font-family: 'Poppins', sans-serif;
-        background-color: #faf7f2;
+    :root {
+        --bg: #f8f6f3;        /* soft ivory */
+        --panel: #ffffff;     /* clean white panels */
+        --accent: #b75d69;    /* muted rose (instead of harsh red) */
+        --accent-2: #d4a373;  /* warm sand */
+        --accent-3: #6b8e7d;  /* sage green */
+        --muted: #7d6e63;     /* warm taupe */
+        --border: #e4ddd5;    /* soft beige border */
+        --shadow: 0 3px 8px rgba(0, 0, 0, .04);
     }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        font-family: "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: #2f2f2f;
+    }
+
     .container {
         display: flex;
-        height: 80vh;
-        border-radius: 0;
-        overflow: scroll;
+        height: calc(100vh - 70px);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
     }
+
     /* Sidebar */
     .sidebar {
-        width: 25%;
-        background-color: #fff9e6;
-        padding: 20px;
+        width: 320px;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 16px;
         overflow-y: auto;
-        border-right: 2px solid #F4C95D;
     }
-    .sidebar h2 { margin-bottom: 20px; font-weight: 600; color: #d68a00; }
+
+    .sidebar h2 {
+        font-size: 14px;
+        margin-bottom: 14px;
+        font-weight: 600;
+        color: var(--accent);
+    }
+
     .chat-user {
-        display: flex; align-items: center;
-        margin-bottom: 15px;
-        padding: 8px;
-        text-decoration: none; color: black;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
         border-radius: 10px;
-        transition: background 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        transition: background .2s ease;
     }
-    .chat-user:hover { background-color: rgba(244, 201, 93, 0.2); }
-    .chat-user img { width: 45px; height: 45px; border-radius: 50%; margin-right: 10px; border: 2px solid #F4C95D; }
+
+    .chat-user:hover {
+        background: #f9f6f4;
+    }
+
+    .chat-user.selected-chat {
+        background: #fdf3f3;
+        border: 1px solid #f1dada;
+    }
+
+    .chat-user img {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .chat-user .meta {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-user .name {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .chat-user .last {
+        font-size: 12px;
+        color: var(--muted);
+    }
 
     /* Chat Section */
     .chat-section {
         flex: 1;
         display: flex;
         flex-direction: column;
-        background-image: url('{% static "user/img/mandala.png" %}');
-        background-position: center;
-        background-repeat: no-repeat;
+        background: var(--panel);
     }
 
-    /* Chat Header */
+    /* Header */
     .chat-header {
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.95);
-        display: flex; align-items: center;
-        border-bottom: 2px solid #F4C95D;
-        position: sticky; top: 0; z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        background: #fbf9f7;
     }
+
     .chat-header img {
-        width: 50px; height: 50px;
-        border-radius: 50%; margin-right: 12px;
-        border: 2px solid #ef476f;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        object-fit: cover;
     }
-    .chat-header h3 { font-size: 1.2rem; font-weight: 600; color: #ef476f; }
+
+    .chat-header .titles {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header .titles h3 {
+        margin: 0;
+        font-size: 15px;
+    }
+
+    .chat-header .presence {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+        background: #bbb;
+    }
+
+    .status-dot.online {
+        background: #6ba67a; /* warm green */
+    }
 
     /* Messages */
     .chat-messages {
         flex: 1;
-        padding: 20px;
         overflow-y: auto;
+        padding: 18px;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        scroll-behavior: smooth;
+        background: #f8f6f3;
     }
+
     .message {
         max-width: 65%;
-        padding: 10px 15px;
-        border-radius: 18px;
+        padding: 10px 14px;
+        border-radius: 12px;
         font-size: 14px;
-        word-wrap: break-word;
-        animation: fadeIn 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        animation: fadeIn .2s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .sent { align-self: flex-end; background: linear-gradient(135deg, #fbb1bd, #f78ca0); color: #fff; }
-    .received { align-self: flex-start; background: linear-gradient(135deg, #f7c948, #f4a259); color: #fff; }
 
-    .message img { max-width: 200px; border-radius: 10px; display: block; margin-top: 5px; border: 2px solid rgba(255, 255, 255, 0.6); }
-    .file-link { display: inline-block; margin-top: 5px; padding: 5px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; font-weight: 500; }
-    .file-link:hover { background: rgba(255, 255, 255, 0.3); }
+    .sent {
+        align-self: flex-end;
+        background: var(--accent);
+        color: #fff;
+    }
 
-    /* Input area */
-    .chat-input {
-        padding: 12px;
-        background: #fff;
+    .received {
+        align-self: flex-start;
+        background: #f3ebe6;
+        color: #2f2f2f;
+    }
+
+    .message .meta {
+        font-size: 11px;
+        margin-top: 4px;
+        color: var(--muted);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Composer */
+    .composer-wrap {
+        padding: 14px;
+        border-top: 1px solid var(--border);
+        background: #fbf9f7;
+    }
+
+    .composer {
         display: flex;
+        gap: 10px;
         align-items: center;
-        border-top: 2px solid #F4C95D;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 6px 10px;
+        background: #fff;
     }
-    .chat-input input[type="text"] {
+
+    .composer input[type="text"] {
         flex: 1;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        margin-right: 10px;
-        background: #fdfdfd;
+        border: none;
         outline: none;
         font-size: 14px;
+        background: transparent;
     }
-    .chat-input button {
-        padding: 10px 14px;
+
+    .composer .btn {
         border: none;
-        border-radius: 50%;
-        font-size: 18px;
         cursor: pointer;
-        transition: transform 0.15s ease;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
     }
-    .chat-input button.file-btn { background-color: #f7c948; margin-right: 6px; }
-    .chat-input button#sendButton { background-color: #ef476f; color: white; }
-    .chat-input button:hover { transform: scale(1.05); }
 
-    .no-chat-selected { text-align: center; margin-top: 50px; font-size: 18px; color: #999; }
+    .btn.attach {
+        background: #f3ebe6;
+        color: var(--muted);
+    }
 
-    @media(max-width: 768px) {
-        .sidebar { display: none; }
-        .container { flex-direction: column; }
-        .chat-section { width: 100%; }
+    .btn.send {
+        background: var(--accent);
+        color: #fff;
+        transition: background .2s ease;
+    }
+
+    .btn.send:hover {
+        background: #9c4955;
     }
 </style>
+
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Chats</h2>
-        {% for chat_user in chat_users %}
-        <a href="{% url 'chat' chat_with=chat_user.id %}"
-           class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}"
-           hx-get="{% url 'chat' chat_with=chat_user.id %}"
-           hx-target="#chatContainer"
-           hx-push-url="true"
-           hx-swap="innerHTML">
-            {% if chat_user.profile.image %}
-            <img src="{{ chat_user.profile.image.url }}" alt="Profile picture">
-            {% else %}
-            {% if chat_user.profile.gender == "Male" %}
-            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default male profile picture">
-            {% else %}
-            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default female profile picture">
-            {% endif %}
-            {% endif %}
-            <span>{{ chat_user.get_full_name }}</span>
-        </a>
-        {% endfor %}
-    </div>
-
-    <!-- Chat Section -->
-    <div class="chat-section" id="chatContainer">
-        {% if selected_user %}
-        <!-- Header -->
-        <div class="chat-header">
-            {% if selected_user.image.url %}
-            <img src="{{ selected_user.image.url }}" alt="User Picture">
-            {% else %}
-            <img src="{% static 'user/img/default.webp' %}" alt="Default profile picture">
-            {% endif %}
-            <h3>{{ selected_user.get_full_name }}</h3>
-        </div>
-
-        <!-- Messages -->
-        <div class="chat-messages"
-             id="chatMessages"
-             hx-get="{% url 'fetch_messages' selected_user.id %}"
-             hx-trigger="load, every 3s"
-             hx-swap="beforeend"
-             hx-target="this"
-             hx-vals='js:{"last_id": document.querySelector("#chatMessages .message:last-child")?.dataset.id || 0}'>
-
-            {% for msg in messages %}
-                {% include "../partials/_message.html" with msg=msg %}
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Chats</h2>
+            {% for chat_user in chat_users %}
+                <a href="{% url 'chat' chat_with=chat_user.id %}"
+                   class="chat-user {% if chat_user.id == selected_user_id %}selected-chat{% endif %}">
+                    {% if chat_user.profile.image.url %}
+                        <img src="{{ chat_user.profile.image.url }}" alt="Profile">
+                    {% elif chat_user.user_gender == 'Male' %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% else %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% endif %}
+                    <span class="meta">
+          <span class="name">{{ chat_user.get_full_name }}</span>
+          <span class="last">{{ chat_user.last_message_preview|default:"" }}</span>
+        </span>
+                </a>
             {% endfor %}
-        </div>
+        </aside>
 
-        <!-- Input Area -->
-        <div class="chat-input">
-            <!-- Attachment Form -->
-            <form id="fileForm"
-                  hx-post="{% url 'send_message' %}"
-                  hx-encoding="multipart/form-data"
-                  hx-target="#chatMessages"
-                  hx-swap="beforeend"
-                  style="display:inline;">
-                {% csrf_token %}
-                <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
-                <input type="file" name="attachment" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xlsx" style="display:none;"
-                       onchange="document.getElementById('fileForm').requestSubmit();">
-                <button type="button" class="file-btn" onclick="document.getElementById('fileInput').click()">📎</button>
-            </form>
+        <!-- Chat Section -->
+        <section class="chat-section">
+            {% if selected_user %}
+                <div class="chat-header">
+                    {% if selected_user.profile.image.url %}
+                        <img src="{{ selected_user.profile.image.url }}" alt="Profile">
+                    {% elif selected_user.user_gender == 'Male' %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% else %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Profile">
+                    {% endif %}
+                    <div class="titles">
+                        <h3>{{ selected_user.get_full_name }}</h3>
+{#                        <span class="presence"><span class="status-dot online"></span> Online</span>#}
+                    </div>
+                </div>
 
-            <!-- Text Message Form -->
-        </div>
-        <form id="messageForm"
-              hx-post="{% url 'send_message' %}"
-              hx-target="#chatMessages"
-              hx-swap="beforeend"
-              _="on htmx:afterRequest reset() me"
-              style="flex:1; display:flex;">
-            {% csrf_token %}
-            <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
-            <input type="text" name="message" placeholder="Type a message..." id="messageInput">
-            <button type="submit" id="sendButton">➤</button>
-        </form>
-        {% else %}
-        <p class="no-chat-selected">Select a chat to start messaging!</p>
-        {% endif %}
+                <div class="chat-messages" id="chatMessages">
+                    {% for msg in messages %}
+                        {% include "../partials/_message.html" with msg=msg %}
+                    {% endfor %}
+                </div>
+
+                <div class="composer-wrap">
+                    <form id="messageForm" method="post" enctype="multipart/form-data" class="composer">
+                        {% csrf_token %}
+                        <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+                        <input type="text" id="messageInput" name="message" placeholder="Type a message…">
+                        <button type="submit" class="btn send">Send</button>
+                    </form>
+                </div>
+            {% else %}
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted)">
+                    Select a chat to start messaging!
+                </div>
+            {% endif %}
+        </section>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-/* ------------------------------
-   Helper: create optimistic bubble
-   ------------------------------ */
-function createOptimisticBubble(payload) {
-  // payload: { text, filename (optional), isFile, filePreviewUrl (optional), senderIsMe }
-  const container = document.createElement('div');
-  container.className = 'message bubble sent'; // optimistic assume sent by me
-  container.setAttribute('data-pending', 'true');
-  container.setAttribute('data-tempid', 't_' + Date.now() + '_' + Math.floor(Math.random()*9999));
-  // simple structure - server will replace with full partial
-  const p = document.createElement('p');
-  p.textContent = payload.text || '';
-  container.appendChild(p);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            const $chatBox = $("#chatMessages");
+            const $form = $("#messageForm");
 
-  if (payload.isFile && payload.filePreviewUrl) {
-    const img = document.createElement('img');
-    img.src = payload.filePreviewUrl;
-    img.alt = 'attachment';
-    img.style.opacity = '0.85';
-    container.appendChild(img);
-  } else if (payload.isFile) {
-    const link = document.createElement('div');
-    link.className = 'file-link';
-    link.textContent = payload.filename || 'Uploading...';
-    container.appendChild(link);
-  }
+            // Auto-scroll down
+            function scrollToBottom() {
+                $chatBox.scrollTop($chatBox[0].scrollHeight);
+            }
 
-  return container;
-}
+            // Submit with AJAX
+            $form.on("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                $.ajax({
+                    url: "{% url 'send_message' %}",
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.html) {
+                            $chatBox.append(data.html);
+                            scrollToBottom();
+                            $("#messageInput").val("");
+                        }
+                    }
+                });
+            });
 
-/* ------------------------------
-   Replace optimistic with server HTML
-   ------------------------------ */
-function replaceOptimisticBubble(tempid, serverHtml) {
-  const tmp = document.querySelector(`[data-tempid="${tempid}"]`);
-  if (!tmp) {
-    // nothing to replace, just append serverHtml
-    const wrapper = document.getElementById('chatMessages');
-    wrapper.insertAdjacentHTML('beforeend', serverHtml);
-    wrapper.scrollTop = wrapper.scrollHeight;
-    return;
-  }
-  // create fragment for serverHtml
-  const frag = document.createRange().createContextualFragment(serverHtml);
-  tmp.replaceWith(frag);
-}
-
-/* ------------------------------
-   Get last numeric message id
-   ------------------------------ */
-function getLastRealMessageId() {
-  const nodes = document.querySelectorAll('#chatMessages .message[data-id]');
-  if (!nodes.length) return 0;
-  const last = nodes[nodes.length - 1];
-  const id = parseInt(last.dataset.id, 10);
-  return isNaN(id) ? 0 : id;
-}
-
-/* ------------------------------
-   Submit form via fetch with optimistic UI
-   Works for both text form and file form
-   ------------------------------ */
-async function submitChatForm(formEl) {
-  const url = formEl.action || '{{ request.path }}'; // fallback
-  const fd = new FormData(formEl);
-
-  // Create preview info (if file)
-  const file = fd.get('attachment') || fd.get('file') || null;
-  let previewUrl = null;
-  let filename = null;
-  if (file && file instanceof File && file.size > 0) {
-    filename = file.name;
-    // If it's an image, create a local preview
-    if (file.type && file.type.startsWith('image/')) {
-      previewUrl = URL.createObjectURL(file);
-    }
-  }
-
-  // Build optimistic bubble and append
-  const optimisticPayload = {
-    text: fd.get('message') || '',
-    isFile: !!file,
-    filePreviewUrl: previewUrl,
-    filename: filename
-  };
-  const optimistic = createOptimisticBubble(optimisticPayload);
-  const chatBox = document.getElementById('chatMessages');
-  chatBox.appendChild(optimistic);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  // store tempid for replacement
-  const tempid = optimistic.dataset.tempid;
-
-  // send request via fetch
-  try {
-    const headers = { 'X-Requested-With': 'XMLHttpRequest' }; // signal AJAX
-    const resp = await fetch(formEl.action, {
-      method: formEl.method || 'POST',
-      headers: headers,
-      body: fd,
-      credentials: 'same-origin'
-    });
-
-    if (!resp.ok) {
-      // show error visually
-      optimistic.style.opacity = '0.6';
-      optimistic.style.filter = 'grayscale(0.6)';
-      // optionally show an error badge
-      console.error('Send failed', resp.status);
-      return;
-    }
-
-    const data = await resp.json();
-    if (data && data.ok && data.html) {
-      // replace optimistic bubble with server HTML
-      replaceOptimisticBubble(tempid, data.html);
-      // revoke preview URL if existed
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      // update last_id logic — no need, poller will pick up future messages
-      // scroll to bottom
-      const cb = document.getElementById('chatMessages');
-      cb.scrollTop = cb.scrollHeight;
-    } else {
-      // fallback: append raw text
-      optimistic.style.opacity = '0.6';
-      console.error('Unexpected server response', data);
-    }
-  } catch (err) {
-    optimistic.style.opacity = '0.6';
-    console.error('Network error', err);
-  }
-}
-
-/* ------------------------------
-   Hook forms: text and file forms
-   Put these IDs on your forms:
-   - messageForm (text)
-   - fileForm (attachment)
-   ------------------------------ */
-document.addEventListener('DOMContentLoaded', function () {
-  const msgForm = document.getElementById('messageForm');
-  const fileForm = document.getElementById('fileForm');
-
-  if (msgForm) {
-    msgForm.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      // if empty, ignore
-      const text = msgForm.querySelector('[name="message"]').value.trim();
-      const fileInput = msgForm.querySelector('[name="attachment"]');
-      if (!text && (!fileInput || !fileInput.files.length)) return;
-      submitChatForm(msgForm);
-      // reset input quickly for instant feel
-      msgForm.reset();
-      msgForm.querySelector('[name="message"]').focus();
-    });
-  }
-
-  if (fileForm) {
-    // we handle fileForm the same: onchange triggers submit, but intercept default
-    fileForm.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      const fileInput = fileForm.querySelector('[name="attachment"]');
-      if (!fileInput || !fileInput.files.length) return;
-      submitChatForm(fileForm);
-      fileForm.reset();
-    });
-  }
-
-  // auto-scroll when HTMX (or other mechanisms) append content to chatMessages
-  document.body.addEventListener('htmx:afterSwap', function (e) {
-    if (e.target && e.target.id === 'chatMessages') {
-      e.target.scrollTop = e.target.scrollHeight;
-    }
-  });
-
-  // small protection: poller must use numeric last id; when user scrolls up and poller returns new messages, we show a badge? (optional)
-});
-</script>
-
+            scrollToBottom();
+        });
+    </script>
 {% endblock %}

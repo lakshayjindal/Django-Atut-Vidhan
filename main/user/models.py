@@ -18,7 +18,6 @@ class User(AbstractUser):
     )
     email_otp = models.CharField(max_length=6, blank=True, null=True)
     otp_sent_at = models.DateTimeField(null=True, blank=True)
-    image = models.URLField(blank=True, null=True)
     def generate_otp(self):
         self.email_otp = f"{random.randint(100000, 999999)}"
         self.otp_sent_at = timezone.now()
@@ -77,7 +76,6 @@ class Profile(models.Model):
     bio = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     # Profile Media
-    image = models.URLField(blank=True, null=True)
     marital_status = models.CharField(max_length=10, null=True, blank=True, db_index=True, choices=[('Single', 'Single'), ("Married", "Married")])
     # Timestamp
     created_at = models.DateTimeField(auto_now_add=True)
@@ -99,3 +97,14 @@ class Picture(models.Model):
 
     # def __str__(self):
         # return f"{self.user.username} - {self.picture_url}"
+
+
+class Contact(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="contacts",
+    )
+    name = models.CharField(max_length=100)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

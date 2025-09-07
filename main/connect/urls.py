@@ -12,4 +12,5 @@ urlpatterns = [
     path('connect/send/<int:receiver_id>/', views.send_request, name='send_request'),
     path('connect/accept/<int:request_id>/', views.accept_request, name='accept_request'),
     path('cancel-request/<int:request_id>/', views.cancel_request, name='cancel_request'),
+    path('chat/mark-read/', views.mark_read, name='mark_read'),
 ]
