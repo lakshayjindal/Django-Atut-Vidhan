@@ -255,14 +255,14 @@
             <div class="header">
                 {% with first_pic=profile.user.pictures.first %}
                     {% if first_pic %}
-                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-main-image">
+                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-image">
                     {% else %}
                         {% if profile.gender == "Male" %}
                             <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
-                                 class="profile-main-image">
+                                 class="profile-image">
                         {% else %}
                             <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
-                                 class="profile-main-image">
+                                 class="profile-image">
                         {% endif %}
                     {% endif %}
                 {% endwith %}
@@ -338,9 +338,8 @@
                     </a>
                 </div>
                 <div id="qrcode">
-                    <p>Scan this QR code and pay</p>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
-                         alt="QrCode">
+                    Take one of Our Premium Plans
+                    <a href="{% url 'premium_plans' %}" class="btn primary">Explore Plans</a>
                 </div>
             </div>
         </div>
