@@ -344,11 +344,6 @@ class PictureModelAdmin(admin.ModelAdmin):
                     pic.is_profile = True
                     pic.save()
                     # update User and Profile images
-                    user.image = pic.picture_url
-                    if hasattr(user, "profile"):
-                        user.profile.image = pic.picture_url
-                        user.profile.save()
-                    user.save()
 
             messages.success(request, "Pictures mapped successfully.")
             return redirect("admin:upload_images")

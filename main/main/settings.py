@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'siteadmin.apps.SiteadminConfig',
     'search.apps.SearchConfig',
+    'plans.apps.PlansConfig',
 
 ]
 

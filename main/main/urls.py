@@ -19,6 +19,10 @@ from django.urls import path, include
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.http import HttpResponseNotFound
+from django.urls import path, re_path
+
+
 
 urlpatterns = [
                   path('siteadmin/', admin.site.urls),
@@ -27,10 +31,13 @@ urlpatterns = [
                   path('auth/', include('user.urls')),
                   path('user_dashboard', views.redirect_user_dashboard, name="user_dashboard"),
                   path('chat/', include("connect.urls")),
+                  path('plans/', include("plans.urls")),
                   path('search/', include("search.urls")),
-                  path('privacy/',views.privacy, name='privacy_policy'),
-                  path('terms/',views.terms, name='terms_conditions'),
-                  path('about/',views.about, name='about'),
-                  path('contact/',views.contact, name='contact'),
-                  path('faq/',views.faq, name='help'),
+                  path('privacy/', views.privacy, name='privacy_policy'),
+                  path('terms/', views.terms, name='terms_conditions'),
+                  path('about/', views.about, name='about'),
+                  path('contact/', views.contact, name='contact'),
+                  path('faq/', views.faq, name='help'),
+                  re_path(r'^.*$', views.custom_404_view),
+
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

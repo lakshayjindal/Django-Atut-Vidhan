@@ -1,0 +1,83 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="plans-wrapper" style="background-color: var(--color-primary-bg); min-height: 100vh; padding: 4rem 1rem;">
+
+  <div class="plans-header" style="text-align: center; margin-bottom: 3rem;">
+    <h1 style="font-size: 2.5rem; color: var(--color-text-primary); margin-bottom: 0.5rem;">Choose Your Premium Plan</h1>
+    <p style="font-size: 1.1rem; color: var(--color-text-secondary);">
+      Unlock exclusive features designed to help you find your perfect match.
+    </p>
+  </div>
+
+  <div class="plans-grid" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;">
+
+    {% for plan in plans %}
+    <div class="plan-card" style="
+        background-color: var(--color-secondary-bg);
+        border-radius: 1.25rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;">
+
+      <div style="text-align: center;">
+        <h2 style="font-size: 1.5rem; font-weight: bold; color: var(--color-accent-1); margin-bottom: 0.5rem;">
+          {{ plan.name }}
+        </h2>
+        <p style="font-size: 2rem; color: var(--color-text-primary); margin: 0.5rem 0;">
+          ₹{{ plan.price }}
+        </p>
+        <p style="font-size: 0.95rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+          {{ plan.duration }} days
+        </p>
+      </div>
+
+      <ul style="list-style: none; padding: 0; margin-bottom: 2rem; color: var(--color-text-primary); font-size: 0.95rem;">
+        {% for feature in plan.features.all %}
+        <li style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+          <span style="display: inline-block; width: 8px; height: 8px; background-color: var(--color-success); border-radius: 50%; margin-right: 10px;"></span>
+          {{ feature.name }}
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div style="text-align: center;">
+        <a href="{% url 'start_payment' plan.id %}" style="
+            background-color: var(--color-accent-1);
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease;">
+          Get Started
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".plan-card").forEach(card => {
+    card.addEventListener("mouseenter", () => {
+      card.style.transform = "translateY(-6px)";
+      card.style.boxShadow = "0 12px 28px rgba(0,0,0,0.12)";
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "translateY(0)";
+      card.style.boxShadow = "0 8px 20px rgba(0,0,0,0.08)";
+    });
+  });
+</script>
+{% endblock %}
