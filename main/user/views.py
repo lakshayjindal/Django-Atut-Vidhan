@@ -289,7 +289,9 @@ def view_profile(request):
 def edit_profile(request):
     profile = request.user.profile
     user = request.user
-    pictures = list(user.pictures.all()[:6])  # max 6 pictures
+
+    # fetch all pictures for this user
+    pictures = list(Picture.objects.filter(user=user).order_by("id"))  # keep them ordered
 
     # Pad to always have 6 slots
     while len(pictures) < 6:
@@ -302,7 +304,6 @@ def edit_profile(request):
 
             # Handle new uploaded photos
             uploaded_files = [file for key, file in request.FILES.items() if key.startswith('photos_')]
-            print(uploaded_files)
             for uploaded_file in uploaded_files:
                 try:
                     file_url = upload_to_supabase(uploaded_file, folder="user_photos")
@@ -314,17 +315,16 @@ def edit_profile(request):
                 except Exception as e:
                     print(f"⚠️ Failed to upload {uploaded_file.name}: {e}")
 
-            return redirect('view_profile')
+            return redirect("view_profile")
     else:
         form = ProfileForm(instance=profile)
 
-    # pass list of 6 items, each either Picture instance or None
-    return render(request, 'user/profile/edit.html', {
-        'form': form,
-        'profile': profile,
-        'pictures': pictures,
-        'slots': range(6),
+    return render(request, "user/profile/edit.html", {
+        "form": form,
+        "profile": profile,
+        "pictures": pictures,  # contains 6 items (some may be None)
     })
+
 
 @login_required
 def search_view(request):

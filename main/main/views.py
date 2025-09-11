@@ -115,4 +115,6 @@ def faq(request):
     return render(request, 'user/brandfiles/faq.html')
 
 def custom_404_view(request, exception=None):
+    if "siteadmin" in request.path:
+        return redirect('siteadmin')
     return redirect('login')

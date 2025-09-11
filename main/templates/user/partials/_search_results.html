@@ -65,6 +65,37 @@
         background-color: #2b6cb0;
     }
 
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view {
+            background: var(--color-secondary-bg);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-highlight);
+        }
+
+        .btn-view:hover {
+            background: var(--color-highlight);
+            color: white;
+        }
+
+        .btn-connect {
+            background: var(--color-accent-1);
+            color: white;
+            border: none;
+        }
+
+        .btn-connect:hover {
+            background: var(--color-accent-2);
+            color: var(--color-text-primary);
+        }
+
     @media (max-width: 480px) {
         .profile-card {
             padding: 16px;
@@ -82,28 +113,34 @@
     {% for profile in profiles %}
         <div class="profile-card">
             {% with first_pic=profile.user.pictures.first %}
-                    {% if first_pic %}
-                        <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-main-image">
+                {% if first_pic %}
+                    <img src="{{ first_pic.picture_url }}" alt="{{ profile.full_name }}" class="profile-main-image">
+                {% else %}
+                    {% if profile.gender == "Male" %}
+                        <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
+                             class="profile-main-image">
                     {% else %}
-                        {% if profile.gender == "Male" %}
-                            <img src="{{ DEFAULT_MALE_FALLBACK_URL }}" alt="Default Male Profile"
-                                 class="profile-main-image">
-                        {% else %}
-                            <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
-                                 class="profile-main-image">
-                        {% endif %}
+                        <img src="{{ DEFAULT_FEMALE_FALLBACK_URL }}" alt="Default Female Profile"
+                             class="profile-main-image">
                     {% endif %}
-                {% endwith %}
+                {% endif %}
+            {% endwith %}
 
+            <div class="profile-info">
                 <h3>{{ profile.full_name }}</h3>
                 <p><strong>{{ profile.profession }}</strong></p>
                 <p>📍 {{ profile.city }}</p>
                 <p>👤 {{ profile.age }}</p>
                 <p>{{ profile.education }}</p>
                 <p><em>{{ profile.bio|truncatechars:100 }}</em></p>
-            </a>
-            <a href="{% url 'send_request' profile.user.id %}" class="btn primary">Connect</a>
+            </div>
+
+            <div class="card-actions">
+                <a href="{% url 'profile_detail' profile.id %}" class="btn btn-view">View Profile</a>
+                <a href="{% url 'send_request' profile.user.id %}" class="btn btn-connect">Connect</a>
+            </div>
         </div>
+
     {% empty %}
         <p style="text-align: center; color: #999;">No matching profiles found.</p>
     {% endfor %}

@@ -189,13 +189,22 @@
             <div class="photo-grid">
                 {% for pic in pictures %}
                     <div class="photo-slot">
-                        <label class="upload-slot">
-                            <span class="plus-icon">+</span>
-                            <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
-                                   onchange="previewSlot(this)">
-                        </label>
+                        {% if pic %}
+                            <label class="upload-slot">
+                                <img src="{{ pic.picture_url }}" alt="User photo" class="photo-preview">
+                                <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
+                                       onchange="previewSlot(this)">
+                            </label>
+                        {% else %}
+                            <label class="upload-slot">
+                                <span class="plus-icon">+</span>
+                                <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
+                                       onchange="previewSlot(this)">
+                            </label>
+                        {% endif %}
                     </div>
                 {% endfor %}
+
             </div>
 
             <!-- Profile Fields -->
