@@ -19,6 +19,7 @@ urlpatterns = [
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("profile/<int:profile_id>/", views.profile_detail, name="profile_detail"),
 
+    path("profile/delete/picture/<int:picture_id>/", views.delete_picture, name="delete-picture"),
     # Search
     path("search/", views.search_view, name="search"),
 ]

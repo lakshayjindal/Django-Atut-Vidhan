@@ -98,6 +98,7 @@
         }
 
         .delete-btn {
+            text-decoration: none;
             position: absolute;
             top: 6px;
             right: 6px;
@@ -194,6 +195,7 @@
                                 <img src="{{ pic.picture_url }}" alt="User photo" class="photo-preview">
                                 <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
                                        onchange="previewSlot(this)">
+                                <a onclick="deleteSlot({{ pic.id }}, this)" class="delete-btn">X</a>
                             </label>
                         {% else %}
                             <label class="upload-slot">
@@ -277,8 +279,8 @@
 
         function deleteSlot(pictureId, btn) {
             if (!confirm("Delete this photo?")) return;
-
-            fetch(`/delete-picture/${pictureId}/`, {
+            let fetchUrl ="{% url 'delete-picture' 0 %}".replace(0, pictureId);
+            fetch(fetchUrl, {
                 method: "POST",
                 headers: {"X-CSRFToken": "{{ csrf_token }}"}
             }).then(res => {
