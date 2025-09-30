@@ -42,16 +42,16 @@ class Profile(models.Model):
     """
     GENDER_CHOICES = User.GENDER_CHOICES
     RELIGION_CHOICES = [
-        (1, 'Hindu'),
-        (2, 'Muslim'),
-        (3, 'Christian'),
-        (4, 'Sikh'),
-        (5, 'Other'),
+        ('Hindu', 'Hindu'),
+        ('Muslim', 'Muslim'),
+        ('Christian', 'Christian'),
+        ('Sikh', 'Sikh'),
+        ('Other', 'Other'),
     ]
     LOOKING_FOR_CHOICES = [
-        (1, 'Bride'),
-        (2, 'Groom'),
-        (3, 'Other'),
+        ('Bride', 'Bride'),
+        ('Groom', 'Groom'),
+        ('Other', 'Other'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -69,7 +69,7 @@ class Profile(models.Model):
     height = models.CharField(max_length=30, null=True, blank=True, db_index=True)
 
     # Cultural / Personal Background
-    religion = models.PositiveSmallIntegerField(choices=RELIGION_CHOICES, null=True, blank=True, db_index=True)
+    religion = models.CharField(choices=RELIGION_CHOICES, null=True, blank=True, db_index=True)
     caste = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     gotra = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     mother_tongue = models.CharField(max_length=100, null=True, blank=True, db_index=True)
@@ -81,11 +81,11 @@ class Profile(models.Model):
     occupation = models.CharField(max_length=100, null=True, blank=True, db_index=True)
 
     # Preferences
-    looking_for = models.PositiveSmallIntegerField(choices=LOOKING_FOR_CHOICES, null=True, blank=True, db_index=True)
+    looking_for = models.CharField(choices=LOOKING_FOR_CHOICES, null=True, blank=True, db_index=True)
     bio = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    marital_status = models.PositiveSmallIntegerField(
-        choices=[(1, 'Single'), (2, 'Married')],
+    marital_status = models.CharField(
+        choices=[('Single', 'Single'), ('Married', 'Married')],
         null=True, blank=True, db_index=True
     )
 
