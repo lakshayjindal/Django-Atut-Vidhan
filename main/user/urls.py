@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
 
-app_name = "user"  # Namespacing URLs
-
 urlpatterns = [
     # Auth
     path("", views.login_user, name="login"),
