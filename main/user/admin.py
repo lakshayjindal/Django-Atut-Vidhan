@@ -9,6 +9,7 @@ from django.utils.text import slugify
 import json
 from django.utils.safestring import mark_safe
 from . import utils
+from django.utils.html import format_html
 import datetime
 from datetime import date
 from django.contrib.auth.tokens import default_token_generator
@@ -305,7 +306,7 @@ class UploadImageForm(forms.Form):
 
 @admin.register(Picture)
 class PictureModelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'uploaded_at')
+    list_display = ('id', 'user', 'thumbnail' ,'uploaded_at')
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -313,8 +314,18 @@ class PictureModelAdmin(admin.ModelAdmin):
         ]
         return urls + my_urls
     
+    def thumbnail(self, obj):
+        if obj.picture_url:
+            return format_html(
+                '<img src="{}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;" />',
+                obj.picture_url
+            )
+        return "-"
+    thumbnail.short_description = "Preview"
+
     def upload_images(self, request):
         users = User.objects.all()
+
 
         if request.method == "POST":
             # Step 1: Handle image uploads
