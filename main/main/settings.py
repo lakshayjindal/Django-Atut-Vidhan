@@ -176,3 +176,22 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
+
+ALLOWED_HOSTS = [
+    "django-atut-vidhan-ao0y.onrender.com",
+    "atutvidhan.com",   # if you’re using your custom domain
+    ".onrender.com",    # wildcard for any other Render subdomains
+    "localhost",
+    "127.0.0.1",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://django-atut-vidhan-ao0y.onrender.com",
+    "https://atutvidhan.com",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# These can help if cookies aren't sticking, but keep them True in production:
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
