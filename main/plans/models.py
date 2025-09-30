@@ -22,16 +22,15 @@ class PremiumPlan(models.Model):
 
 
 class PlanFeature(models.Model):
-    plan = models.ForeignKey(PremiumPlan, related_name="features", on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)  # make features reusable
+    plans = models.ManyToManyField("PremiumPlan", related_name="features", blank=True)
 
     class Meta:
         verbose_name = "Plan Feature"
         verbose_name_plural = "Plan Features"
 
     def __str__(self):
-        return f"{self.plan.name} → {self.name}"
-
+        return self.name
 
 class UserSubscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="subscription")
@@ -67,3 +66,30 @@ class UserSubscription(models.Model):
         if self.is_active and self.end_date and self.end_date >= date.today():
             return True
         return False
+
+class Payment(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("success", "Success"),
+        ("failed", "Failed"),
+        ("review", "Under Review"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
+    plan = models.ForeignKey(PremiumPlan, on_delete=models.SET_NULL, null=True, blank=True, related_name="payments")
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True, help_text="UPI/Bank Transaction ID")
+    screenshot = models.URLField(blank=True, null=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Payment #{self.id} - {self.user.username} - {self.plan.name if self.plan else 'No Plan'}"
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Payment"
+        verbose_name_plural = "Payments"

@@ -1,7 +1,29 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from .models import CustomPage
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from plans.models import PremiumPlan
+from siteadmin.forms import PremiumPlanCreationForm
+
+
+@staff_member_required
+def create_premium_plan(request):
+    if request.method == "POST":
+        form = PremiumPlanCreationForm(request.POST)
+        if form.is_valid():
+            plan = form.save(commit=False)
+            plan.save()
+            form.save_m2m()  # Save the many-to-many relationship (features)
+
+            messages.success(request, f"Premium Plan '{plan.name}' was created successfully!")
+            return redirect("siteadmin_create_plan")  # Or to some admin dashboard
+    else:
+        form = PremiumPlanCreationForm()
+
+    return render(request, "siteadmin/create_premium_plan.html", {"form": form})
+
 
 def page_list(request):
     pages = CustomPage.objects.all()

@@ -4,137 +4,158 @@
 {% block title %}Premium Plans{% endblock %}
 
 {% block content %}
-<section class="premium-plans">
-  <div class="container">
-    <h1 class="section-title">Choose Your Premium Plan</h1>
-    <p class="section-subtitle">
-      Unlock exclusive features and connect more meaningfully.
-    </p>
+    <section class="premium-plans">
+        <div class="container">
+            <h1 class="section-title">Choose Your Premium Plan</h1>
+            <p class="section-subtitle">
+                Unlock exclusive features and connect more meaningfully with our premium subscriptions.
+            </p>
 
-    <div class="plans-grid">
-      {% for plan in plans %}
-      <div class="plan-card">
-        <h2 class="plan-name">{{ plan.name }}</h2>
-        <p class="plan-price">₹{{ plan.price }} / {{ plan.duration }} days</p>
+            <div class="plans-grid">
+                {% for plan in plans %}
+                    <div class="plan-card">
+                        <h2 class="plan-name">{{ plan.name }}</h2>
+                        <p class="plan-price">₹{{ plan.price }} / {{ plan.duration }} days</p>
+                        {% if plan.description %}
+                            <p class="plan-description">{{ plan.description }}</p>
+                        {% endif %}
 
-        <ul class="plan-features">
-          {% for feature in plan.features.all %}
-          <li>{{ feature.name }}</li>
-          {% empty %}
-          <li>No extra features listed</li>
-          {% endfor %}
-        </ul>
+                        <ul class="plan-features">
+                            {% for feature in plan.features.all %}
+                                <li>{{ feature.name }}</li>
+                            {% empty %}
+                                <li>No extra features listed</li>
+                            {% endfor %}
+                        </ul>
 
-        <a href="{% url 'subscribe_plan' plan.id %}" class="btn-subscribe">
-          Subscribe Now
-        </a>
-      </div>
-      {% empty %}
-      <p class="no-plans">No premium plans available at the moment.</p>
-      {% endfor %}
-    </div>
-  </div>
-</section>
 
-<style>
-  .premium-plans {
-    background: var(--color-primary-bg);
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
+                        {% if user_subscription and user_subscription.has_active_subscription %}
+                            <p class="current-subscription">You currently have an active subscription:
+                                <strong>{{ user_subscription.plan.name }}</strong></p>
+                        {% else %}
+                            <a href="{% url 'make_payment' plan.id %}" class="btn-subscribe">
+                                Subscribe Now
+                            </a>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="no-plans">No premium plans available at the moment.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
 
-  .premium-plans .section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 0.5rem;
-  }
+    <style>
+        .premium-plans {
+            background: var(--color-primary-bg);
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
 
-  .premium-plans .section-subtitle {
-    color: var(--color-text-secondary);
-    margin-bottom: 2.5rem;
-    font-size: 1.1rem;
-  }
+        .premium-plans .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
 
-  .plans-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    justify-items: center;
-  }
+        .premium-plans .section-subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
 
-  .plan-card {
-    background: var(--color-secondary-bg);
-    border: 1px solid var(--color-accent-2);
-    border-radius: 16px;
-    padding: 2rem 1.5rem;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            justify-items: center;
+        }
 
-  .plan-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
-  }
+        .plan-card {
+            background: var(--color-secondary-bg);
+            border: 1px solid var(--color-accent-2);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-  .plan-name {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--color-accent-1);
-    margin-bottom: 0.8rem;
-  }
+        .plan-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+        }
 
-  .plan-price {
-    font-size: 1.1rem;
-    color: var(--color-text-primary);
-    margin-bottom: 1.2rem;
-  }
+        .plan-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-accent-1);
+            margin-bottom: 0.8rem;
+        }
 
-  .plan-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem;
-    text-align: left;
-  }
+        .plan-price {
+            font-size: 1.1rem;
+            color: var(--color-text-primary);
+            margin-bottom: 1.2rem;
+        }
 
-  .plan-features li {
-    position: relative;
-    padding-left: 1.5rem;
-    margin-bottom: 0.75rem;
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-  }
+        .plan-description {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-secondary);
+        }
 
-  .plan-features li::before {
-    content: "✔";
-    color: var(--color-success);
-    font-size: 0.9rem;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem;
+            text-align: left;
+        }
 
-  .btn-subscribe {
-    display: inline-block;
-    background: var(--color-accent-1);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 30px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s ease;
-  }
+        .plan-features li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
 
-  .btn-subscribe:hover {
-    background: var(--color-highlight);
-    color: var(--color-text-primary);
-  }
+        .plan-features li::before {
+            content: "✔";
+            color: var(--color-success);
+            font-size: 0.9rem;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
 
-  .no-plans {
-    color: var(--color-text-secondary);
-    font-size: 1.1rem;
-  }
-</style>
+        .btn-subscribe {
+            display: inline-block;
+            background: var(--color-accent-1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .btn-subscribe:hover {
+            background: var(--color-highlight);
+            color: var(--color-text-primary);
+        }
+
+        .current-subscription {
+            font-weight: bold;
+            color: var(--color-success);
+            margin-top: 1rem;
+        }
+
+        .no-plans {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+    </style>
 {% endblock %}
