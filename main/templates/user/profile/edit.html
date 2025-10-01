@@ -87,7 +87,6 @@
         .slot-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
             border-radius: 16px;
         }
 
@@ -106,6 +105,7 @@
             color: #fff;
             border: none;
             border-radius: 50%;
+            text-align: center;
             width: 26px;
             height: 26px;
             font-size: 14px;
@@ -192,10 +192,10 @@
                     <div class="photo-slot">
                         {% if pic %}
                             <label class="upload-slot">
-                                <img src="{{ pic.picture_url }}" alt="User photo" class="photo-preview">
+                                <img src="{{ pic.picture_url }}" alt="User photo" class="photo-preview slot-image">
                                 <input type="file" name="photos_{{ forloop.counter0 }}" accept="image/*" hidden
                                        onchange="previewSlot(this)">
-                                <a onclick="deleteSlot({{ pic.id }}, this)" class="delete-btn">X</a>
+                                <a onclick="deleteSlot({{ pic.id }}, this)" class="delete-btn">✖</a>
                             </label>
                         {% else %}
                             <label class="upload-slot">
