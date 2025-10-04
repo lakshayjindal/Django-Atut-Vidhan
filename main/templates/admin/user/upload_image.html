@@ -1,3 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+
+
 <h2 class="upload-title">Upload Images</h2>
 <form method="post" enctype="multipart/form-data" class="upload-form">
   {% csrf_token %}
@@ -57,79 +61,86 @@
 
 <style>
 /* Headings */
+/* Titles */
 .upload-title, .map-title {
-  color: #D72638; /* Royal Rose */
-  font-family: "Georgia", serif;
-  margin-bottom: 12px;
+  color: var(--primary);
+  font-family: var(--font-family-secondary);
+  margin-bottom: var(--spacing);
   text-align: center;
+    font-size: 25px;
 }
 
 /* Forms */
 .upload-form, .mapping-form {
-  background: #FFF8F2; /* Ivory Blush */
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+  background: var(--darkened-bg);
+  padding: var(--spacing);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: var(--spacing);
+  color: var(--body-fg);
 }
 
 /* Divider */
 .divider {
   border: none;
-  border-top: 2px dashed #F4C95D; /* Golden Sand */
-  margin: 30px 0;
+  border-top: 2px dashed var(--secondary);
+  margin: calc(var(--spacing) * 2) 0;
 }
 
 /* File Input */
 .file-input {
   padding: 8px;
-  border: 2px solid #F4C95D;
-  border-radius: 6px;
-  background: #F9EFE3; /* Champagne Mist */
+  border: 2px solid var(--secondary);
+  border-radius: var(--border-radius);
+  background: var(--body-bg);
   margin-right: 10px;
+  color: var(--body-fg);
 }
 
 /* Buttons */
 .btn-primary {
-  background: #D72638; /* Royal Rose */
-  color: white;
+  background: var(--primary);
+  color: #fff;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: 0.3s;
+  font-family: var(--font-family-primary);
 }
 .btn-primary:hover {
-  background: #a51d2a;
+  background: var(--error);
 }
 
 .btn-success {
-  background: #5BA67A; /* Eucalyptus */
-  color: white;
+  background: var(--success);
+  color: #fff;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-weight: bold;
   cursor: pointer;
   transition: 0.3s;
+  font-family: var(--font-family-primary);
 }
 .btn-success:hover {
-  background: #4c8c66;
+  background: #3b8b58;
 }
 
 /* Table */
 .mapping-table {
   width: 100%;
   border-collapse: collapse;
-  background: #FFF8F2; /* Ivory Blush */
+  background: var(--darkened-bg);
+  color: var(--body-fg);
 }
 .mapping-table th {
-  background: #F4C95D; /* Golden Sand */
-  color: #2F2F2F; /* Charcoal Silk */
+  background: var(--secondary);
+  color: var(--header-bg);
   padding: 12px;
 }
 .mapping-table td {
-  border: 1px solid #F9EFE3; /* Champagne Mist */
+  border: 1px solid var(--border-color);
   padding: 12px;
   text-align: center;
 }
@@ -138,8 +149,8 @@
 .preview-img {
   max-height: 120px;
   max-width: 120px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   transition: transform 0.2s;
 }
 .preview-img:hover {
@@ -149,24 +160,26 @@
 /* Dropdown */
 .user-select {
   padding: 6px 10px;
-  border: 1px solid #7D6E63; /* Dusty Taupe */
-  border-radius: 6px;
-  background: #F9EFE3;
-  color: #2F2F2F;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--body-bg);
+  color: var(--body-fg);
+  font-family: var(--font-family-primary);
 }
 
 /* Radio */
 .radio-label {
-  font-size: 14px;
-  color: #7D6E63; /* Dusty Taupe */
+  font-size: var(--font-size-sm);
+  color: var(--body-quiet-color);
   cursor: pointer;
 }
 
 /* Actions */
 .actions {
-  margin-top: 20px;
+  margin-top: var(--spacing);
   text-align: right;
 }
+
 </style>
 
 <script>
@@ -184,3 +197,5 @@ document.querySelectorAll(".user-select").forEach(select => {
   });
 });
 </script>
+
+{% endblock %}

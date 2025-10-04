@@ -10,47 +10,74 @@
 {{ block.super }}
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
+   :root {
+  /* === Core Theme (shared across modes) === */
+  --primary: #D72638;   /* Royal Rose - primary actions, links */
+  --secondary: #F4C95D; /* Golden Sand - accents/warnings */
+  --accent: #FF7B5C;    /* Coral highlight */
+
+  /* === States === */
+  --success: #4CAF70;   /* Eucalyptus green */
+  --warning: #E6B84C;   /* Warm amber */
+  --error: #FF4C4C;     /* Bright red */
+
+  /* === Borders & Shadows === */
+  --border-radius: 6px;
+  --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+
+  /* === Fonts === */
+  --font-family-primary: 'Poppins', sans-serif;
+  --font-family-secondary: 'Playfair Display', serif;
+  --font-family-monospace: monospace;
+
+  --font-size: 14px;
+  --font-size-sm: 13px;
+  --font-size-lg: 16px;
+
+  /* === Spacing === */
+  --spacing: 16px;
+}
+
+/* 🌑 Dark Mode */
+   @media (prefers-color-scheme: dark) {
+       :root {
+           --body-bg: #1E1E1E; /* Rich dark gray */
+           --darkened-bg: #2A2A2A; /* Panels */
+           --header-bg: #252525;
+           --header-color: #FFFFFF;
+
+           --body-fg: #EAEAEA; /* Bright text */
+           --body-quiet-color: #9A9A9A; /* Muted gray */
+
+           --link-fg: #FF5C5C;
+           --link-hover-color: #FF8A8A;
+
+           --selected-bg: #3A1F22; /* Muted dark red */
+           --selected-fg: #FFFFFF;
+
+           --border-color: #3C3C3C;
+           --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+       }
+   }
+/* ☀️ Light Mode */
+@media (prefers-color-scheme: light) {
     :root {
-        /* Django admin CSS variable overrides using your color scheme */
+        --body-bg: #FFFFFF;       /* Pure white */
+        --darkened-bg: #FAFAFA;   /* Panels / forms */
+        --header-bg: #F5F5F5;
+        --header-color: #1E1E1E;
 
-        --secondary: #D72638; /* Matches your Royal Rose */
-        --primary: #F4C95D; /* Golden Sand */
-        --accent: #FFB7A1; /* Peach Bloom */
-        --body-bg: #FFF8F2; /* Ivory Blush */
-        --darkened-bg: #F9EFE3; /* Champagne Mist */
+        --body-fg: #2F2F2F;          /* Dark text */
+        --body-quiet-color: #6C6C6C; /* Muted gray */
 
-        --header-color: #FFF;
-        --body-fg: #2F2F2F; /* Charcoal Silk */
-        --body-quiet-color: #7D6E63; /* Dusty Taupe */
         --link-fg: #D72638;
-        --link-hover-color: #B91C28;
+        --link-hover-color: #FF5C5C;
 
-        --selected-bg: #FFB7A1; /* Highlighted rows */
+        --selected-bg: #FFF2F2;   /* Light red wash */
         --selected-fg: #2F2F2F;
 
-        --success: #5BA67A;
-        --warning: #F4C95D;
-        --error: #D72638;
-
-        /* Fonts */
-        --font-family-primary: 'Poppins', sans-serif;
-        --font-family-secondary: 'Playfair Display', serif;
-        --font-family-monospace: monospace;
-
-        --font-size: 14px;
-        --font-size-sm: 13px;
-        --font-size-lg: 16px;
-
-        /* Border radius and shadow */
-        --border-radius: 12px;
-        --border-color: #e6cfc4;
-
-        /* Spacing (optional override) */
-        --spacing: 16px;
-
-        /* Shadows */
-        --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        --border-color: #E0E0E0;
+        --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-
 </style>
 {% endblock %}
