@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
 
+cd main
+
 echo "📦 Collecting static files..."
 python manage.py collectstatic --noinput
 
