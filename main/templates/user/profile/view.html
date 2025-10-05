@@ -185,9 +185,9 @@
                 </div>
             </div>
 
-            {% if profile.pictures.all %}
+            {% if profile.user.pictures.all %}
                 <div class="photo-gallery">
-                    {% for pic in profile.pictures.all %}
+                    {% for pic in profile.user.pictures.all %}
                         <img src="{{ pic.picture_url }}" alt="Photo {{ forloop.counter }}">
                     {% endfor %}
                 </div>
