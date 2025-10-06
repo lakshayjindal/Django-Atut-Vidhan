@@ -1,0 +1,10 @@
+[build]
+builder = "Nixpacks"
+
+[build.env]
+PYTHON_VERSION = "3.11"
+
+[deploy]
+startCommand = "./start.sh"
+healthcheckPath = "/"
+healthcheckTimeout = 60
