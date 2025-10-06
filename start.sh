@@ -1,13 +1,12 @@
-#!/usr/bin/env bash
-set -o errexit
+#!/bin/bash
+set -e
 
-cd main
-
-echo "📦 Collecting static files..."
-python manage.py collectstatic --noinput
-
-echo "🧩 Applying migrations..."
+echo "Applying database migrations..."
 python manage.py migrate --noinput
 
-echo "🚀 Starting Daphne ASGI server..."
-daphne -b 0.0.0.0 -p $PORT main.asgi:application
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+
+echo "Starting Daphne ASGI server..."
+# Use the port provided by Railway
+exec daphne -b 0.0.0.0 -p ${PORT:-8000} main.asgi:application
