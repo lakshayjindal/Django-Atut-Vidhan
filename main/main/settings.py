@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-j73yrt8#0*c7m&dqno$_4$6l%90r%bn03_blq02l*0fa9rbkvd
 DEBUG = True
 
 ALLOWED_HOSTS = ["https://django-atut-vidhan-ao0y.onrender.com", ".onrender.com", "atutvidhan.com", "localhost", '127.0.0.1']
+ALLOWED_HOSTS += ["*", os.getenv("RAILWAY_STATIC_URL", ""), os.getenv("RAILWAY_URL", "")]
 
 # Application definition
 
@@ -177,13 +178,7 @@ CHANNEL_LAYERS = {
     }
 }
 
-ALLOWED_HOSTS = [
-    "django-atut-vidhan-ao0y.onrender.com",
-    "atutvidhan.com",   # if you’re using your custom domain
-    ".onrender.com",    # wildcard for any other Render subdomains
-    "localhost",
-    "127.0.0.1",
-]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://django-atut-vidhan-ao0y.onrender.com",
@@ -195,3 +190,4 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # These can help if cookies aren't sticking, but keep them True in production:
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
