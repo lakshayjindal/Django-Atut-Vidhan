@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http.response import HttpResponse
 from django.urls import path, include
 from . import views
 from django.conf.urls.static import static
@@ -22,7 +23,13 @@ from django.conf import settings
 from django.http import HttpResponseNotFound
 from django.urls import path, re_path
 
+
+def healthcheck(request):
+    return HttpResponse('OK', status=200)
+
+
 urlpatterns = [
+                  path('health/', healthcheck),
                   path('siteadmin/', admin.site.urls, name='siteadmin'),
                   path('', views.entry_user, name='homepage'),
                   path('customMadeAdmin/', include('siteadmin.urls')),

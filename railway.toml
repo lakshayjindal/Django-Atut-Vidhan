@@ -5,6 +5,6 @@ builder = "Nixpacks"
 PYTHON_VERSION = "3.11"
 
 [deploy]
-startCommand = "./start.sh"
-healthcheckPath = "/"
+startCommand = "bash ./start.sh"
+healthcheckPath = "/health/"
 healthcheckTimeout = 60
