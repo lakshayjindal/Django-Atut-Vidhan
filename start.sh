@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd main
+
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
