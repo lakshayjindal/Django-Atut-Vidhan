@@ -8,4 +8,4 @@ echo "🧩 Applying migrations..."
 python manage.py migrate --noinput
 
 echo "🚀 Starting Daphne ASGI server..."
-daphne -b 0.0.0.0 -p ${PORT:-8080} main.asgi:application
+daphne -b 0.0.0.0 -p 8000 main.asgi:application
