@@ -1,9 +1,8 @@
 [build]
-builder = "Nixpacks"
+builder = "Railpack"
 
 [build.env]
 PYTHON_VERSION = "3.11"
 
 [deploy]
 startCommand = "bash ./start.sh"
-
