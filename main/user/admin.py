@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin
 from .models import *
+from email_utils import *
 from django import forms
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path
@@ -85,9 +86,7 @@ def send_link(modeladmin, request, queryset):
         """
 
         # Build + send email
-        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        send_brevo_email(subject, text_content, from_email, to, html_content)
 
         sent_count += 1
 

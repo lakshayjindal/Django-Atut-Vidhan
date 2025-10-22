@@ -15,10 +15,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
 from connect.models import ConnectionRequest
 import random
+from email_utils import *
 from django.http import JsonResponse
 from django.urls import reverse
 import string
 import mimetypes
+from utils import upload_to_supabase, generate_unique_username, generate_username
 import re
 from .models import Picture, Profile
 from datetime import date, datetime
@@ -39,9 +41,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 
 User = get_user_model()
-SUPABASE_URL = "https://krtiayhjqgtsruzboour.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtydGlheWhqcWd0c3J1emJvb3VyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA0NjQ0NywiZXhwIjoyMDY4NjIyNDQ3fQ.W-d9QUi65k6C3MCyn97qhTJInkikVKLU1_NAJgODds0"
-SUPABASE_BUCKET = "media"
+
 
 # create client once (already done in original)
 supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
@@ -113,24 +113,6 @@ def login_user(request):
     return render(request, 'user/auth/login.html')
 
 
-def generate_username(first_name, last_name):
-    """Generate a random username based on parts of first/last name and digits."""
-    first_part = (first_name[:2].lower() if first_name else "")
-    last_part = (last_name[-2:].lower() if last_name else "")
-    random_digits = ''.join(random.choices(string.digits, k=8))
-    return f"user{first_part}{last_part}{random_digits}"
-
-
-def generate_unique_username(first_name, last_name):
-    """ Generate a unique username by attempting random combinations. Falls back to UUID-based username if collisions occur. """
-    # Try a few times then fallback to uuid-based unique username
-    for _ in range(5):
-        username = generate_username(first_name, last_name)
-        if not User.objects.filter(username=username).exists():
-            return username
-    return f"user{uuid.uuid4().hex[:10]}"
-
-
 def signup_user(request):
     """
     Handle new user registration:
@@ -174,22 +156,6 @@ def signup_user(request):
     return render(request, "user/auth/signup.html")
 
 
-def send_otp_email(user):
-    """Send a styled OTP email to the given user using HTML + text content."""
-    subject = "✨ Welcome to Atut Vidhan – Your OTP to Begin Your Journey"
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email = [user.email]
-
-    html_content = render_to_string("emails/otp_email.html", {
-        "user": user,
-        "otp": user.email_otp,
-    })
-    text_content = strip_tags(html_content)
-
-    email = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-    email.attach_alternative(html_content, "text/html")
-    email.send()
-
 
 def calculate_age(dob_str):
     """Calculate age in years from a YYYY-MM-DD date string. Return None if invalid."""
@@ -207,118 +173,13 @@ def calculate_age(dob_str):
         - ((today.month, today.day) < (dob.month, dob.day))
     )
 
-
 @login_required
-def complete_user(request):
-    """
-    Handle profile completion:
-    - Uploads profile image to Supabase
-    - Updates User minimal fields (full_name, gender, age)
-    - Updates or creates Profile with additional info
-    - Redirects to dashboard on success
-    """
-    if request.method == "POST":
-        user = request.user
+def delete_picture(request, picture_id):
+    """Delete a user-owned Picture object via AJAX and return JSON response."""
+    picture = get_object_or_404(Picture, id=picture_id, user=request.user)
+    picture.delete()
+    return JsonResponse({"success": True})
 
-        # Profile Image
-        profile_image = request.FILES.get("profile_image")
-        if profile_image:
-            # upload_to_supabase will return a public URL
-            profile_image_url = upload_to_supabase(profile_image)
-            Picture.objects.create(
-                user=user,
-                profile_image_url=profile_image_url,
-                is_profile=True
-            )
-
-        # Basic Inputs
-        full_name = (request.POST.get("full_name") or "").strip()
-        phone1 = normalize_phone(request.POST.get("phone1"))
-        phone2 = normalize_phone(request.POST.get("phone2"))
-
-        # handle dropdowns with 'other' concisely
-        def _get_field(base):
-            val = request.POST.get(base)
-            if val == "other":
-                return request.POST.get(f"{base}_other")
-            return val
-
-        mother_tongue = _get_field("mother_tongue")
-        gender = _get_field("gender")
-        religion = _get_field("religion")
-        education = _get_field("education")
-        income = _get_field("income")
-        profession = _get_field("profession")
-        state = _get_field("state")
-        country = _get_field("country")
-
-        # Remaining Fields
-        dob = request.POST.get("dob")
-        occupation = request.POST.get("occupation")
-        caste = (request.POST.get("caste") or "").strip()
-        gotra = (request.POST.get("gotra") or "").strip()
-        city = request.POST.get("city")
-        bio = (request.POST.get("bio") or "").strip()
-        looking_for = request.POST.get("looking_for")
-
-        age = calculate_age(dob)
-        if age is None and dob:
-            # invalid dob format; ignore age but still store dob raw or handle appropriately
-            age = None
-
-        # Update User object minimally
-        user_changed = False
-        if getattr(user, "full_name", "") != full_name:
-            user.full_name = full_name
-            user_changed = True
-        if getattr(user, "user_gender", "") != gender:
-            user.user_gender = gender
-            user_changed = True
-        if age is not None and getattr(user, "age", None) != age:
-            user.age = age
-            user_changed = True
-        if user_changed:
-            # Save only the changed fields
-            user.save(update_fields=[f for f in ["full_name", "user_gender", "age"] if hasattr(user, f)])
-
-        # Get or create profile and bulk update fields then save with update_fields
-        profile, created = Profile.objects.get_or_create(user=user)
-
-        profile_fields = {
-            "full_name": full_name,
-            "phone1": phone1,
-            "phone2": phone2,
-            "date_of_birth": dob,
-            "gender": gender,
-            "religion": religion,
-            "education": education,
-            "occupation": occupation,
-            "income": income,
-            "state": state,
-            "city": city,
-            "mother_tongue": mother_tongue,
-            "profession": profession,
-            "looking_for": looking_for or get_opposite_gender(gender),
-            "caste": caste,
-            "gotra": gotra,
-            "bio": bio,
-            "country": country,
-            "age": age,
-        }
-
-        # Assign fields and build update_fields list
-        update_fields = []
-        for key, value in profile_fields.items():
-            if getattr(profile, key, None) != value:
-                setattr(profile, key, value)
-                update_fields.append(key)
-
-        if update_fields:
-            profile.save(update_fields=update_fields)
-
-        return redirect("user_dashboard")
-
-    return render(request, "user/complete_profile.html")
 
 
 def logout_user(request):
@@ -449,55 +310,126 @@ def profile_detail(request, profile_id):
     return render(request, 'user/profile_detail.html', context)
 
 
-def upload_to_supabase(file, folder="profile_images"):
+@login_required
+def complete_user(request):
     """
-    Uploads a file-like object or a path-string to Supabase and returns a public URL.
-    Attempts to minimize memory use for common Django UploadedFile objects.
-
+    Handle profile completion:
+    - Uploads profile image to Supabase
+    - Updates User minimal fields (full_name, gender, age)
+    - Updates or creates Profile with additional info
+    - Redirects to dashboard on success
     """
+    if request.method == "POST":
+        user = request.user
 
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        raise RuntimeError("Supabase URL or Key not set")
+        # Profile Image
+        profile_image = request.FILES.get("profile_image")
+        if profile_image:
+            # upload_to_supabase will return a public URL
+            profile_image_url = upload_to_supabase(profile_image)
+            Picture.objects.create(
+                user=user,
+                profile_image_url=profile_image_url,
+                is_profile=True
+            )
 
-    # Generate unique filename with extension
-    if isinstance(file, UploadedFile):
-        file_ext = file.name.split('.')[-1] if '.' in file.name else 'bin'
-        unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
-        # If file.chunks() exists (large files), stream into bytes to avoid huge memory spike
-        try:
-            # many Django uploaded files support chunks(); this avoids reading whole content at once
-            chunks = []
-            for chunk in file.chunks():
-                chunks.append(chunk)
-            file_bytes = b"".join(chunks)
-        except Exception:
-            # fallback - small files often support .read()
-            file.seek(0)
-            file_bytes = file.read()
-        content_type = getattr(file, "content_type", None) or "application/octet-stream"
+        # Basic Inputs
+        full_name = (request.POST.get("full_name") or "").strip()
+        phone1 = normalize_phone(request.POST.get("phone1"))
+        phone2 = normalize_phone(request.POST.get("phone2"))
 
-    elif isinstance(file, str):
-        file_ext = file.split('.')[-1] if '.' in file else 'bin'
-        unique_filename = f"{folder}/{uuid.uuid4()}.{file_ext}"
-        with open(file, "rb") as f:
-            file_bytes = f.read()
-        content_type, _ = mimetypes.guess_type(file)
-        if not content_type:
-            content_type = "application/octet-stream"
+        # handle dropdowns with 'other' concisely
+        def _get_field(base):
+            val = request.POST.get(base)
+            if val == "other":
+                return request.POST.get(f"{base}_other")
+            return val
 
-    else:
-        raise ValueError("Invalid file type passed to upload_to_supabase")
+        mother_tongue = _get_field("mother_tongue")
+        gender = _get_field("gender")
+        religion = _get_field("religion")
+        education = _get_field("education")
+        income = _get_field("income")
+        profession = _get_field("profession")
+        state = _get_field("state")
+        country = _get_field("country")
 
-    # Upload to Supabase (SDK currently expects bytes)
-    try:
-        supabase.storage.from_(SUPABASE_BUCKET).upload(
-            unique_filename, file_bytes, {"content-type": content_type}
-        )
-    except Exception as e:
-        # bubble up clear error for easier debugging
-        raise RuntimeError(f"Supabase upload error: {str(e)}")
+        # Remaining Fields
+        dob = request.POST.get("dob")
+        occupation = request.POST.get("occupation")
+        caste = (request.POST.get("caste") or "").strip()
+        gotra = (request.POST.get("gotra") or "").strip()
+        city = request.POST.get("city")
+        bio = (request.POST.get("bio") or "").strip()
+        looking_for = request.POST.get("looking_for")
 
-    return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(unique_filename)
+        age = calculate_age(dob)
+        if age is None and dob:
+            # invalid dob format; ignore age but still store dob raw or handle appropriately
+            age = None
+
+        # Update User object minimally
+        # user_changed = False
+        # if getattr(user, "full_name", "") != full_name:
+        #     user.full_name = full_name
+        #     user_changed = True
+        # if getattr(user, "user_gender", "") != gender:
+        #     user.user_gender = gender
+        #     user_changed = True
+        # if age is not None and getattr(user, "age", None) != age:
+        #     user.age = age
+        #     user_changed = True
+        # if user_changed:
+        #     # Save only the changed fields
+        #     user.save(update_fields=[f for f in ["full_name", "user_gender", "age"] if hasattr(user, f)])
+
+        # Get or create profile and bulk update fields then save with update_fields
+        profile, created = Profile.objects.get_or_create(user=user)
+
+        profile_fields = {
+            "full_name": full_name,
+            "phone1": phone1,
+            "phone2": phone2,
+            "date_of_birth": dob,
+            "gender": gender,
+            "religion": religion,
+            "education": education,
+            "occupation": occupation,
+            "income": income,
+            "state": state,
+            "city": city,
+            "mother_tongue": mother_tongue,
+            "profession": profession,
+            "looking_for": looking_for or get_opposite_gender(gender),
+            "caste": caste,
+            "gotra": gotra,
+            "bio": bio,
+            "country": country,
+            "age": age,
+        }
+
+        # Assign fields and build update_fields list
+        update_fields = []
+        for key, value in profile_fields.items():
+            if getattr(profile, key, None) != value:
+                setattr(profile, key, value)
+                update_fields.append(key)
+
+        if update_fields:
+            profile.save(update_fields=update_fields)
+
+        return redirect("user_dashboard")
+
+    return render(request, "user/complete_profile.html")
+
+
+def get_opposite_gender(gender):
+    """Return opposite gender string. Defaults to 'Other' if unknown."""
+    if gender == "Female":
+        return "Male"
+    if gender == "Male":
+        return "Female"
+    return "Other"
 
 
 def verify_otp_view(request):
@@ -538,15 +470,6 @@ def verify_otp_view(request):
             messages.error(request, "Incorrect OTP. Please try again.")
 
     return render(request, "user/auth/verify_otp.html", {"email": user.email})
-
-
-def get_opposite_gender(gender):
-    """Return opposite gender string. Defaults to 'Other' if unknown."""
-    if gender == "Female":
-        return "Male"
-    if gender == "Male":
-        return "Female"
-    return "Other"
 
 
 def forgot_password_view(request):
@@ -607,9 +530,7 @@ def forgot_password_view(request):
             </div>
             """
 
-            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
+            send_brevo_email(subject, text_content, from_email, to, html_content )
 
         messages.success(request, "If that email exists, a reset link has been sent.")
         return redirect('login')
@@ -665,9 +586,7 @@ def reset_password_view(request, uidb64, token):
                 </div>
                 """
 
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
+                send_brevo_email(subject, text_content, from_email, to, html_content)
 
                 return redirect("login")
             else:
@@ -677,12 +596,6 @@ def reset_password_view(request, uidb64, token):
         return render(request, "user/auth/reset_password.html", {"valid": False})
 
 
-@login_required
-def delete_picture(request, picture_id):
-    """Delete a user-owned Picture object via AJAX and return JSON response."""
-    picture = get_object_or_404(Picture, id=picture_id, user=request.user)
-    picture.delete()
-    return JsonResponse({"success": True})
 
 
 def magic_login(request, uidb64, token):
@@ -704,3 +617,19 @@ def magic_login(request, uidb64, token):
     else:
         messages.error(request, "This login link is invalid or has expired.")
         return redirect("login")
+
+
+def send_otp_email(user):
+    """Send a styled OTP email to the given user using HTML + text content."""
+    subject = "✨ Welcome to Atut Vidhan – Your OTP to Begin Your Journey"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [user.email]
+
+    html_content = render_to_string("emails/otp_email.html", {
+        "user": user,
+        "otp": user.email_otp,
+    })
+    text_content = strip_tags(html_content)
+
+    send_brevo_email(subject, text_content, from_email, to, html_content)
+

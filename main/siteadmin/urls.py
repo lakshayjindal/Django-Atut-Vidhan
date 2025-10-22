@@ -7,4 +7,5 @@ urlpatterns = [
     path('pages/create/', views.page_create, name='custom_page_create'),
     path('pages/<int:pk>/edit/', views.page_edit, name='custom_page_edit'),
     path('<slug:slug>/', views.page_render, name='custom_page_render'),
+    path('email/test', views.email_test, name='email_test'),
 ]

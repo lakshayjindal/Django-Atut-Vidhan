@@ -57,3 +57,22 @@ def page_create(request):
         return redirect('custom_page_edit', pk=page.pk)
 
     return render(request, 'siteadmin/page_create.html')
+
+
+def email_test(request):
+    if request.method == "POST":
+        to = request.POST.get('to', '')
+        cc = request.POST.get('cc', '')
+        bcc=request.POST.get('bcc', '')
+        subject = request.POST.get('subject', '')
+        body = request.POST.get('body', '')
+
+        if to == '' or cc == '' or bcc == '' or subject == '':
+            return "failed"
+
+
+def mailFunction(to, cc, bcc, subject, body):
+    import brevo_python
+    from brevo_python.rest import ApiException
+    configuration = brevo_python.Configuration()
+    configuration.api_key['X-Auth-Key'] = to

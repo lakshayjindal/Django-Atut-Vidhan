@@ -23,7 +23,7 @@ class User(AbstractUser):
         blank=True,
         db_index=True
     )
-
+    is_verified = models.BooleanField(default=False)
     email_otp = models.CharField(max_length=6, blank=True, null=True)
     otp_sent_at = models.DateTimeField(null=True, blank=True)
 
@@ -69,7 +69,7 @@ class Profile(models.Model):
     height = models.CharField(max_length=30, null=True, blank=True, db_index=True)
 
     # Cultural / Personal Background
-    religion = models.CharField(choices=RELIGION_CHOICES, null=True, blank=True, db_index=True)
+    religion = models.CharField(max_length=20,choices=RELIGION_CHOICES, null=True, blank=True, db_index=True)
     caste = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     gotra = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     mother_tongue = models.CharField(max_length=100, null=True, blank=True, db_index=True)
@@ -81,10 +81,10 @@ class Profile(models.Model):
     occupation = models.CharField(max_length=100, null=True, blank=True, db_index=True)
 
     # Preferences
-    looking_for = models.CharField(choices=LOOKING_FOR_CHOICES, null=True, blank=True, db_index=True)
+    looking_for = models.CharField(choices=LOOKING_FOR_CHOICES, null=True, blank=True, db_index=True, max_length=20)
     bio = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    marital_status = models.CharField(
+    marital_status = models.CharField(max_length=20,
         choices=[('Single', 'Single'), ('Married', 'Married')],
         null=True, blank=True, db_index=True
     )
