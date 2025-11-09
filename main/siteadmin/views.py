@@ -60,19 +60,14 @@ def page_create(request):
 
 
 def email_test(request):
-    if request.method == "POST":
-        to = request.POST.get('to', '')
-        cc = request.POST.get('cc', '')
-        bcc=request.POST.get('bcc', '')
-        subject = request.POST.get('subject', '')
-        body = request.POST.get('body', '')
+    import resend
+    resend.api_key = "re_9DT1UEmJ_2rGgUnoRVn98CwLSNrdqMo8b"
 
-        if to == '' or cc == '' or bcc == '' or subject == '':
-            return "failed"
-
-
-def mailFunction(to, cc, bcc, subject, body):
-    import brevo_python
-    from brevo_python.rest import ApiException
-    configuration = brevo_python.Configuration()
-    configuration.api_key['X-Auth-Key'] = to
+    params: resend.Emails.SendParams = {
+        "from": "pro.soci.app@gmail.com",
+        "to": "pro.soci.app@gmail.com",
+        "subject": "Hello World",
+        "html": "<p>Congrats on sending your <strong>first email</strong>!</p>"
+    }
+    email = resend.Emails.send(params)
+    return email

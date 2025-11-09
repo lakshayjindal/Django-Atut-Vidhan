@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin
 from .models import *
-from email_utils import *
+from .email_utils import *
 from django import forms
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import path

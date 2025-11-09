@@ -15,12 +15,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
 from connect.models import ConnectionRequest
 import random
-from email_utils import *
+from .email_utils import  *
 from django.http import JsonResponse
 from django.urls import reverse
 import string
 import mimetypes
-from utils import upload_to_supabase, generate_unique_username, generate_username
+from .utils import upload_to_supabase, generate_unique_username, generate_username
 import re
 from .models import Picture, Profile
 from datetime import date, datetime
@@ -30,7 +30,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.files.storage import default_storage
 from .forms import ProfileForm
 import uuid
-from supabase import Client, create_client
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
@@ -44,7 +43,6 @@ User = get_user_model()
 
 
 # create client once (already done in original)
-supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
 
 # Precompiled regexes to avoid recompiling on each request
 _EMAIL_RE = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -530,9 +528,13 @@ def forgot_password_view(request):
             </div>
             """
 
-            send_brevo_email(subject, text_content, from_email, to, html_content )
-
-        messages.success(request, "If that email exists, a reset link has been sent.")
+            helper = EmailHelper()
+            result = helper.send_email(
+                subject=subject,
+                to=user.email,
+                html_content=html_content,
+            )
+            messages.success(request, "If that email exists, a reset link has been sent.")
         return redirect('login')
 
     return render(request, "user/auth/forgot_password.html")
@@ -631,5 +633,5 @@ def send_otp_email(user):
     })
     text_content = strip_tags(html_content)
 
-    send_brevo_email(subject, text_content, from_email, to, html_content)
+    send_brevo_email(subject, text_content, from_email, to_email, html_content)
 

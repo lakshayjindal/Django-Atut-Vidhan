@@ -1,39 +1,74 @@
-# utils/email_utils.py
-
-from brevo_python import Configuration, ApiClient
-from brevo_python.api.transactional_emails_api import TransactionalEmailsApi
-from brevo_python.models.send_smtp_email import SendSmtpEmail
+import resend
+import threading
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.html import strip_tags
 
-def send_brevo_email(subject, text_content, from_email, to_list, html_content=None):
+
+class EmailHelper:
     """
-    A drop-in replacement for Django's EmailMultiAlternatives using Brevo API.
-    Example:
-        send_brevo_email(subject, text, from_email, [to_email], html_content)
+    Helper class for sending transactional emails via Resend API.
+    Runs async in a separate thread to avoid blocking request flow.
     """
-    # Configure Brevo client
-    config = Configuration()
-    config.api_key['api-key'] = settings.BREVO_API_KEY
 
-    with ApiClient(config) as api_client:
-        api_instance = TransactionalEmailsApi(api_client)
+    def __init__(self):
+        self.api_key = getattr(settings, "RESEND_API_KEY", None)
+        if not self.api_key:
+            raise ImproperlyConfigured("RESEND_API_KEY not found in Django settings.")
+        resend.api_key = self.api_key
 
-        # Build Brevo email payload
-        to_emails = [{"email": email} for email in to_list]
-        sender_info = {"email": from_email, "name": "Atut Vidhan"}
+    def send_email(
+        self,
+        subject: str,
+        to,
+        html_content: str,
+        text_content: str = None,
+        from_name: str = "Atut Vidhan",
+        from_email: str = None,
+        async_send: bool = True,
+    ):
+        from_email = "no-reply@lakshayjindal.xyz"
+        """
+        Send an email using Resend API.
 
-        email_data = SendSmtpEmail(
-            sender=sender_info,
-            to=to_emails,
-            subject=subject,
-            html_content=html_content or text_content,
-            text_content=text_content,
-        )
+        Args:
+            subject (str): Subject line
+            to (str | list): Recipient(s)
+            html_content (str): HTML email body
+            text_content (str): Plain text fallback (auto-generated if None)
+            from_name (str): Sender display name
+            from_email (str): Sender address (default = settings.DEFAULT_FROM_EMAIL)
+            async_send (bool): Send asynchronously (True by default)
+        """
 
-        try:
-            response = api_instance.send_transac_email(email_data)
-            print("✅ Email sent successfully via Brevo:", response)
-            return True
-        except Exception as e:
-            print("❌ Brevo email sending failed:", e)
-            return False
+        if isinstance(to, str):
+            to = [to]
+
+        sender_email = from_email or getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@yourdomain.com")
+        sender = f"{from_name} <{sender_email}>"
+
+        # fallback text if not given
+        text_content = text_content or strip_tags(html_content)
+
+        params = {
+            "from": sender,
+            "to": to,
+            "subject": subject,
+            "html": html_content,
+            "text": text_content,
+        }
+
+        def _send():
+            try:
+                email = resend.Emails.send(params)
+                print(f"[Resend] ✅ Sent to {to}: {email.get('id', 'no-id')}")
+                return {"success": True, "id": email.get("id"), "to": to}
+            except Exception as e:
+                print(f"[Resend] ❌ Error sending email: {e}")
+                return {"success": False, "error": str(e)}
+
+        if async_send:
+            threading.Thread(target=_send, daemon=True).start()
+            return {"success": True, "async": True}
+        else:
+            return _send()

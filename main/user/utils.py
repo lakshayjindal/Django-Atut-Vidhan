@@ -5,11 +5,15 @@ import re
 import uuid
 import string
 from django.contrib.auth import get_user_model
+from supabase import Client, create_client
 
 User = get_user_model()
 SUPABASE_URL = "https://krtiayhjqgtsruzboour.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtydGlheWhqcWd0c3J1emJvb3VyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA0NjQ0NywiZXhwIjoyMDY4NjIyNDQ3fQ.W-d9QUi65k6C3MCyn97qhTJInkikVKLU1_NAJgODds0"
 SUPABASE_BUCKET = "media"
+
+supabase: Client = create_client(supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
+
 
 def generate_username(first_name, last_name):
     """Generate a random username based on parts of first/last name and digits."""
